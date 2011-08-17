@@ -9,9 +9,10 @@ static short r,g,b;
 
 static void
 output(WINDOW *w){
-	assert(wattron(w,A_BOLD | COLOR_PAIR(1)) == OK);
+	wclear(w);
+	assert(wattrset(w,A_DIM | COLOR_PAIR(1)) == OK);
 	assert(mvwprintw(w,1,1,"Hello world\n") == OK);
-	assert(wattroff(w,A_BOLD) == OK);
+	assert(wattrset(w,COLOR_PAIR(1)) == OK);
 	assert(mvwprintw(w,2,1,"Hello world\n") == OK);
 	assert(mvwprintw(w,3,1,"r/g/b: %hd %hd %hd\n",r,g,b) == OK);
 	wrefresh(w);
@@ -30,13 +31,17 @@ int main(void){
 	assert(canchange);
 	assert(init_pair(1,OUTCOLOR,COLOR_BLACK) == OK);
 	assert(color_content(OUTCOLOR,&r,&g,&b) == OK);
+	if(r) r = 1000;
+	if(g) g = 1000;
+	if(b) b = 1000;
 	while(r || g || b){
 		output(scr);
-		usleep(20000);
+		usleep(10000);
 		if(r) --r;
 		if(g) --g;
 		if(b) --b;
-		init_color(OUTCOLOR,r,g,1000);
+		init_color(OUTCOLOR,r,g,b);
+		assert(color_content(OUTCOLOR,&r,&g,&b) == OK);
 	}
 	assert(endwin() == OK);
 	return EXIT_SUCCESS;
