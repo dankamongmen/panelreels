@@ -41,7 +41,6 @@ int main(void){
 		if(g) --g;
 		if(b) --b;
 		init_color(OUTCOLOR,r,g,b);
-		assert(color_content(OUTCOLOR,&r,&g,&b) == OK);
 	}
 	assert(endwin() == OK);
 	return EXIT_SUCCESS;
