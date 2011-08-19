@@ -55,13 +55,8 @@ int main(void){
 		if((b -= 10) < 0){
 			b = 0;
 		}
-		if(b / 10 % 2){
-			init_color(OUTCOLOR,r,g,b);
-			assert(init_pair(1,OUTCOLOR,-1) == OK);
-		}else{
-			init_color(OUTCOLOR2,r,g,b);
-			assert(init_pair(1,OUTCOLOR2,-1) == OK);
-		}
+		init_color(OUTCOLOR,r,g,b);
+		assert(init_pair(1,OUTCOLOR,-1) == OK);
 	}
 	assert(endwin() == OK);
 	return EXIT_SUCCESS;
