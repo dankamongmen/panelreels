@@ -7,8 +7,8 @@ ncurses source. You might need to rebuild it to take advantage of all features,
 but this is unlikely if you're using your distro's ncurses package. Make sure
 that the "wide" version of Ncurses is available.
 
-I. Palette fades
-II. Panel wheels
+I. Panel wheels
+II. Palette fades
 
 I. Panel wheels
 ---------------
