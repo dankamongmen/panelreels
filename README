@@ -1,11 +1,16 @@
-dankcurses by Nick Black <dankamongmen@gmail.com>
--------------------------------------------------
+outcurses by Nick Black <dankamongmen@gmail.com>
+------------------------------------------------
 
-dankcurses is an extension to NCurses by Thomas Dickey et al, in the spirit of
+Outcurses is an extension to NCURSES by Thomas Dickey et al, in the spirit of
 the Panels, Menu, and Forms extensions. It does not require patching the
-ncurses source. You might need to rebuild it to take advantage of all features,
-but this is unlikely if you're using your distro's ncurses package. Make sure
-that the "wide" version of Ncurses is available.
+NCURSES source. You might need to rebuild it to take advantage of all features,
+but this is unlikely if you're using your distro's NCURSES package. Make sure
+that the "wide" version (NCURSESW) is available.
+
+* Building
+
+NCURSES 6.1 or newer with wide character support is required.
+CMake 3.15 or newer is required. Chant the standard incantations.
 
 I. Panel wheels
 II. Palette fades
