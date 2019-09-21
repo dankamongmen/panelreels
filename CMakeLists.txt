@@ -21,7 +21,7 @@ target_compile_options(outcurses PRIVATE -Wall -W)
 
 file(GLOB TESTSRCS CONFIGURE_DEPENDS tests/*.cpp)
 add_executable(outcurses-tester ${TESTSRCS})
-find_package(GTest)
+find_package(GTest REQUIRED)
 target_link_libraries(outcurses-tester
 	GTest::GTest
 	outcurses
