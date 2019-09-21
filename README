@@ -11,7 +11,7 @@ that the "wide" version (NCURSESW) is available.
 
 NCURSES 6.1+ with wide character support is required.
 GoogleTest 1.9.0+ is required.
-CMake 3.15+ is required. Chant the standard incantations.
+CMake 3.13+ is required. Chant the standard incantations.
 
 I. Panel wheels
 II. Palette fades
