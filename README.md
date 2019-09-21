@@ -1,17 +1,21 @@
-dankcurses by Nick Black <dankamongmen@gmail.com>
--------------------------------------------------
+# outcurses
+by Nick Black <dankamongmen@gmail.com>
 
-dankcurses is an extension to NCurses by Thomas Dickey et al, in the spirit of
+[![Build Status](https://drone.dsscaw.com:4443/api/badges/dankamongmen/outcurses/status.svg)](https://drone.dsscaw.com:4443/dankamongmen/outcurses)
+
+Outcurses is an extension to NCURSES by Thomas Dickey et al, in the spirit of
 the Panels, Menu, and Forms extensions. It does not require patching the
-ncurses source. You might need to rebuild it to take advantage of all features,
-but this is unlikely if you're using your distro's ncurses package. Make sure
-that the "wide" version of Ncurses is available.
+NCURSES source. You might need to rebuild it to take advantage of all features,
+but this is unlikely if you're using your distro's NCURSES package. Make sure
+that the "wide" version (NCURSESW) is available.
 
-I. Panel wheels
-II. Palette fades
+* Building
 
-I. Panel wheels
----------------
+ - NCURSES 6.1+ with wide character support is required.
+ - GoogleTest 1.9.0+ is required.
+ - CMake 3.13+ is required. Chant the standard incantations.
+
+## Panel wheels
 Panel wheels implement a dynamic collection of collapsible panels within a
 provided Ncurses WINDOW *. The panels can be independently grown and shrunk,
 any number of panels can be created, and panels and disappear and reappear. At
