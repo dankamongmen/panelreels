@@ -1,5 +1,6 @@
-outcurses by Nick Black <dankamongmen@gmail.com>
-------------------------------------------------
+# outcurses by Nick Black <dankamongmen@gmail.com>
+
+[![Build Status](https://drone.dsscaw.com:4443/api/badges/dankamongmen/outcurses/status.svg)](https://drone.dsscaw.com:4443/dankamongmen/outcurses)
 
 Outcurses is an extension to NCURSES by Thomas Dickey et al, in the spirit of
 the Panels, Menu, and Forms extensions. It does not require patching the
@@ -9,15 +10,11 @@ that the "wide" version (NCURSESW) is available.
 
 * Building
 
-NCURSES 6.1+ with wide character support is required.
-GoogleTest 1.9.0+ is required.
-CMake 3.13+ is required. Chant the standard incantations.
+ - NCURSES 6.1+ with wide character support is required.
+ - GoogleTest 1.9.0+ is required.
+ - CMake 3.13+ is required. Chant the standard incantations.
 
-I. Panel wheels
-II. Palette fades
-
-I. Panel wheels
----------------
+## Panel wheels
 Panel wheels implement a dynamic collection of collapsible panels within a
 provided Ncurses WINDOW *. The panels can be independently grown and shrunk,
 any number of panels can be created, and panels and disappear and reappear. At
