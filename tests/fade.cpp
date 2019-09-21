@@ -1,10 +1,16 @@
 #include "main.h"
 #include <iostream>
 
-TEST(OutcursesFade, Fade){
+void PrintColors() {
+  mvwprintw(stdscr, 1, 1, "Color count: %d", COLORS);
+  wrefresh(stdscr);
+}
+
+TEST(OutcursesFade, Fade) {
   ASSERT_EQ(0, Outcurses::init_outcurses(true));
   std::cerr << "Testing palette fade..." << std::endl;
-  ASSERT_EQ(0, Outcurses::fade(1));
+  PrintColors();
+  ASSERT_EQ(0, Outcurses::fade(stdscr, 2));
   // This should return OK, but fails in headless environments. Check
   // isendwin() afterwards as a proxy for this function, instead. FIXME
   Outcurses::stop_outcurses(true);

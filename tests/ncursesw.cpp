@@ -5,3 +5,8 @@
 TEST(NCURSESW, AddWch){
   add_wch(WACS_BLOCK);
 }
+
+// Ensure that colors are defined and work.
+TEST(NCURSESW, Colors){
+  ASSERT_EQ(true, has_colors());
+}
