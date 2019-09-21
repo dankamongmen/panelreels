@@ -2,7 +2,7 @@ Source: outcurses
 Priority: optional
 Maintainer: Nick Black <dankamongmen@gmail.com>
 Build-Depends: debhelper-compat (= 12), libncurses-dev (>= 6.1),
- cmake (>= 3.13), libgtest-dev
+ cmake (>= 3.13), libgtest-dev, googletest
 Standards-Version: 4.4.0
 Section: libs
 Homepage: https://nick-black.com/dankwiki/index.php/Outcurses
