@@ -19,7 +19,7 @@ int init_outcurses(bool initcurses){
 			return -1;
 		}
 	}
-
+	return 0;
 }
 
 int stop_outcurses(bool stopcurses){
