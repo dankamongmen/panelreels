@@ -3,7 +3,9 @@ pipeline:
     image: library/debian:unstable
     commands:
       - apt-get update
-      - apt-get -y install devscripts git-buildpackage
+      - apt-get -y install devscripts git-buildpackage locales
+      - echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen
+      - locale-gen
       - mk-build-deps --install -t'apt-get -y'
       - mkdir build
       - cd build
