@@ -10,4 +10,4 @@ pipeline:
       - mkdir build
       - cd build
       - cmake ..
-      - make -j8
+      - LANG="en_US.UTF-8" make -j8
