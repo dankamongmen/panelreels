@@ -15,6 +15,7 @@ set(CURSES_NEED_NCURSES TRUE)
 find_package(Curses REQUIRED)
 target_include_directories(outcurses PRIVATE ${CURSES_INCLUDE_DIR})
 target_link_libraries(outcurses INTERFACE ${CURSES_LIBRARIES})
+# FIXME ideally this would come from FindCurses.cmake
 target_compile_definitions(outcurses PRIVATE _DEFAULT_SOURCE _XOPEN_SOURCE=600)
 target_compile_options(outcurses PRIVATE -Wall -W)
 
