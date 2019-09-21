@@ -13,6 +13,10 @@ TEST(OutcursesFade, Fade) {
 	  }
 	  wattrset(stdscr, COLOR_PAIR(i + j));
 	  wprintw(stdscr, "*");
+	  wattrset(stdscr, A_DIM | COLOR_PAIR(i + j));
+	  wprintw(stdscr, "*");
+	  wattrset(stdscr, A_BOLD | COLOR_PAIR(i + j));
+	  wprintw(stdscr, "*");
 	}
   }
   ASSERT_EQ(0, Outcurses::fade(stdscr, 2));
