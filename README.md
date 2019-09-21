@@ -1,4 +1,5 @@
-# outcurses by Nick Black <dankamongmen@gmail.com>
+# outcurses
+by Nick Black <dankamongmen@gmail.com>
 
 [![Build Status](https://drone.dsscaw.com:4443/api/badges/dankamongmen/outcurses/status.svg)](https://drone.dsscaw.com:4443/dankamongmen/outcurses)
 
