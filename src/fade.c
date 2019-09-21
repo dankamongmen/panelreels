@@ -19,6 +19,7 @@ int fade(unsigned sec){
 		r[p] = origr[p];
 		g[p] = origg[p];
 		b[p] = origb[p];
+		// fprintf(stderr, "rgb[%d]: %d %d %d\n", p, r[p], g[p], b[p]);
 	}
 	gettimeofday(&stime, NULL);
 	cus = sus = stime.tv_sec * 1000000 + stime.tv_usec;
