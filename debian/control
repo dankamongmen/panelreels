@@ -1,0 +1,25 @@
+Source: outcurses
+Priority: optional
+Maintainer: Nick Black <dankamongmen@gmail.com>
+Build-Depends: debhelper-compat (= 12), libncurses-dev (>= 6.1)
+Standards-Version: 4.4.0
+Section: libs
+Homepage: https://nick-black.com/dankwiki/index.php/Outcurses
+Vcs-Browser: https://github.com/dankamongmen/outcurses
+Vcs-Git: https://github.com/dankamongmen/outcurses.git
+
+Package: liboutcurses-dev
+Section: libdevel
+Architecture: any
+Multi-Arch: same
+Depends: liboutcurses0 (= ${binary:Version}), ${misc:Depends}
+Description: Development files for outcurses
+ Files necessary for developing programs using Outcurses.
+
+Package: liboutcurses0
+Architecture: any
+Multi-Arch: same
+Depends:${shlibs:Depends}, ${misc:Depends}
+Description: Shared libraries for outcurses console UI
+ Outcurses provides higher-level UI elements atop the venerable
+ NCURSES library, including palette feeds and panel wheels.
