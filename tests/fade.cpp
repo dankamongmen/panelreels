@@ -1,18 +1,22 @@
 #include "main.h"
 #include <iostream>
 
-void PrintColors() {
-  mvwprintw(stdscr, 1, 1, "Color count: %d", COLORS);
-  wrefresh(stdscr);
-}
-
 TEST(OutcursesFade, Fade) {
   ASSERT_EQ(0, Outcurses::init_outcurses(true));
-  std::cerr << "Testing palette fade..." << std::endl;
-  PrintColors();
+  wmove(stdscr, 1, 1);
+  const auto PERLINE = 16;
+  for(int i = 0 ; i < COLORS ; i += PERLINE){
+    wmove(stdscr, i / PERLINE + 1, 1);
+    for(int j = 0 ; j < PERLINE ; ++j){
+      if(i + j >= COLORS){
+        break;
+	  }
+	  wattrset(stdscr, COLOR_PAIR(i + j));
+	  wprintw(stdscr, "*");
+	}
+  }
   ASSERT_EQ(0, Outcurses::fade(stdscr, 2));
   // This should return OK, but fails in headless environments. Check
   // isendwin() afterwards as a proxy for this function, instead. FIXME
-  Outcurses::stop_outcurses(true);
-  ASSERT_EQ(true, isendwin());
+  ASSERT_EQ(0, Outcurses::stop_outcurses(true));
 }

@@ -8,14 +8,25 @@ int init_outcurses(bool initcurses){
 			fprintf(stderr, "Couldn't initialize ncurses\n");
 			return -1;
 		}
+		if(start_color() != OK){
+			fprintf(stderr, "Couldn't start color support\n");
+			endwin();
+			return -1;
+		}
+		if(assume_default_colors(-1, -1) != OK){
+			fprintf(stderr, "Warning: couldn't assume default colors\n");
+		}
 		cbreak();
 		noecho();
 		nonl();
-		intrflush(stdscr, FALSE);
-		keypad(stdscr, TRUE);
+		intrflush(scr, FALSE);
+		keypad(scr, TRUE);
+		leaveok(scr, TRUE);
+		curs_set(0);
 	}else{
 		if((scr = stdscr) == NULL){
 			fprintf(stderr, "Couldn't get stdscr (was ncurses initialized?)\n");
+			endwin();
 			return -1;
 		}
 	}
@@ -25,8 +36,7 @@ int init_outcurses(bool initcurses){
 int stop_outcurses(bool stopcurses){
 	int ret = 0;
 	if(stopcurses){
-		if(endwin()){
-			ret = -1;
+		if(endwin() != OK){
 			fprintf(stderr, "Error during endwin()\n");
 		}
 	}

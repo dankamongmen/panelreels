@@ -2,7 +2,7 @@
 #include <sys/time.h>
 #include <outcurses.h>
 
-int fade(unsigned sec){
+int fade(WINDOW* w, unsigned sec){
 	int origr[COLORS], origg[COLORS], origb[COLORS];
 	short r[COLORS], g[COLORS], b[COLORS];
 	// ncurses palettes are in terms of 0..1000, so there's no point in
@@ -19,11 +19,11 @@ int fade(unsigned sec){
 		r[p] = origr[p];
 		g[p] = origg[p];
 		b[p] = origb[p];
-		// fprintf(stderr, "rgb[%d]: %d %d %d\n", p, r[p], g[p], b[p]);
 	}
 	gettimeofday(&stime, NULL);
 	cus = sus = stime.tv_sec * 1000000 + stime.tv_usec;
 	while(cus < sus + sec * 1000000){
+		const int pairs = COLORS > COLOR_PAIRS ? COLOR_PAIRS : COLORS;
 		long unsigned permille;
 		struct timeval ctime;
 
@@ -34,10 +34,17 @@ int fade(unsigned sec){
 			r[p] = (origr[p] * (1000 - permille)) / 1000;
 			g[p] = (origg[p] * (1000 - permille)) / 1000;
 			b[p] = (origb[p] * (1000 - permille)) / 1000;
-			init_extended_color(p, r[p], g[p], b[p]);
+			if(init_extended_color(p, r[p], g[p], b[p]) != OK){
+				return -1;
+			}
 		}
 		usleep(quanta);
-		wrefresh(curscr);
+		for(p = 0 ; p < pairs ; ++p){
+			if(init_extended_pair(p, p, -1) != OK){
+				return -1;
+			}
+		}
+	    wrefresh(w);
 		gettimeofday(&ctime, NULL);
 		cus = ctime.tv_sec * 1000000 + ctime.tv_usec;
 	}
@@ -46,6 +53,6 @@ int fade(unsigned sec){
 			return -1;
 		}
 	}
-	wrefresh(curscr);
+	wrefresh(w);
 	return 0; // FIXME get real result, feeling free to abort early
 }

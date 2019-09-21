@@ -9,6 +9,6 @@ TEST(Outcurses, Init){
 
 // Ensure that colors are defined and work.
 TEST(Outcurses, InitWithoutNcurses){
-  Outcurses::init_outcurses(false);
-  Outcurses::stop_outcurses(false);
+  ASSERT_EQ(0, Outcurses::init_outcurses(false));
+  ASSERT_EQ(0, Outcurses::stop_outcurses(false));
 }
