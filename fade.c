@@ -22,21 +22,21 @@ output(WINDOW *w){
 }
 
 int main(void){
-	int z,canchange;
+	int z, canchange;
 	WINDOW *scr;
 
 	assert((scr = initscr()));
 	assert(noecho() == OK);
 	assert(start_color() == OK);
-	scrollok(scr,TRUE);
-	leaveok(scr,TRUE);
+	scrollok(scr, TRUE);
+	leaveok(scr, TRUE);
 	curs_set(0);
 	canchange = can_change_color();
 	use_default_colors();
 	// Supported TERMs: "linux", "xterm-256color"
 	assert(canchange);
-	assert(init_pair(1,OUTCOLOR,-1) == OK);
-	assert(color_content(OUTCOLOR,&r,&g,&b) == OK);
+	assert(init_pair(1, OUTCOLOR, -1) == OK);
+	assert(color_content(OUTCOLOR, &r, &g, &b) == OK);
 	if(r) r = 1000;
 	if(g) g = 1000;
 	if(b) b = 1000;
@@ -55,8 +55,8 @@ int main(void){
 		if((b -= 10) < 0){
 			b = 0;
 		}
-		init_color(OUTCOLOR,r,g,b);
-		assert(init_pair(1,OUTCOLOR,-1) == OK);
+		init_color(OUTCOLOR, r, g, b);
+		assert(init_pair(1, OUTCOLOR, -1) == OK);
 	}
 	assert(endwin() == OK);
 	return EXIT_SUCCESS;

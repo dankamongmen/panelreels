@@ -6,7 +6,8 @@ project(Outcurses VERSION 0.0.1
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 11)
 
-add_library(outcurses SHARED fade.c)
+file(GLOB LIBSRCS CONFIGURE_DEPENDS src/*.c)
+add_library(outcurses SHARED ${LIBSRCS})
 target_include_directories(outcurses PRIVATE include)
 
 set(CURSES_NEED_WIDE TRUE)
@@ -28,6 +29,7 @@ gtest_discover_tests(outcurses-tester)
 
 install(TARGETS outcurses DESTINATION lib)
 
+enable_testing()
 add_custom_command(TARGET outcurses-tester POST_BUILD
 	COMMAND outcurses-tester --output-on-failure
 )
