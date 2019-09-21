@@ -1,5 +1,9 @@
-#ifndef OUTCURSES_NCURSESINC
-#define OUTCURSES_NCURSESINC
+#ifndef OUTCURSES_OUTCURSES
+#define OUTCURSES_OUTCURSES
+
+#include <term.h>
+#include <panel.h>
+#include <ncurses.h>
 
 #ifdef __cplusplus
 extern "C" {

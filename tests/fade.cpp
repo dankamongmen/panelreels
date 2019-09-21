@@ -1,1 +1,1 @@
-#include <outcurses.h>
+#include "main.h"

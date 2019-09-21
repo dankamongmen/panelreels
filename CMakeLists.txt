@@ -7,13 +7,15 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 11)
 
 add_library(outcurses SHARED fade.c)
+target_include_directories(outcurses PRIVATE include)
 
 set(CURSES_NEED_WIDE TRUE)
 set(CURSES_NEED_NCURSES TRUE)
 find_package(Curses REQUIRED)
 target_include_directories(outcurses PRIVATE ${CURSES_INCLUDE_DIR})
+target_link_libraries(outcurses INTERFACE ${CURSES_LIBRARIES})
 
-file(GLOB TESTSRCS tests/*.cpp)
+file(GLOB TESTSRCS CONFIGURE_DEPENDS tests/*.cpp)
 add_executable(outcurses-tester ${TESTSRCS})
 find_package(GTest)
 target_link_libraries(outcurses-tester

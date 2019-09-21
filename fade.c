@@ -1,7 +1,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "ncursesinc.h"
+#include <outcurses.h>
 
 static short r,g,b;
 
