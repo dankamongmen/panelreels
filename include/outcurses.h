@@ -21,8 +21,8 @@ int init_outcurses(bool initcurses);
 // restoring the screen and cleaning up ncurses.
 int stop_outcurses(bool stopcurses);
 
-// Do a palette fade on the active screen over the course of sec seconds.
-int fade(unsigned sec);
+// Do a palette fade on the specified screen over the course of sec seconds.
+int fade(WINDOW* w, unsigned sec);
 
 #ifdef __cplusplus
 } // namespace Outcurses
