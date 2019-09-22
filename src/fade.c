@@ -104,6 +104,9 @@ int fade(WINDOW* w, unsigned sec){
 	}
 	maxsteps = maxes.g > maxes.r ? (maxes.b > maxes.g ? maxes.b : maxes.g) :
 			   (maxes.b > maxes.r ? maxes.b : maxes.r);
+	if(maxsteps < 1){ // no colors in use? more likely an error
+		goto done;
+	}
 	memcpy(cur, orig, sizeof(*cur) * COLORS);
     // FIXME should be called earlier, probably during initialization
 	if(init_color_pairs(COLOR_PAIRS, COLORS) <= 0){
@@ -118,16 +121,14 @@ int fade(WINDOW* w, unsigned sec){
 	// Number of nanoseconds in an ideal steptime
 	nanosecs_step = nanosecs_total / maxsteps;
 	struct timespec times;
-	clock_gettime(CLOCK_MONOTONIC_RAW, &times);
+	clock_gettime(CLOCK_MONOTONIC, &times);
 	// Start time in absolute nanoseconds
 	uint64_t startns = times.tv_sec * NANOSECS_IN_SEC + times.tv_nsec;
 	// Current time, sampled each iteration
 	uint64_t curns;
+	int p;
 	do{
-		long unsigned permille;
-		int p;
-
-		clock_gettime(CLOCK_MONOTONIC_RAW, &times);
+		clock_gettime(CLOCK_MONOTONIC, &times);
 		curns = times.tv_sec * NANOSECS_IN_SEC + times.tv_nsec;
 		int iter = (curns - startns) / nanosecs_step + 1;
 		if(iter > maxsteps){
@@ -142,6 +143,17 @@ int fade(WINDOW* w, unsigned sec){
 			}
 		}
 	    wrefresh(w);
+		uint64_t nextwake = (iter + 1) * nanosecs_step + startns;
+		struct timespec sleepspec;
+		sleepspec.tv_sec = nextwake / NANOSECS_IN_SEC;
+		sleepspec.tv_nsec = nextwake % NANOSECS_IN_SEC;
+		int r;
+		// clock_nanosleep() has no love for CLOCK_MONOTONIC, at least as
+		// of Glibc 2.29 + Linux 5.3 :/.
+		r = clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &sleepspec, NULL);
+		if(r){
+			goto done;
+		}
 	}while(true);
 	if(set_palette(COLORS, orig)){
 		goto done;
