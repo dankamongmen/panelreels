@@ -65,6 +65,22 @@ set_palette(int count, const ccomps* palette){
 	return 0;
 }
 
+// Returns the number of color pairs initialized, which will not be greater
+// (but might be less) than the number of colors.
+static int
+init_color_pairs(int pairs, int colors){
+	const int pmax = colors > pairs ? pairs : colors;
+	int p;
+
+	// Pairs start at 1.
+	for(p = 1 ; p < pmax ; ++p){
+		if(init_extended_pair(p, p, -1) != OK){
+			return -1;
+		}
+	}
+	return pairs;
+}
+
 #define NANOSECS_IN_SEC 1000000000ull
 
 int fade(WINDOW* w, unsigned sec){
@@ -89,6 +105,10 @@ int fade(WINDOW* w, unsigned sec){
 	maxsteps = maxes.g > maxes.r ? (maxes.b > maxes.g ? maxes.b : maxes.g) :
 			   (maxes.b > maxes.r ? maxes.b : maxes.r);
 	memcpy(cur, orig, sizeof(*cur) * COLORS);
+    // FIXME should be called earlier, probably during initialization
+	if(init_color_pairs(COLOR_PAIRS, COLORS) <= 0){
+		goto done;
+	}
 	// We have this many nanoseconds to work through compmax iterations. Our
 	// natural rate might be slower or faster than what's desirable, so at each
 	// iteration, we (a) set the palette to the intensity corresponding to time
@@ -101,12 +121,9 @@ int fade(WINDOW* w, unsigned sec){
 	clock_gettime(CLOCK_MONOTONIC_RAW, &times);
 	// Start time in absolute nanoseconds
 	uint64_t startns = times.tv_sec * NANOSECS_IN_SEC + times.tv_nsec;
-	// At this time, we'e done
-	uint64_t endns = startns + nanosecs_total;
 	// Current time, sampled each iteration
 	uint64_t curns;
 	do{
-		const int pairs = COLORS > COLOR_PAIRS ? COLOR_PAIRS : COLORS;
 		long unsigned permille;
 		int p;
 
@@ -114,19 +131,13 @@ int fade(WINDOW* w, unsigned sec){
 		curns = times.tv_sec * NANOSECS_IN_SEC + times.tv_nsec;
 		int iter = (curns - startns) / nanosecs_step + 1;
 		if(iter > maxsteps){
-				break;
+			break;
 		}
 		for(p = 0 ; p < COLORS ; ++p){
 			cur[p].r = orig[p].r * (maxsteps - iter) / maxsteps;
 			cur[p].g = orig[p].g * (maxsteps - iter) / maxsteps;
 			cur[p].b = orig[p].b * (maxsteps - iter) / maxsteps;
 			if(init_extended_color(p, cur[p].r, cur[p].g, cur[p].b) != OK){
-				goto done;
-			}
-		}
-		// Pairs start at 1 FIXME can this not be hoisted?
-		for(p = 1 ; p < pairs ; ++p){
-			if(init_extended_pair(p, p, -1) != OK){
 				goto done;
 			}
 		}
