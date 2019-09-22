@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <sys/time.h>
 #include <outcurses.h>
 
@@ -49,7 +48,10 @@ set_palette(int count, const ccomps* palette){
 	return 0;
 }
 
+#define NANOSECS_IN_SEC 1000000000ull
+
 int fade(WINDOW* w, unsigned sec){
+	uint64_t nanosecs;
 	ccomps* orig;
 	ccomps* cur;
 	int ret;
@@ -68,6 +70,7 @@ int fade(WINDOW* w, unsigned sec){
 			goto done;
 	}
 	memcpy(cur, orig, sizeof(*cur) * COLORS);
+	nanosecs = sec * NANOSECS_IN_SEC;
 	gettimeofday(&stime, NULL);
 	cus = sus = stime.tv_sec * 1000000 + stime.tv_usec;
 	while(cus < sus + sec * 1000000){
@@ -87,8 +90,8 @@ int fade(WINDOW* w, unsigned sec){
 				goto done;
 			}
 		}
-		usleep(quanta);
-		for(p = 0 ; p < pairs ; ++p){
+		// Pairs start at 1
+		for(p = 1 ; p < pairs ; ++p){
 			if(init_extended_pair(p, p, -1) != OK){
 				goto done;
 			}
@@ -100,7 +103,7 @@ int fade(WINDOW* w, unsigned sec){
 	if(set_palette(COLORS, orig)){
 		goto done;
 	}
-	wrefresh(w);
+	reset_color_pairs();
 	ret = 0;
 
 done:
