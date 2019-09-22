@@ -1,3 +1,4 @@
+#include <time.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
@@ -67,9 +68,11 @@ set_palette(int count, const ccomps* palette){
 #define NANOSECS_IN_SEC 1000000000ull
 
 int fade(WINDOW* w, unsigned sec){
-	uint64_t nanosecs;
+	uint64_t nanosecs_total;
+	uint64_t nanosecs_step;
 	ccomps* orig;
 	ccomps maxes;
+	int maxsteps;
 	ccomps* cur;
 	int ret;
 
@@ -77,46 +80,58 @@ int fade(WINDOW* w, unsigned sec){
 	if(alloc_ccomps(COLORS, &orig, &cur)){
 		goto done;
 	}
-	// ncurses palettes are in terms of 0..1000, so there's no point in
-	// trying to do more than 1000 iterations, ever. This is in usec.
-	const long unsigned quanta = sec * 1000000 / 15;
-	long unsigned sus, cus;
-	struct timeval stime;
-
+	// Retrieve current palette, and extract component maxima. There is no
+	// point in doing more loop iterations than the maximum component, since
+	// the smallest action we can take is subtracting 1 from the largest value.
 	if(retrieve_palette(COLORS, orig, &maxes)){
 		goto done;
 	}
+	maxsteps = maxes.g > maxes.r ? (maxes.b > maxes.g ? maxes.b : maxes.g) :
+			   (maxes.b > maxes.r ? maxes.b : maxes.r);
 	memcpy(cur, orig, sizeof(*cur) * COLORS);
-	nanosecs = sec * NANOSECS_IN_SEC;
-	gettimeofday(&stime, NULL);
-	cus = sus = stime.tv_sec * 1000000 + stime.tv_usec;
-	while(cus < sus + sec * 1000000){
+	// We have this many nanoseconds to work through compmax iterations. Our
+	// natural rate might be slower or faster than what's desirable, so at each
+	// iteration, we (a) set the palette to the intensity corresponding to time
+	// since the process started, and (b) sleep if we're early (otherwise we
+	// peg a core unnecessarily).
+	nanosecs_total = sec * NANOSECS_IN_SEC;
+	// Number of nanoseconds in an ideal steptime
+	nanosecs_step = nanosecs_total / maxsteps;
+	struct timespec times;
+	clock_gettime(CLOCK_MONOTONIC_RAW, &times);
+	// Start time in absolute nanoseconds
+	uint64_t startns = times.tv_sec * NANOSECS_IN_SEC + times.tv_nsec;
+	// At this time, we'e done
+	uint64_t endns = startns + nanosecs_total;
+	// Current time, sampled each iteration
+	uint64_t curns;
+	do{
 		const int pairs = COLORS > COLOR_PAIRS ? COLOR_PAIRS : COLORS;
 		long unsigned permille;
-		struct timeval ctime;
 		int p;
 
-		if((permille = (cus - sus) * 1000 / (sec * 1000000)) > 1000){
-			permille = 1000;
+		clock_gettime(CLOCK_MONOTONIC_RAW, &times);
+		curns = times.tv_sec * NANOSECS_IN_SEC + times.tv_nsec;
+		int iter = (curns - startns) / nanosecs_step + 1;
+		if(iter > maxsteps){
+				break;
 		}
 		for(p = 0 ; p < COLORS ; ++p){
-			cur[p].r = (orig[p].r * (1000 - permille)) / 1000;
-			cur[p].g = (orig[p].g * (1000 - permille)) / 1000;
-			cur[p].b = (orig[p].b * (1000 - permille)) / 1000;
+			cur[p].r = orig[p].r * (maxsteps - iter) / maxsteps;
+			cur[p].g = orig[p].g * (maxsteps - iter) / maxsteps;
+			cur[p].b = orig[p].b * (maxsteps - iter) / maxsteps;
 			if(init_extended_color(p, cur[p].r, cur[p].g, cur[p].b) != OK){
 				goto done;
 			}
 		}
-		// Pairs start at 1
+		// Pairs start at 1 FIXME can this not be hoisted?
 		for(p = 1 ; p < pairs ; ++p){
 			if(init_extended_pair(p, p, -1) != OK){
 				goto done;
 			}
 		}
 	    wrefresh(w);
-		gettimeofday(&ctime, NULL);
-		cus = ctime.tv_sec * 1000000 + ctime.tv_usec;
-	}
+	}while(true);
 	if(set_palette(COLORS, orig)){
 		goto done;
 	}
