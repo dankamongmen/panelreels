@@ -148,7 +148,7 @@ int fade(WINDOW* w, unsigned sec){
 		sleepspec.tv_sec = nextwake / NANOSECS_IN_SEC;
 		sleepspec.tv_nsec = nextwake % NANOSECS_IN_SEC;
 		int r;
-		// clock_nanosleep() has no love for CLOCK_MONOTONIC, at least as
+		// clock_nanosleep() has no love for CLOCK_MONOTONIC_RAW, at least as
 		// of Glibc 2.29 + Linux 5.3 :/.
 		r = clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &sleepspec, NULL);
 		if(r){
