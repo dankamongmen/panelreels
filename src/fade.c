@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/time.h>
 #include <outcurses.h>
@@ -23,6 +24,31 @@ alloc_ccomps(int count, ccomps** orig, ccomps** cur){
 	return 0;
 }
 
+// count ought be COLORS to retrieve the entire palette.
+static int
+retrieve_palette(int count, ccomps* palette){
+	int p;
+
+	for(p = 0 ; p < count ; ++p){
+		if(extended_color_content(p, &palette[p].r, &palette[p].g, &palette[p].b) != OK){
+			return -1;
+		}
+	}
+	return 0;
+}
+
+static int
+set_palette(int count, const ccomps* palette){
+	int p;
+
+	for(p = 0 ; p < count ; ++p){
+		if(init_extended_color(p, palette[p].r, palette[p].g, palette[p].b) != OK){
+			return -1;
+		}
+	}
+	return 0;
+}
+
 int fade(WINDOW* w, unsigned sec){
 	ccomps* orig;
 	ccomps* cur;
@@ -37,22 +63,18 @@ int fade(WINDOW* w, unsigned sec){
 	const long unsigned quanta = sec * 1000000 / 15;
 	long unsigned sus, cus;
 	struct timeval stime;
-	int p;
 
-	for(p = 0 ; p < COLORS ; ++p){
-		if(extended_color_content(p, &orig[p].r, &orig[p].g, &orig[p].b) != OK){
+	if(retrieve_palette(COLORS, orig)){
 			goto done;
-		}
-		cur[p].r = orig[p].r;
-		cur[p].g = orig[p].g;
-		cur[p].b = orig[p].b;
 	}
+	memcpy(cur, orig, sizeof(*cur) * COLORS);
 	gettimeofday(&stime, NULL);
 	cus = sus = stime.tv_sec * 1000000 + stime.tv_usec;
 	while(cus < sus + sec * 1000000){
 		const int pairs = COLORS > COLOR_PAIRS ? COLOR_PAIRS : COLORS;
 		long unsigned permille;
 		struct timeval ctime;
+		int p;
 
 		if((permille = (cus - sus) * 1000 / (sec * 1000000)) > 1000){
 			permille = 1000;
@@ -75,10 +97,8 @@ int fade(WINDOW* w, unsigned sec){
 		gettimeofday(&ctime, NULL);
 		cus = ctime.tv_sec * 1000000 + ctime.tv_usec;
 	}
-	for(p = 0 ; p < COLORS ; ++p){
-		if(init_extended_color(p, orig[p].r, orig[p].g, orig[p].b) != OK){
-			goto done;
-		}
+	if(set_palette(COLORS, orig)){
+		goto done;
 	}
 	wrefresh(w);
 	ret = 0;
