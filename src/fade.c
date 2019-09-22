@@ -23,14 +23,30 @@ alloc_ccomps(int count, ccomps** orig, ccomps** cur){
 	return 0;
 }
 
-// count ought be COLORS to retrieve the entire palette.
+// count ought be COLORS to retrieve the entire palette. If maxes is non-NULL,
+// it points to a single ccomps structure, which will be filled in with the
+// maximum components found.
 static int
-retrieve_palette(int count, ccomps* palette){
+retrieve_palette(int count, ccomps* palette, ccomps* maxes){
+	ccomps maxes_store;
 	int p;
 
+	if(maxes == NULL){
+		maxes = &maxes_store;
+	}
+	maxes->r = maxes->g = maxes->b = -1;
 	for(p = 0 ; p < count ; ++p){
 		if(extended_color_content(p, &palette[p].r, &palette[p].g, &palette[p].b) != OK){
 			return -1;
+		}
+		if(palette[p].r > maxes->r){
+			maxes->r = palette[p].r;
+		}
+		if(palette[p].g > maxes->g){
+			maxes->g = palette[p].g;
+		}
+		if(palette[p].b > maxes->b){
+			maxes->b = palette[p].b;
 		}
 	}
 	return 0;
@@ -53,6 +69,7 @@ set_palette(int count, const ccomps* palette){
 int fade(WINDOW* w, unsigned sec){
 	uint64_t nanosecs;
 	ccomps* orig;
+	ccomps maxes;
 	ccomps* cur;
 	int ret;
 
@@ -66,8 +83,8 @@ int fade(WINDOW* w, unsigned sec){
 	long unsigned sus, cus;
 	struct timeval stime;
 
-	if(retrieve_palette(COLORS, orig)){
-			goto done;
+	if(retrieve_palette(COLORS, orig, &maxes)){
+		goto done;
 	}
 	memcpy(cur, orig, sizeof(*cur) * COLORS);
 	nanosecs = sec * NANOSECS_IN_SEC;
