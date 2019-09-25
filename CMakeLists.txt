@@ -33,6 +33,3 @@ gtest_discover_tests(outcurses-tester)
 install(TARGETS outcurses DESTINATION lib)
 
 enable_testing()
-add_custom_command(TARGET outcurses-tester POST_BUILD
-	COMMAND outcurses-tester --output-on-failure
-)
