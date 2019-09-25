@@ -3,6 +3,7 @@ pipeline:
     image: library/debian:unstable
     commands:
       - apt-get update
+      - apt-get -y remove man-db
       - apt-get -y install devscripts git-buildpackage locales
       - echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen
       - locale-gen
@@ -10,4 +11,6 @@ pipeline:
       - mkdir build
       - cd build
       - cmake ..
-      - TERM=linux LANG="en_US.UTF-8" make -j8
+      - make
+      - TERM=linux LANG="en_US.UTF-8" make test || \
+         { ./outcurses-tester ; false ; }
