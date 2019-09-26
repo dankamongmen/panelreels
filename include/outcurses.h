@@ -19,8 +19,8 @@ int init_outcurses(bool initcurses);
 // restoring the screen and cleaning up ncurses.
 int stop_outcurses(bool stopcurses);
 
-// Do a palette fade on the specified screen over the course of sec seconds.
-int fade(WINDOW* w, unsigned sec);
+// Do a palette fade on the specified screen over the course of ms milliseconds.
+int fade(WINDOW* w, unsigned ms);
 
 #define PREFIXSTRLEN 7  // Does not include a '\0' (xxx.xxU)
 #define BPREFIXSTRLEN 9  // Does not include a '\0' (xxx.xxUi), i == prefix

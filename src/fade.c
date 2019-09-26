@@ -82,8 +82,9 @@ init_color_pairs(int pairs, int colors){
 }
 
 #define NANOSECS_IN_SEC 1000000000ull
+#define NANOSECS_IN_MS  (NANOSECS_IN_SEC / 1000ul)
 
-int fade(WINDOW* w, unsigned sec){
+int fade(WINDOW* w, unsigned ms){
 	uint64_t nanosecs_total;
 	uint64_t nanosecs_step;
 	ccomps* orig;
@@ -117,7 +118,7 @@ int fade(WINDOW* w, unsigned sec){
 	// iteration, we (a) set the palette to the intensity corresponding to time
 	// since the process started, and (b) sleep if we're early (otherwise we
 	// peg a core unnecessarily).
-	nanosecs_total = sec * NANOSECS_IN_SEC;
+	nanosecs_total = ms * NANOSECS_IN_MS;
 	// Number of nanoseconds in an ideal steptime
 	nanosecs_step = nanosecs_total / maxsteps;
 	struct timespec times;
