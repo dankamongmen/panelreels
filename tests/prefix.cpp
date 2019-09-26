@@ -1,28 +1,32 @@
 #include "main.h"
 #include <iostream>
 
-TEST(OutcursesPrefix, EasyInts) {
+TEST(OutcursesPrefix, CornerInts) {
 	char buf[PREFIXSTRLEN];
 
 	genprefix(0, 1, buf, sizeof(buf), 1, 1000, '\0');
-	ASSERT_STREQ("0", buf);
+	EXPECT_STREQ("0", buf);
 	genprefix(0, 1, buf, sizeof(buf), 1, 1000, 'i');
-	ASSERT_STREQ("0", buf); // no suffix on < mult
+	EXPECT_STREQ("0", buf); // no suffix on < mult
 	genprefix(1, 1, buf, sizeof(buf), 1, 1000, '\0');
-	ASSERT_STREQ("1", buf);
+	EXPECT_STREQ("1", buf);
 	genprefix(1000, 1, buf, sizeof(buf), 1, 1000, '\0');
-	ASSERT_STREQ("1K", buf);
+	EXPECT_STREQ("1K", buf);
 	genprefix(1000, 1, buf, sizeof(buf), 1, 1000, 'i');
-	ASSERT_STREQ("1Ki", buf);
+	EXPECT_STREQ("1Ki", buf);
 	genprefix(1000, 1, buf, sizeof(buf), 1, 1024, 'i');
-	ASSERT_STREQ("1000", buf); // FIXME should be 0.977Ki
+	EXPECT_STREQ("1000", buf); // FIXME should be 0.977Ki
 	genprefix(1024, 1, buf, sizeof(buf), 1, 1024, 'i');
-	ASSERT_STREQ("1Ki", buf);
+	EXPECT_STREQ("1Ki", buf);
+	// FIXME these will change based on the size of intmax_t and uintmax_t
+	genprefix(INTMAX_MAX - 1, 1, buf, sizeof(buf), 1, 1000, '\0');
+	EXPECT_STREQ("9.22E", buf);
 	genprefix(INTMAX_MAX, 1, buf, sizeof(buf), 1, 1000, '\0');
-	// FIXME
+	EXPECT_STREQ("9.22E", buf);
+	genprefix(UINTMAX_MAX - 1, 1, buf, sizeof(buf), 1, 1000, '\0');
+	EXPECT_STREQ("18.44E", buf);
 	genprefix(UINTMAX_MAX, 1, buf, sizeof(buf), 1, 1000, '\0');
-	// FIXME
-	// FIXME
+	EXPECT_STREQ("18.44E", buf);
 }
 
 const char suffixes[] = "\0KMGTPE";
