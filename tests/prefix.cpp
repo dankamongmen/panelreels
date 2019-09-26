@@ -10,12 +10,18 @@ TEST(OutcursesPrefix, CornerInts) {
 	EXPECT_STREQ("0", buf); // no suffix on < mult
 	genprefix(1, 1, buf, sizeof(buf), 1, 1000, '\0');
 	EXPECT_STREQ("1", buf);
+	genprefix(999, 1, buf, sizeof(buf), 1, 1000, '\0');
+	EXPECT_STREQ("999", buf);
 	genprefix(1000, 1, buf, sizeof(buf), 1, 1000, '\0');
 	EXPECT_STREQ("1K", buf);
 	genprefix(1000, 1, buf, sizeof(buf), 1, 1000, 'i');
 	EXPECT_STREQ("1Ki", buf);
 	genprefix(1000, 1, buf, sizeof(buf), 1, 1024, 'i');
 	EXPECT_STREQ("1000", buf); // FIXME should be 0.977Ki
+	genprefix(1023, 1, buf, sizeof(buf), 1, 1000, '\0');
+	EXPECT_STREQ("1.02K", buf);
+	genprefix(1023, 1, buf, sizeof(buf), 1, 1024, 'i');
+	EXPECT_STREQ("1023", buf);
 	genprefix(1024, 1, buf, sizeof(buf), 1, 1024, 'i');
 	EXPECT_STREQ("1Ki", buf);
 	// FIXME these will change based on the size of intmax_t and uintmax_t
