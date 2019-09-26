@@ -25,7 +25,7 @@ TEST(OutcursesPrefix, EasyInts) {
 	// FIXME
 }
 
-const char suffixes[] = "\0KMGTPEY";
+const char suffixes[] = "\0KMGTPE";
 
 TEST(OutcursesPrefix, PowersOfTen) {
 	char buf[PREFIXSTRLEN + 1];
@@ -33,7 +33,8 @@ TEST(OutcursesPrefix, PowersOfTen) {
 	char str1[] = "1.00 ";
 	char str2[] = "10.00 ";
 	char str3[] = "100.00 ";
-	for(int i = 0 ; i < sizeof(suffixes) * 3 ; ++i){
+	int i = 0;
+	do{
 		genprefix(val, 1, buf, sizeof(buf), 0, 1000, '\0');
 		int sidx = i / 3;
 		switch(i % 3){
@@ -50,8 +51,13 @@ TEST(OutcursesPrefix, PowersOfTen) {
 			EXPECT_STREQ(str3, buf);
 			break;
 		}
+		if(UINTMAX_MAX / val < 10){
+			break;
+		}
 		val *= 10;
-	}
+	}while(++i < sizeof(suffixes) * 3);
+	// If we ran through all our suffixes, that's a problem
+	EXPECT_GT(sizeof(suffixes) * 3, i);
 }
 
 TEST(OutcursesPrefix, PowersOfTenNoDec) {
@@ -60,7 +66,8 @@ TEST(OutcursesPrefix, PowersOfTenNoDec) {
 	char str1[] = "1 ";
 	char str2[] = "10 ";
 	char str3[] = "100 ";
-	for(int i = 0 ; i < sizeof(suffixes) * 3 ; ++i){
+	int i = 0;
+	do{
 		genprefix(val, 1, buf, sizeof(buf), 1, 1000, '\0');
 		int sidx = i / 3;
 		switch(i % 3){
@@ -77,6 +84,11 @@ TEST(OutcursesPrefix, PowersOfTenNoDec) {
 			EXPECT_STREQ(str3, buf);
 			break;
 		}
+		if(UINTMAX_MAX / val < 10){
+			break;
+		}
 		val *= 10;
-	}
+	}while(++i < sizeof(suffixes) * 3);
+	// If we ran through all our suffixes, that's a problem
+	EXPECT_GT(sizeof(suffixes) * 3, i);
 }
