@@ -28,11 +28,11 @@ TEST(OutcursesPrefix, EasyInts) {
 const char suffixes[] = "\0KMGTPEY";
 
 TEST(OutcursesPrefix, PowersOfTen) {
-	char buf[PREFIXSTRLEN];
+	char buf[PREFIXSTRLEN + 1];
 	uintmax_t val = 1;
 	char str1[] = "1.00 ";
 	char str2[] = "10.00 ";
-	char str3[] = "100.0 ";
+	char str3[] = "100.00 ";
 	for(int i = 0 ; i < sizeof(suffixes) * 3 ; ++i){
 		genprefix(val, 1, buf, sizeof(buf), 0, 1000, '\0');
 		int sidx = i / 3;
@@ -46,7 +46,7 @@ TEST(OutcursesPrefix, PowersOfTen) {
 			EXPECT_STREQ(str2, buf);
 			break;
 			case 2:
-			str3[5] = suffixes[sidx];
+			str3[6] = suffixes[sidx];
 			EXPECT_STREQ(str3, buf);
 			break;
 		}
@@ -55,7 +55,7 @@ TEST(OutcursesPrefix, PowersOfTen) {
 }
 
 TEST(OutcursesPrefix, PowersOfTenNoDec) {
-	char buf[PREFIXSTRLEN];
+	char buf[PREFIXSTRLEN + 1];
 	uintmax_t val = 1;
 	char str1[] = "1 ";
 	char str2[] = "10 ";

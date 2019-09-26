@@ -36,7 +36,7 @@ int fade(WINDOW* w, unsigned ms);
 // buf: buffer in which string will be generated
 // bsize: size of buffer. ought be at least PREFIXSTRLEN
 // omitdec: inhibit printing of all-0 decimal portions
-// mult: base of suffix system (1000 or 1024)
+// mult: base of suffix system (almost always 1000 or 1024)
 // uprefix: character to print following suffix ('i' for kibibytes basically).
 //   only printed if suffix is actually printed (input >= mult).
 //
@@ -56,12 +56,12 @@ genprefix(uintmax_t val, unsigned decimal, char *buf, size_t bsize,
 	dv = mult;
 	while((val / decimal) >= dv && consumed < strlen(prefixes)){
 		dv *= mult;
+		++consumed;
 		if(UINTMAX_MAX / dv < mult){ // watch for overflow
 			break;
 		}
-		++consumed;
 	}
-	if(dv != mult){
+	if(dv != mult){ // if consumed == 0, dv must equal mult
 		dv /= mult;
 		val /= decimal;
 		// Remainder is val % dv; we want a percentage as scaled integer
