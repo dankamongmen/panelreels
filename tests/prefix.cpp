@@ -2,8 +2,7 @@
 #include <iostream>
 
 TEST(OutcursesPrefix, CornerInts) {
-	char buf[PREFIXSTRLEN];
-
+	char buf[PREFIXSTRLEN + 1];
 	genprefix(0, 1, buf, sizeof(buf), 1, 1000, '\0');
 	EXPECT_STREQ("0", buf);
 	genprefix(0, 1, buf, sizeof(buf), 1, 1000, 'i');
@@ -22,8 +21,18 @@ TEST(OutcursesPrefix, CornerInts) {
 	EXPECT_STREQ("1.02K", buf);
 	genprefix(1023, 1, buf, sizeof(buf), 1, 1024, 'i');
 	EXPECT_STREQ("1023", buf);
+	genprefix(1024, 1, buf, sizeof(buf), 1, 1000, '\0');
+	EXPECT_STREQ("1.02K", buf);
 	genprefix(1024, 1, buf, sizeof(buf), 1, 1024, 'i');
 	EXPECT_STREQ("1Ki", buf);
+	genprefix(1025, 1, buf, sizeof(buf), 1, 1000, '\0');
+	EXPECT_STREQ("1.02K", buf);
+	genprefix(1025, 1, buf, sizeof(buf), 1, 1024, 'i');
+	EXPECT_STREQ("1Ki", buf);
+}
+
+TEST(OutcursesPrefix, Maxints) {
+	char buf[PREFIXSTRLEN + 1];
 	// FIXME these will change based on the size of intmax_t and uintmax_t
 	genprefix(INTMAX_MAX - 1, 1, buf, sizeof(buf), 1, 1000, '\0');
 	EXPECT_STREQ("9.22E", buf);
