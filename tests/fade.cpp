@@ -2,7 +2,7 @@
 #include <iostream>
 
 TEST(OutcursesFade, Fade) {
-  ASSERT_EQ(0, Outcurses::init_outcurses(true));
+  ASSERT_EQ(0, init_outcurses(true));
   wmove(stdscr, 1, 1);
   const auto PERLINE = 16;
   for(int i = 0 ; i < COLORS ; i += PERLINE){
@@ -19,8 +19,8 @@ TEST(OutcursesFade, Fade) {
 	  wprintw(stdscr, "*");
 	}
   }
-  ASSERT_EQ(0, Outcurses::fade(stdscr, 2));
+  ASSERT_EQ(0, fade(stdscr, 2));
   // This should return OK, but fails in headless environments. Check
   // isendwin() afterwards as a proxy for this function, instead. FIXME
-  ASSERT_EQ(0, Outcurses::stop_outcurses(true));
+  ASSERT_EQ(0, stop_outcurses(true));
 }

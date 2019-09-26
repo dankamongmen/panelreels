@@ -4,12 +4,4 @@
 #include <gtest/gtest.h>
 #include <outcurses.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#ifdef __cplusplus
-}
-#endif
-
 #endif

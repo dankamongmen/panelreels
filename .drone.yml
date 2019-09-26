@@ -12,5 +12,4 @@ pipeline:
       - cd build
       - cmake ..
       - make
-      - TERM=linux LANG="en_US.UTF-8" make test ||
-         { TERM=linux LANG="en_US.UTF-8" ./outcurses-tester ; false ; }
+      - TERM=linux LANG="en_US.UTF-8" ./outcurses-tester
