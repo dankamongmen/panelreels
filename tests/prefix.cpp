@@ -24,3 +24,59 @@ TEST(OutcursesPrefix, EasyInts) {
 	// FIXME
 	// FIXME
 }
+
+const char suffixes[] = "\0KMGTPEY";
+
+TEST(OutcursesPrefix, PowersOfTen) {
+	char buf[PREFIXSTRLEN];
+	uintmax_t val = 1;
+	char str1[] = "1.00 ";
+	char str2[] = "10.00 ";
+	char str3[] = "100.0 ";
+	for(int i = 0 ; i < sizeof(suffixes) * 3 ; ++i){
+		genprefix(val, 1, buf, sizeof(buf), 0, 1000, '\0');
+		int sidx = i / 3;
+		switch(i % 3){
+			case 0:
+			str1[4] = suffixes[sidx];
+			EXPECT_STREQ(str1, buf);
+			break;
+			case 1:
+			str2[5] = suffixes[sidx];
+			EXPECT_STREQ(str2, buf);
+			break;
+			case 2:
+			str3[5] = suffixes[sidx];
+			EXPECT_STREQ(str3, buf);
+			break;
+		}
+		val *= 10;
+	}
+}
+
+TEST(OutcursesPrefix, PowersOfTenNoDec) {
+	char buf[PREFIXSTRLEN];
+	uintmax_t val = 1;
+	char str1[] = "1 ";
+	char str2[] = "10 ";
+	char str3[] = "100 ";
+	for(int i = 0 ; i < sizeof(suffixes) * 3 ; ++i){
+		genprefix(val, 1, buf, sizeof(buf), 1, 1000, '\0');
+		int sidx = i / 3;
+		switch(i % 3){
+			case 0:
+			str1[1] = suffixes[sidx];
+			EXPECT_STREQ(str1, buf);
+			break;
+			case 1:
+			str2[2] = suffixes[sidx];
+			EXPECT_STREQ(str2, buf);
+			break;
+			case 2:
+			str3[3] = suffixes[sidx];
+			EXPECT_STREQ(str3, buf);
+			break;
+		}
+		val *= 10;
+	}
+}
