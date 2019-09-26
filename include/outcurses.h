@@ -39,14 +39,10 @@ int fade(WINDOW* w, unsigned ms);
 // mult: base of suffix system (almost always 1000 or 1024)
 // uprefix: character to print following suffix ('i' for kibibytes basically).
 //   only printed if suffix is actually printed (input >= mult).
-//
-// For full safety, pass in a buffer that can hold the decimal representation
-// of the largest uintmax_t plus three (one for the unit, one for the decimal
-// separator, and one for the NUL byte).
 static inline const char *
 genprefix(uintmax_t val, unsigned decimal, char *buf, size_t bsize, 
 			int omitdec, unsigned mult, int uprefix){
-	const char prefixes[] = "KMGTPEY";
+	const char prefixes[] = "KMGTPE"; // 10^21-1 encompasses 2^64-1
 	unsigned consumed = 0;
 	uintmax_t dv;
 
@@ -54,15 +50,20 @@ genprefix(uintmax_t val, unsigned decimal, char *buf, size_t bsize,
 		return NULL;
 	}
 	dv = mult;
+	// FIXME verify that input < 2^64, wish we had static_assert() :/
 	while((val / decimal) >= dv && consumed < strlen(prefixes)){
 		dv *= mult;
 		++consumed;
-		if(UINTMAX_MAX / dv < mult){ // watch for overflow
+		if(UINTMAX_MAX / dv < mult){ // near overflow--can't scale dv again
 			break;
 		}
 	}
 	if(dv != mult){ // if consumed == 0, dv must equal mult
-		dv /= mult;
+		if(val / dv > 0){
+			++consumed;
+		}else{
+			dv /= mult;
+		}
 		val /= decimal;
 		// Remainder is val % dv; we want a percentage as scaled integer
 		unsigned remain = (val % dv) * 100 / dv;
