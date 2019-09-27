@@ -173,7 +173,7 @@ TEST(OutcursesPrefix, PowersOfTenAsTwos) {
 	ASSERT_EQ(0, fesetround(FE_TOWARDZERO));
 	do{
 		genprefix(val, 1, buf, sizeof(buf), 0, 1024, 'i');
-		const int sidx = i / 4;
+		const int sidx = (i - 1) / 3;
 		snprintf(gold, sizeof(gold), "%.2f%ci",
 				 ((double)val) / vfloor, suffixes[sidx]);
 		EXPECT_STREQ(gold, buf);
@@ -181,7 +181,7 @@ TEST(OutcursesPrefix, PowersOfTenAsTwos) {
 			break;
 		}
 		val *= 10;
-		if(i % 4 == 3){
+		if(i && i % 3 == 0){
 			vfloor *= 1024;
 		}
 	}while(++i < sizeof(suffixes) * 10);
