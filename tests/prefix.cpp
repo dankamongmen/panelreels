@@ -1,4 +1,5 @@
 #include "main.h"
+#include <cfenv>
 #include <iostream>
 
 TEST(OutcursesPrefix, CornerInts) {
@@ -132,6 +133,31 @@ TEST(OutcursesPrefix, PowersOfTwoNoDec) {
 		val *= 2;
 		if((goldval *= 2) == 1024){
 			goldval = 1;
+		}
+	}while(++i < sizeof(suffixes) * 10);
+	// If we ran through all our suffixes, that's a problem
+	EXPECT_GT(sizeof(suffixes) * 10, i);
+}
+
+TEST(OutcursesPrefix, PowersOfTwoAsTens) {
+	char gold[PREFIXSTRLEN + 1];
+	char buf[PREFIXSTRLEN + 1];
+	uintmax_t vfloor = 1;
+	uintmax_t val = 1;
+	int i = 0;
+	ASSERT_EQ(0, fesetround(0)); // round towards 0 for printf()
+	do{
+		genprefix(val, 1, buf, sizeof(buf), 0, 1000, '\0');
+		const int sidx = i / 10;
+		snprintf(gold, sizeof(gold), "%.2f%c",
+				 ((double)val) / vfloor, suffixes[sidx]);
+		EXPECT_STREQ(gold, buf);
+		if(UINTMAX_MAX / val < 10){
+			break;
+		}
+		val *= 2;
+		if(i % 10 == 9){
+			vfloor *= 1000;
 		}
 	}while(++i < sizeof(suffixes) * 10);
 	// If we ran through all our suffixes, that's a problem
