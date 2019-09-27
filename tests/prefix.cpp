@@ -47,67 +47,93 @@ TEST(OutcursesPrefix, Maxints) {
 const char suffixes[] = "\0KMGTPE";
 
 TEST(OutcursesPrefix, PowersOfTen) {
+	char gold[PREFIXSTRLEN + 1];
 	char buf[PREFIXSTRLEN + 1];
+	uintmax_t goldval = 1;
 	uintmax_t val = 1;
-	char str1[] = "1.00 ";
-	char str2[] = "10.00 ";
-	char str3[] = "100.00 ";
 	int i = 0;
 	do{
 		genprefix(val, 1, buf, sizeof(buf), 0, 1000, '\0');
-		int sidx = i / 3;
-		switch(i % 3){
-			case 0:
-			str1[4] = suffixes[sidx];
-			EXPECT_STREQ(str1, buf);
-			break;
-			case 1:
-			str2[5] = suffixes[sidx];
-			EXPECT_STREQ(str2, buf);
-			break;
-			case 2:
-			str3[6] = suffixes[sidx];
-			EXPECT_STREQ(str3, buf);
-			break;
-		}
+		const int sidx = i / 3;
+		snprintf(gold, sizeof(gold), "%ju.00%c", goldval, suffixes[sidx]);
+		EXPECT_STREQ(gold, buf);
 		if(UINTMAX_MAX / val < 10){
 			break;
 		}
 		val *= 10;
+		if((goldval *= 10) == 1000){
+			goldval = 1;
+		}
 	}while(++i < sizeof(suffixes) * 3);
 	// If we ran through all our suffixes, that's a problem
 	EXPECT_GT(sizeof(suffixes) * 3, i);
 }
 
 TEST(OutcursesPrefix, PowersOfTenNoDec) {
+	char gold[PREFIXSTRLEN + 1];
 	char buf[PREFIXSTRLEN + 1];
+	uintmax_t goldval = 1;
 	uintmax_t val = 1;
-	char str1[] = "1 ";
-	char str2[] = "10 ";
-	char str3[] = "100 ";
 	int i = 0;
 	do{
 		genprefix(val, 1, buf, sizeof(buf), 1, 1000, '\0');
-		int sidx = i / 3;
-		switch(i % 3){
-			case 0:
-			str1[1] = suffixes[sidx];
-			EXPECT_STREQ(str1, buf);
-			break;
-			case 1:
-			str2[2] = suffixes[sidx];
-			EXPECT_STREQ(str2, buf);
-			break;
-			case 2:
-			str3[3] = suffixes[sidx];
-			EXPECT_STREQ(str3, buf);
-			break;
-		}
+		const int sidx = i / 3;
+		snprintf(gold, sizeof(gold), "%ju%c", goldval, suffixes[sidx]);
+		EXPECT_STREQ(gold, buf);
 		if(UINTMAX_MAX / val < 10){
 			break;
 		}
 		val *= 10;
+		if((goldval *= 10) == 1000){
+			goldval = 1;
+		}
 	}while(++i < sizeof(suffixes) * 3);
 	// If we ran through all our suffixes, that's a problem
 	EXPECT_GT(sizeof(suffixes) * 3, i);
+}
+
+TEST(OutcursesPrefix, PowersOfTwo) {
+	char gold[PREFIXSTRLEN + 1];
+	char buf[PREFIXSTRLEN + 1];
+	uintmax_t goldval = 1;
+	uintmax_t val = 1;
+	int i = 0;
+	do{
+		genprefix(val, 1, buf, sizeof(buf), 0, 1024, 'i');
+		const int sidx = i / 10;
+		snprintf(gold, sizeof(gold), "%ju.00%ci", goldval, suffixes[sidx]);
+		EXPECT_STREQ(gold, buf);
+		if(UINTMAX_MAX / val < 10){
+			break;
+		}
+		val *= 2;
+		if((goldval *= 2) == 1024){
+			goldval = 1;
+		}
+	}while(++i < sizeof(suffixes) * 10);
+	// If we ran through all our suffixes, that's a problem
+	EXPECT_GT(sizeof(suffixes) * 10, i);
+}
+
+TEST(OutcursesPrefix, PowersOfTwoNoDec) {
+	char gold[PREFIXSTRLEN + 1];
+	char buf[PREFIXSTRLEN + 1];
+	uintmax_t goldval = 1;
+	uintmax_t val = 1;
+	int i = 0;
+	do{
+		genprefix(val, 1, buf, sizeof(buf), 1, 1024, 'i');
+		const int sidx = i / 10;
+		snprintf(gold, sizeof(gold), "%ju%ci", goldval, suffixes[sidx]);
+		EXPECT_STREQ(gold, buf);
+		if(UINTMAX_MAX / val < 10){
+			break;
+		}
+		val *= 2;
+		if((goldval *= 2) == 1024){
+			goldval = 1;
+		}
+	}while(++i < sizeof(suffixes) * 10);
+	// If we ran through all our suffixes, that's a problem
+	EXPECT_GT(sizeof(suffixes) * 10, i);
 }
