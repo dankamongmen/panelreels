@@ -12,7 +12,7 @@ target_include_directories(outcurses PRIVATE include)
 
 set(CURSES_NEED_WIDE TRUE)
 set(CURSES_NEED_NCURSES TRUE)
-find_package(Curses REQUIRED)
+find_package(Curses 6.1 REQUIRED)
 target_include_directories(outcurses PRIVATE ${CURSES_INCLUDE_DIR})
 target_link_libraries(outcurses INTERFACE ${CURSES_LIBRARIES})
 # FIXME ideally this would come from FindCurses.cmake
@@ -21,7 +21,7 @@ target_compile_options(outcurses PRIVATE -Wall -W)
 
 file(GLOB TESTSRCS CONFIGURE_DEPENDS tests/*.cpp)
 add_executable(outcurses-tester ${TESTSRCS})
-find_package(GTest REQUIRED)
+find_package(GTest 1.9 REQUIRED)
 target_link_libraries(outcurses-tester
 	GTest::GTest
 	outcurses

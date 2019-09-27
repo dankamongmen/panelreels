@@ -1,7 +1,11 @@
 #include "main.h"
+#include <cstdlib>
 #include <iostream>
 
 TEST(OutcursesFade, Fade) {
+  if(getenv("TERM") == nullptr){
+	  GTEST_SKIP();
+  }
   ASSERT_EQ(0, init_outcurses(true));
   wmove(stdscr, 1, 1);
   const auto PERLINE = 16;
