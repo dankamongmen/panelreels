@@ -38,6 +38,16 @@ target_include_directories(outcurses-tester PRIVATE include)
 gtest_discover_tests(outcurses-tester)
 enable_testing()
 
+configure_file(tools/outcurses.pc.cmakein
+	${CMAKE_CURRENT_BINARY_DIR}/outcurses.pc
+	@ONLY
+)
+
+install(FILES
+	${CMAKE_CURRENT_BINARY_DIR}/outcurses.pc
+		DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/pkgconfig
+)
+
 install(TARGETS outcurses
 	LIBRARY
 		DESTINATION ${CMAKE_INSTALL_LIBDIR}
