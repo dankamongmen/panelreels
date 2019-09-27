@@ -13,7 +13,7 @@ add_library(outcurses SHARED ${LIBSRCS})
 target_include_directories(outcurses PRIVATE include)
 set_target_properties(outcurses PROPERTIES
 	PUBLIC_HEADER "include/outcurses.h"
-	VERSION 0.0.1
+	VERSION ${PROJECT_VERSION}
 	SOVERSION 0
 )
 
@@ -40,10 +40,10 @@ enable_testing()
 
 install(TARGETS outcurses
 	LIBRARY
-		DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+		DESTINATION ${CMAKE_INSTALL_LIBDIR}
 		COMPONENT Libraries
 		NAMELINK_COMPONENT Development
 	PUBLIC_HEADER
-		DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 		COMPONENT Development
 )

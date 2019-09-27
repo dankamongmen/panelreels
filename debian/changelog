@@ -1,5 +1,12 @@
+outcurses (0.0.2-1) unstable; urgency=medium
+
+  * Add time-adaptive palette fade
+  * Add genprefix()
+
+ -- Nick Black <dankamongmen@gmail.com>  Fri, 27 Sep 2019 00:12:34 -0400
+
 outcurses (0.0.1-1) unstable; urgency=medium
 
   * Initial release
 
- -- Nick Black (Gmail forwarding address) <dankamongmen@gmail.com>  Fri, 20 Sep 2019 22:20:56 -0400
+ -- Nick Black <dankamongmen@gmail.com>  Fri, 20 Sep 2019 22:20:56 -0400
