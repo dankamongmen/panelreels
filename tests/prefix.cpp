@@ -188,3 +188,52 @@ TEST(OutcursesPrefix, PowersOfTenAsTwos) {
 	// If we ran through all our suffixes, that's a problem
 	EXPECT_GT(sizeof(suffixes) * 10, i);
 }
+
+TEST(OutcursesPrefix, PowersOfTenMinusOne) {
+	char gold[PREFIXSTRLEN + 1];
+	char buf[PREFIXSTRLEN + 1];
+	uintmax_t vfloor = 1;
+	uintmax_t val = 1;
+	int i = 0;
+	do{
+		genprefix(val - 1, 1, buf, sizeof(buf), 0, 1000, '\0');
+		const int sidx = (i - 1) / 3;
+		snprintf(gold, sizeof(gold), "%.2f%c",
+				 ((double)(val - 1)) / vfloor, suffixes[sidx]);
+		EXPECT_STREQ(gold, buf);
+		if(UINTMAX_MAX / val < 10){
+			break;
+		}
+		val *= 10;
+		if(i && i % 3 == 0){
+			vfloor *= 1000;
+		}
+	}while(++i < sizeof(suffixes) * 3);
+	// If we ran through all our suffixes, that's a problem
+	EXPECT_GT(sizeof(suffixes) * 3, i);
+}
+
+TEST(OutcursesPrefix, PowersOfTenMinusOneAsTwos) {
+	char gold[BPREFIXSTRLEN + 1];
+	char buf[BPREFIXSTRLEN + 1];
+	uintmax_t vfloor = 1;
+	uintmax_t val = 1;
+	int i = 0;
+	ASSERT_EQ(0, fesetround(FE_TOWARDZERO));
+	do{
+		genprefix(val - 1, 1, buf, sizeof(buf), 0, 1024, 'i');
+		const int sidx = (i - 1) / 3;
+		snprintf(gold, sizeof(gold), "%.2f%ci",
+				 ((double)(val - 1)) / vfloor, suffixes[sidx]);
+		EXPECT_STREQ(gold, buf);
+		if(UINTMAX_MAX / val < 10){
+			break;
+		}
+		val *= 10;
+		if(i && i % 3 == 0){
+			vfloor *= 1024;
+		}
+	}while(++i < sizeof(suffixes) * 10);
+	// If we ran through all our suffixes, that's a problem
+	EXPECT_GT(sizeof(suffixes) * 10, i);
+}
