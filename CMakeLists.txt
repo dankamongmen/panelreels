@@ -9,6 +9,11 @@ set(CMAKE_CXX_STANDARD 11)
 file(GLOB LIBSRCS CONFIGURE_DEPENDS src/*.c)
 add_library(outcurses SHARED ${LIBSRCS})
 target_include_directories(outcurses PRIVATE include)
+set_target_properties(outcurses PROPERTIES
+	PUBLIC_HEADER "outcurses.h"
+	VERSION 0.0.1
+	SOVERSION 0
+)
 
 set(CURSES_NEED_WIDE TRUE)
 set(CURSES_NEED_NCURSES TRUE)
@@ -29,7 +34,14 @@ target_link_libraries(outcurses-tester
 target_include_directories(outcurses-tester PRIVATE include)
 
 gtest_discover_tests(outcurses-tester)
-
-install(TARGETS outcurses DESTINATION lib)
-
 enable_testing()
+
+install(TARGETS outcurses
+	LIBRARY
+		DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+		COMPONENT Libraries
+		NAMELINK_COMPONENT Development
+	PUBLIC_HEADER
+		DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+		COMPONENT Development
+)
