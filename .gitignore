@@ -1,6 +1,14 @@
+.out
 CMakeCache.txt
 CMakeFiles
 cmake_install.cmake
-.out
+debian/.debhelper
+debian/debhelper-build-stamp
+debian/files
+debian/liboutcurses-dev.substvars
+debian/liboutcurses-dev
+debian/liboutcurses0.substvars
+debian/liboutcurses0
+debian/tmp
 Makefile
 obj-x86_64-linux-gnu

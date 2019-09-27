@@ -6,8 +6,8 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 %:
 	dh $@ --buildsystem=cmake
 
-# Can't run ncurses tests in parallel
+# Don't try to run ncurses tests
 override_dh_auto_test:
 ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
-	cd obj-x86_64-linux-gnu && make test
+	cd obj-x86_64-linux-gnu && env -u TERM make test
 endif

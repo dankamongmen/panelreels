@@ -6,11 +6,13 @@ project(Outcurses VERSION 0.0.2
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 11)
 
+include(GNUInstallDirs)
+
 file(GLOB LIBSRCS CONFIGURE_DEPENDS src/*.c)
 add_library(outcurses SHARED ${LIBSRCS})
 target_include_directories(outcurses PRIVATE include)
 set_target_properties(outcurses PROPERTIES
-	PUBLIC_HEADER "outcurses.h"
+	PUBLIC_HEADER "include/outcurses.h"
 	VERSION 0.0.1
 	SOVERSION 0
 )
@@ -38,10 +40,10 @@ enable_testing()
 
 install(TARGETS outcurses
 	LIBRARY
-		DESTINATION lib
+		DESTINATION "${CMAKE_INSTALL_LIBDIR}"
 		COMPONENT Libraries
 		NAMELINK_COMPONENT Development
 	PUBLIC_HEADER
-		DESTINATION include
+		DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
 		COMPONENT Development
 )
