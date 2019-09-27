@@ -13,7 +13,9 @@ that the "wide" version (NCURSESW) is available.
 
  - NCURSES 6.1+ with wide character support is required.
  - GoogleTest 1.9.0+ is required.
- - CMake 3.13+ is required. Chant the standard incantations.
+   - As of 2019-10, GoogleTest 1.9.0 has not yet been released. Debian and
+	 Arch ship prereleases of it. You need a build with `GTEST_SKIP`.
+ - CMake 3.16+ is required. Chant the standard incantations.
 
 ## Panel wheels
 Panel wheels implement a dynamic collection of collapsible panels within a
