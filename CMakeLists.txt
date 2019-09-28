@@ -38,9 +38,27 @@ target_include_directories(outcurses-tester PRIVATE include)
 gtest_discover_tests(outcurses-tester)
 enable_testing()
 
-configure_file(tools/outcurses.pc.cmakein
+configure_file(tools/outcurses.pc.in
 	${CMAKE_CURRENT_BINARY_DIR}/outcurses.pc
 	@ONLY
+)
+
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(tools/OutcursesConfig.cmake.in
+	${CMAKE_CURRENT_BINARY_DIR}/OutcursesConfig.cmake
+	INSTALL_DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/Outcurses/cmake
+)
+
+write_basic_package_version_file(
+	${CMAKE_CURRENT_BINARY_DIR}/OutcursesConfigVersion.cmake
+	COMPATIBILITY SameMajorVersion
+)
+
+install(FILES
+	${CMAKE_CURRENT_BINARY_DIR}/OutcursesConfig.cmake
+	${CMAKE_CURRENT_BINARY_DIR}/OutcursesConfigVersion.cmake
+	DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake/Outcurses
 )
 
 install(FILES
