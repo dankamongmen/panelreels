@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.13)
-project(Outcurses VERSION 0.0.2
+cmake_minimum_required(VERSION 3.15)
+project(Outcurses VERSION 0.0.3
                   DESCRIPTION "High-level UI via ncurses"
 		  HOMEPAGE_URL "https://nick-black.com/dankwiki/index.php/Outcurses"
 		  LANGUAGES C CXX)
@@ -14,7 +14,7 @@ target_include_directories(outcurses PRIVATE include)
 set_target_properties(outcurses PROPERTIES
 	PUBLIC_HEADER "include/outcurses.h"
 	VERSION ${PROJECT_VERSION}
-	SOVERSION 0
+	SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
 set(CURSES_NEED_WIDE TRUE)
