@@ -42,14 +42,13 @@ int fade(WINDOW* w, unsigned ms);
 // val: value to print
 // decimal: scaling. '1' if none has taken place.
 // buf: buffer in which string will be generated
-// bsize: size of buffer. ought be at least PREFIXSTRLEN
 // omitdec: inhibit printing of all-0 decimal portions
 // mult: base of suffix system (almost always 1000 or 1024)
 // uprefix: character to print following suffix ('i' for kibibytes basically).
 //   only printed if suffix is actually printed (input >= mult).
 static inline const char *
-genprefix(uintmax_t val, unsigned decimal, char *buf, size_t bsize, 
-			int omitdec, unsigned mult, int uprefix){
+genprefix(uintmax_t val, unsigned decimal, char *buf, int omitdec,
+		  unsigned mult, int uprefix){
 	const char prefixes[] = "KMGTPEZY"; // 10^21-1 encompasses 2^64-1
 	unsigned consumed = 0;
 	uintmax_t dv;
@@ -81,20 +80,20 @@ genprefix(uintmax_t val, unsigned decimal, char *buf, size_t bsize,
 		// accuracy to be correct through a two digit mantissa.
 		uintmax_t remain = (val % dv) * 10 / (dv / 10);
 		if(remain || omitdec == 0){
-			snprintf(buf, bsize, "%ju.%02ju%c%c",
-					 val / dv,
-					 remain,
-					 prefixes[consumed - 1],
-					 uprefix);
+			sprintf(buf, "%ju.%02ju%c%c",
+					val / dv,
+					remain,
+					prefixes[consumed - 1],
+					uprefix);
 		}else{
-			snprintf(buf, bsize, "%ju%c%c", val / dv,
-					 prefixes[consumed - 1], uprefix);
+			sprintf(buf, "%ju%c%c", val / dv,
+					prefixes[consumed - 1], uprefix);
 		}
 	}else{ // unscaled output, consumed == 0, dv == mult
 		if(val % decimal || omitdec == 0){
-			snprintf(buf, bsize, "%ju.%02ju", val / decimal, val % decimal);
+			sprintf(buf, "%ju.%02ju", val / decimal, val % decimal);
 		}else{
-			snprintf(buf, bsize, "%ju", val / decimal);
+			sprintf(buf, "%ju", val / decimal);
 		}
 	}
 	return buf;
@@ -102,14 +101,14 @@ genprefix(uintmax_t val, unsigned decimal, char *buf, size_t bsize,
 
 // Mega, kilo, gigabytes. Use PREFIXSTRLEN.
 static inline const char *
-qprefix(uintmax_t val, unsigned decimal, char *buf, size_t bsize, int omitdec){
-	return genprefix(val, decimal, buf, bsize, omitdec, 1000, '\0');
+qprefix(uintmax_t val, unsigned decimal, char *buf, int omitdec){
+	return genprefix(val, decimal, buf, omitdec, 1000, '\0');
 }
 
 // Mibi, kebi, gibibytes. Use BPREFIXSTRLEN.
 static inline const char *
-bprefix(uintmax_t val, unsigned decimal, char *buf, size_t bsize, int omitdec){
-	return genprefix(val, decimal, buf, bsize, omitdec, 1024, 'i');
+bprefix(uintmax_t val, unsigned decimal, char *buf, int omitdec){
+	return genprefix(val, decimal, buf, omitdec, 1024, 'i');
 }
 
 #ifdef __cplusplus

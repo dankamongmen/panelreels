@@ -3,7 +3,7 @@ by Nick Black <dankamongmen@gmail.com>
 
 [![Build Status](https://drone.dsscaw.com:4443/api/badges/dankamongmen/outcurses/status.svg)](https://drone.dsscaw.com:4443/dankamongmen/outcurses)
 
-Outcurses is an extension to NCURSES by Thomas Dickey et al, in the spirit of
+Outcurses is an extension of NCURSES by Thomas Dickey et al, in the spirit of
 the Panels, Menu, and Forms extensions. It does not require patching the
 NCURSES source. You might need to rebuild it to take advantage of all features,
 but this is unlikely if you're using your distro's NCURSES package. Make sure
@@ -15,8 +15,8 @@ that the "wide" version (NCURSESW) is available.
  - GoogleTest 1.9.0+ is required.
    - As of 2019-10, GoogleTest 1.9.0 has not yet been released. Debian ships
 	 a prerelease. Arch is lacking. You need a build with `GTEST_SKIP`.
- - CMake 3.16+ is required on Arch. You can get by with 3.13 on Debian.
-	 Chant the standard incantations, and form your parentheses of salt.
+ - CMake 3.16+ is required on Arch. You can get by with 3.13 on Debian. Chant
+   the standard incantations, and form your parentheses of salt.
 
 ## Panel wheels
 Panel wheels implement a dynamic collection of collapsible panels within a
