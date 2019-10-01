@@ -41,13 +41,13 @@ TEST(OutcursesPrefix, CornerInts) {
 TEST(OutcursesPrefix, Maxints) {
 	char buf[PREFIXSTRLEN + 1];
 	// FIXME these will change based on the size of intmax_t and uintmax_t
-	genprefix(INTMAX_MAX - 1, 1, buf, 1, 1000, '\0');
+	genprefix(INTMAX_MAX - 1, 1, buf, 0, 1000, '\0');
 	EXPECT_STREQ("9.22E", buf);
-	genprefix(INTMAX_MAX, 1, buf, 1, 1000, '\0');
+	genprefix(INTMAX_MAX, 1, buf, 0, 1000, '\0');
 	EXPECT_STREQ("9.22E", buf);
-	genprefix(UINTMAX_MAX - 1, 1, buf, 1, 1000, '\0');
+	genprefix(UINTMAX_MAX - 1, 1, buf, 0, 1000, '\0');
 	EXPECT_STREQ("18.44E", buf);
-	genprefix(UINTMAX_MAX, 1, buf, 1, 1000, '\0');
+	genprefix(UINTMAX_MAX, 1, buf, 0, 1000, '\0');
 	EXPECT_STREQ("18.44E", buf);
 }
 
@@ -55,19 +55,18 @@ TEST(OutcursesPrefix, Maxints1024) {
 	ASSERT_EQ(0, fesetround(FE_TOWARDZERO));
 	char buf[PREFIXSTRLEN + 1], gold[PREFIXSTRLEN + 1];
 	// FIXME these will change based on the size of intmax_t and uintmax_t
-	genprefix(INTMAX_MAX - 1, 1, buf, 1, 1024, '\0');
-	sprintf(gold, "%.2fE", ((double)(INTMAX_MAX - 1)) / (1ull << 60));
+	genprefix(INTMAX_MAX - 1, 1, buf, 0, 1024, 'i');
+	sprintf(gold, "%.2fEi", ((double)(INTMAX_MAX - (1ull << 53))) / (1ull << 60));
 	EXPECT_STREQ(gold, buf);
-	genprefix(INTMAX_MAX, 1, buf, 1, 1024, '\0');
-	sprintf(gold, "%.2fE", ((double)INTMAX_MAX) / (1ull << 60));
+	genprefix(INTMAX_MAX + 1ull, 1, buf, 0, 1024, 'i');
+	sprintf(gold, "%.2fEi", ((double)(INTMAX_MAX + 1ull)) / (1ull << 60));
 	EXPECT_STREQ(gold, buf);
-	genprefix(UINTMAX_MAX - 1, 1, buf, 1, 1024, '\0');
-	sprintf(gold, "%.2fE", ((double)(UINTMAX_MAX - 1)) / (1ull << 60));
-	EXPECT_STREQ(gold, buf);
-	genprefix(UINTMAX_MAX, 1, buf, 1, 1024, '\0');
-	sprintf(gold, "%.2fE", ((double)UINTMAX_MAX) / (1ull << 60));
-	EXPECT_STREQ(gold, buf);
-	sprintf(gold, "%.2fE", ((double)UINTMAX_MAX - (1ull << 53)) / (1ull << 60));
+	genprefix(UINTMAX_MAX - 1, 1, buf, 0, 1024, 'i');
+	EXPECT_STREQ("15.99Ei", buf);
+	genprefix(UINTMAX_MAX, 1, buf, 0, 1024, 'i');
+	EXPECT_STREQ("15.99Ei", buf);
+	genprefix(UINTMAX_MAX - (1ull << 53), 1, buf, 0, 1024, 'i');
+	sprintf(gold, "%.2fEi", ((double)UINTMAX_MAX - (1ull << 53)) / (1ull << 60));
 	EXPECT_STREQ(gold, buf);
 }
 
@@ -233,6 +232,32 @@ TEST(OutcursesPrefix, PowersOfTenMinusOne) {
 		}
 		val *= 10;
 		if(i && i % 3 == 0){
+			vfloor *= 1000;
+		}
+	}while(++i < sizeof(suffixes) * 3);
+	// If we ran through all our suffixes, that's a problem
+	EXPECT_GT(sizeof(suffixes) * 3, i);
+}
+
+TEST(OutcursesPrefix, PowersOfTenPlusOne) {
+	char gold[PREFIXSTRLEN + 1];
+	char buf[PREFIXSTRLEN + 1];
+	uintmax_t vfloor = 1;
+	uintmax_t val = 1;
+	int i = 0;
+	ASSERT_EQ(0, fesetround(FE_TOWARDZERO));
+	do{
+		genprefix(val + 1, 1, buf, 0, 1000, '\0');
+		const int sidx = i / 3;
+		snprintf(gold, sizeof(gold), "%.2f%c",
+				 ((double)(val + 1)) / vfloor, suffixes[sidx]);
+fprintf(stderr, "val + 1: %ju G: %s O: %s vfloor: %ju\n", val + 1, gold, buf, vfloor);
+		EXPECT_STREQ(gold, buf);
+		if(UINTMAX_MAX / val < 10){
+			break;
+		}
+		val *= 10;
+		if(i % 3 == 2){
 			vfloor *= 1000;
 		}
 	}while(++i < sizeof(suffixes) * 3);
