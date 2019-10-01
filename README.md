@@ -36,6 +36,15 @@ means, if the visual space is not exhausted, that selecting "next" or
 displayed panels. This is so that the user interface is consistent across all
 possible panel dynamics.
 
+## fade()
+
+Palette fades in the terminal! Works for any number of supported colors, but
+*does not* affect the "default colors" (ncurses color number -1). Takes as its
+argument a number of milliseconds, which will be the target for a complete
+fade. Blocks, and adapts to timing irregularities (i.e. smoothly takes into
+account early or late wakeups). Upon completion, restores the palette to that
+in use upon entry.
+
 ## genprefix()
 
 genprefix() reduces a (potentially very large) `uintmax_t` to a string of fixed
