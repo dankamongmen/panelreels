@@ -9,11 +9,3 @@ TEST(NCURSESW, AddWch){
   }
   add_wch(WACS_BLOCK);
 }
-
-// Ensure that colors are defined and work.
-TEST(NCURSESW, Colors){
-  if(getenv("TERM") == nullptr){
-	  GTEST_SKIP();
-  }
-  ASSERT_EQ(true, has_colors());
-}

@@ -1,3 +1,9 @@
+outcurses (0.0.3-1) unstable; urgency=medium
+
+  * Include pkgconfig and CMake helpers
+
+ -- Nick Black <dankamongmen@gmail.com>  Sun, 29 Sep 2019 20:20:18 -0400
+
 outcurses (0.0.2-1) unstable; urgency=medium
 
   * Add time-adaptive palette fade

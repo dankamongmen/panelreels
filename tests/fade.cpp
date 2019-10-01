@@ -24,7 +24,5 @@ TEST(OutcursesFade, Fade) {
 	}
   }
   ASSERT_EQ(0, fade(stdscr, 1500));
-  // This should return OK, but fails in headless environments. Check
-  // isendwin() afterwards as a proxy for this function, instead. FIXME
   ASSERT_EQ(0, stop_outcurses(true));
 }

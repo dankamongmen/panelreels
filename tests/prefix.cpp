@@ -195,6 +195,7 @@ TEST(OutcursesPrefix, PowersOfTenMinusOne) {
 	uintmax_t vfloor = 1;
 	uintmax_t val = 1;
 	int i = 0;
+	ASSERT_EQ(0, fesetround(FE_TOWARDZERO));
 	do{
 		genprefix(val - 1, 1, buf, sizeof(buf), 0, 1000, '\0');
 		const int sidx = (i - 1) / 3;

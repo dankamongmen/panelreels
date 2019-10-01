@@ -81,12 +81,9 @@ genprefix(uintmax_t val, unsigned decimal, char *buf, size_t bsize,
 		// accuracy to be correct through a two digit mantissa.
 		uintmax_t remain = (val % dv) * 10 / (dv / 10);
 		if(remain || omitdec == 0){
-			// FIXME we throw the % 100 on remain to avoid a
-			// format-truncation warning. remain ought always be
-			// less than 100, since integer division goes to 0.
 			snprintf(buf, bsize, "%ju.%02ju%c%c",
 					 val / dv,
-					 remain % 100,
+					 remain,
 					 prefixes[consumed - 1],
 					 uprefix);
 		}else{
@@ -103,13 +100,13 @@ genprefix(uintmax_t val, unsigned decimal, char *buf, size_t bsize,
 	return buf;
 }
 
-// Mega, kilo, gigabytes
+// Mega, kilo, gigabytes. Use PREFIXSTRLEN.
 static inline const char *
 qprefix(uintmax_t val, unsigned decimal, char *buf, size_t bsize, int omitdec){
 	return genprefix(val, decimal, buf, bsize, omitdec, 1000, '\0');
 }
 
-// Mibi, kebi, gibibytes
+// Mibi, kebi, gibibytes. Use BPREFIXSTRLEN.
 static inline const char *
 bprefix(uintmax_t val, unsigned decimal, char *buf, size_t bsize, int omitdec){
 	return genprefix(val, decimal, buf, bsize, omitdec, 1024, 'i');
