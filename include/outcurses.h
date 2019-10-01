@@ -75,25 +75,26 @@ genprefix(uintmax_t val, unsigned decimal, char *buf, int omitdec,
 		// Remainder is val % dv, but we want a percentage as scaled integer.
 		// Ideally we would multiply by 100 and divide the result by dv, for
 		// maximum accuracy (dv might not be a multiple of 10--it is not for
-		// 1,024). That can overflow with large 64-bit values, but we can at
-		// least scale by 10 for all valid (val % dv). This yields enough
-		// accuracy to be correct through a two digit mantissa.
-		uintmax_t remain = (val % dv) * 10 / (dv / 10);
-		if(remain || omitdec == 0){
+		// 1,024). That can overflow with large 64-bit values, but we can first
+		// divide both sides by mult, and then scale by 100.
+		if(omitdec && (val % dv) == 0){
+			sprintf(buf, "%ju%c%c", val / dv,
+					prefixes[consumed - 1], uprefix);
+		}else{
+			uintmax_t remain = (dv == mult) ?
+								remain = (val % dv) * 100 / dv :
+								((val % dv) / mult * 100) / (dv / mult);
 			sprintf(buf, "%ju.%02ju%c%c",
 					val / dv,
 					remain,
 					prefixes[consumed - 1],
 					uprefix);
-		}else{
-			sprintf(buf, "%ju%c%c", val / dv,
-					prefixes[consumed - 1], uprefix);
 		}
 	}else{ // unscaled output, consumed == 0, dv == mult
-		if(val % decimal || omitdec == 0){
-			sprintf(buf, "%ju.%02ju", val / decimal, val % decimal);
-		}else{
+		if(omitdec && val % decimal == 0){
 			sprintf(buf, "%ju", val / decimal);
+		}else{
+			sprintf(buf, "%ju.%02ju", val / decimal, val % decimal);
 		}
 	}
 	return buf;

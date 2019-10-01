@@ -52,8 +52,9 @@ width, employing a metrix suffix when appropriate. The base should be specified
 as 1000 for most uses, or 1024 for digital information ('kibibytes' etc.). The
 uprefix is an additional character printed following the suffix, if and only if
 the suffix is printed. If 1024 is the base, it makes sense to use 'i' as a
-uprefix. If omitdecimal is not zero, mantissae consisting entirely of zeroes
-will not be printed. Rounding is always towards zero.
+uprefix. If omitdecimal is not zero, a mantissae consisting entirely of zeroes
+will not be printed if the value is indeed precise. Rounding is always towards
+zero.
 
 The output will be not more than PREFIXSTRLEN+1 (8) characters for a base of
 1000, or BPREFIXSTRLEN+1 (10) for a base greater than 1000 with a uprefix
@@ -63,12 +64,17 @@ Examples:
 
 ```C
 char out[PREFIXSTRLEN + 1]
-genprefix(999, 1, out, 0, 1000, '\0');           ---> "999"
-genprefix(999, 1, out, 0, 1024, 'i');            ---> "999"
+genprefix(999, 1, out, 0, 1000, '\0');           ---> "999.00"
+genprefix(999, 1, out, 1, 1000, '\0');           ---> "999"
+genprefix(999, 1, out, 0, 1024, 'i');            ---> "999.00"
+genprefix(999, 1, out, 1, 1024, 'i');            ---> "999.00"
+genprefix(1000, 1, out, 0, 1000, '\0');          ---> "1.00K"
 genprefix(1000, 1, out, 1, 1000, '\0');          ---> "1K"
-genprefix(1000, 1, out, 0, 1024, 'i');           ---> "1000"
-genprefix(1023, 1, out, 0, 1024, 'i');           ---> "1023"
+genprefix(1000, 1, out, 0, 1024, 'i');           ---> "1000.00"
+genprefix(1023, 1, out, 0, 1024, 'i');           ---> "1023.00"
 genprefix(1024, 1, out, 0, 1024, 'i');           ---> "1.00Ki"
+genprefix(1024, 1, out, 1, 1024, 'i');           ---> "1Ki"
+genprefix(1025, 1, out, 0, 1024, 'i');           ---> "1.00Ki"
 genprefix(99999, 1, out, 0, 1000, '\0');         ---> "999.99K"
 genprefix(99999, 1, out, 1, 1000, '\0');         ---> "999.99K"
 genprefix(100000, 1, out, 0, 1000, '\0');        ---> "100.00K"

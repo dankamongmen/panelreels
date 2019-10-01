@@ -4,11 +4,21 @@
 
 TEST(OutcursesPrefix, CornerInts) {
 	char buf[PREFIXSTRLEN + 1];
+	genprefix(0, 1, buf, 0, 1000, '\0');
+	EXPECT_STREQ("0.00", buf);
+	genprefix(0, 1, buf, 0, 1024, 'i');
+	EXPECT_STREQ("0.00", buf); // no suffix on < mult
+	genprefix(1, 1, buf, 0, 1000, '\0');
+	EXPECT_STREQ("1.00", buf);
+	genprefix(1, 1, buf, 0, 1024, 'i');
+	EXPECT_STREQ("1.00", buf);
 	genprefix(0, 1, buf, 1, 1000, '\0');
 	EXPECT_STREQ("0", buf);
-	genprefix(0, 1, buf, 1, 1000, 'i');
+	genprefix(0, 1, buf, 1, 1024, 'i');
 	EXPECT_STREQ("0", buf); // no suffix on < mult
 	genprefix(1, 1, buf, 1, 1000, '\0');
+	EXPECT_STREQ("1", buf);
+	genprefix(1, 1, buf, 1, 1024, 'i');
 	EXPECT_STREQ("1", buf);
 	genprefix(999, 1, buf, 1, 1000, '\0');
 	EXPECT_STREQ("999", buf);
@@ -31,7 +41,7 @@ TEST(OutcursesPrefix, CornerInts) {
 	genprefix(1025, 1, buf, 0, 1024, 'i');
 	EXPECT_STREQ("1.00Ki", buf);
 	genprefix(1025, 1, buf, 1, 1024, 'i');
-	EXPECT_STREQ("1Ki", buf);
+	EXPECT_STREQ("1.00Ki", buf);
 	genprefix(4096, 1, buf, 1, 1000, '\0');
 	EXPECT_STREQ("4.09K", buf);
 	genprefix(4096, 1, buf, 1, 1024, 'i');
@@ -251,7 +261,6 @@ TEST(OutcursesPrefix, PowersOfTenPlusOne) {
 		const int sidx = i / 3;
 		snprintf(gold, sizeof(gold), "%.2f%c",
 				 ((double)(val + 1)) / vfloor, suffixes[sidx]);
-fprintf(stderr, "val + 1: %ju G: %s O: %s vfloor: %ju\n", val + 1, gold, buf, vfloor);
 		EXPECT_STREQ(gold, buf);
 		if(UINTMAX_MAX / val < 10){
 			break;
