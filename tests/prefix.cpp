@@ -28,8 +28,14 @@ TEST(OutcursesPrefix, CornerInts) {
 	EXPECT_STREQ("1Ki", buf);
 	genprefix(1025, 1, buf, 1, 1000, '\0');
 	EXPECT_STREQ("1.02K", buf);
+	genprefix(1025, 1, buf, 0, 1024, 'i');
+	EXPECT_STREQ("1.00Ki", buf);
 	genprefix(1025, 1, buf, 1, 1024, 'i');
 	EXPECT_STREQ("1Ki", buf);
+	genprefix(4096, 1, buf, 1, 1000, '\0');
+	EXPECT_STREQ("4.09K", buf);
+	genprefix(4096, 1, buf, 1, 1024, 'i');
+	EXPECT_STREQ("4Ki", buf);
 }
 
 TEST(OutcursesPrefix, Maxints) {
@@ -43,6 +49,26 @@ TEST(OutcursesPrefix, Maxints) {
 	EXPECT_STREQ("18.44E", buf);
 	genprefix(UINTMAX_MAX, 1, buf, 1, 1000, '\0');
 	EXPECT_STREQ("18.44E", buf);
+}
+
+TEST(OutcursesPrefix, Maxints1024) {
+	ASSERT_EQ(0, fesetround(FE_TOWARDZERO));
+	char buf[PREFIXSTRLEN + 1], gold[PREFIXSTRLEN + 1];
+	// FIXME these will change based on the size of intmax_t and uintmax_t
+	genprefix(INTMAX_MAX - 1, 1, buf, 1, 1024, '\0');
+	sprintf(gold, "%.2fE", ((double)(INTMAX_MAX - 1)) / (1ull << 60));
+	EXPECT_STREQ(gold, buf);
+	genprefix(INTMAX_MAX, 1, buf, 1, 1024, '\0');
+	sprintf(gold, "%.2fE", ((double)INTMAX_MAX) / (1ull << 60));
+	EXPECT_STREQ(gold, buf);
+	genprefix(UINTMAX_MAX - 1, 1, buf, 1, 1024, '\0');
+	sprintf(gold, "%.2fE", ((double)(UINTMAX_MAX - 1)) / (1ull << 60));
+	EXPECT_STREQ(gold, buf);
+	genprefix(UINTMAX_MAX, 1, buf, 1, 1024, '\0');
+	sprintf(gold, "%.2fE", ((double)UINTMAX_MAX) / (1ull << 60));
+	EXPECT_STREQ(gold, buf);
+	sprintf(gold, "%.2fE", ((double)UINTMAX_MAX - (1ull << 53)) / (1ull << 60));
+	EXPECT_STREQ(gold, buf);
 }
 
 const char suffixes[] = "\0KMGTPE";
