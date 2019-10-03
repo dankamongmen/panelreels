@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD 11)
 
 include(GNUInstallDirs)
 
-file(GLOB LIBSRCS CONFIGURE_DEPENDS src/*.c)
+file(GLOB LIBSRCS CONFIGURE_DEPENDS src/lib/*.c)
 add_library(outcurses SHARED ${LIBSRCS})
 target_include_directories(outcurses PRIVATE include)
 set_target_properties(outcurses PROPERTIES
@@ -25,6 +25,14 @@ target_link_libraries(outcurses INTERFACE ${CURSES_LIBRARIES})
 # FIXME ideally this would come from FindCurses.cmake
 target_compile_definitions(outcurses PRIVATE _DEFAULT_SOURCE _XOPEN_SOURCE=600)
 target_compile_options(outcurses PRIVATE -Wall -W)
+
+file(GLOB BINSRCS CONFIGURE_DEPENDS src/bin/*.c)
+add_executable(outcurses-demo ${BINSRCS})
+target_include_directories(outcurses-demo PRIVATE include)
+target_compile_options(outcurses-demo PRIVATE
+    -Wall -Wextra
+)
+target_link_libraries(outcurses-demo outcurses)
 
 file(GLOB TESTSRCS CONFIGURE_DEPENDS tests/*.cpp)
 add_executable(outcurses-tester ${TESTSRCS})
