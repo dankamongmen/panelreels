@@ -24,7 +24,10 @@ target_include_directories(outcurses PRIVATE ${CURSES_INCLUDE_DIR})
 target_link_libraries(outcurses INTERFACE ${CURSES_LIBRARIES})
 # FIXME ideally this would come from FindCurses.cmake
 target_compile_definitions(outcurses PRIVATE _DEFAULT_SOURCE _XOPEN_SOURCE=600)
-target_compile_options(outcurses PRIVATE -Wall -W)
+target_compile_options(outcurses PRIVATE
+		${CURSES_CFLAGS} ${CURSES_CFLAGS_OTHER}
+		-Wall -Wextra -W
+)
 
 file(GLOB BINSRCS CONFIGURE_DEPENDS src/bin/*.c)
 add_executable(outcurses-demo ${BINSRCS})
