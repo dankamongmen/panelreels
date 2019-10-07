@@ -19,6 +19,28 @@ int init_outcurses(bool initcurses);
 // restoring the screen and cleaning up ncurses.
 int stop_outcurses(bool stopcurses);
 
+// A panelwheel is an ncurses window devoted to displaying zero or more
+// line-oriented, contained panels between which the user may navigate. If at
+// least one panel exists, there is an active panel. As much of the active
+// panel as is possible is always displayed. If there is space left over, other
+// panels are included in the display. Panels can come and go at any time, and
+// can grow or shrink at any time. Each panel has a details depth (how many
+// levels of hierarchal data ought be shown).
+//
+// This structure is amenable both to scrolling gestures and keystrokes.
+typedef struct panelwheel {
+  WINDOW* w;           // ncurses WINDOW we're taking over, non-NULL
+  int footerlines;     // leave this many lines alone at bottom, >=0
+  int headerlines;     // leave this many lines alone at top, >=0
+  int leftcolumns;     // leave this many columns alone on left, >=0
+  int rightcolumns;    // leave this many columns alone on right, >=0 
+  bool circular;       // is navigation circular (does moving down from the
+                       //  last panel move to the first, and vice versa)?
+} panelwheel;
+
+// Create a panelwheel according to the provided specifications.
+int init_panelwheel(panelwheel* pwheel);
+
 // Do a palette fade on the specified screen over the course of ms milliseconds.
 int fade(WINDOW* w, unsigned ms);
 
