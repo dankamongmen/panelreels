@@ -3,29 +3,54 @@ by Nick Black <dankamongmen@gmail.com>
 
 [![Build Status](https://drone.dsscaw.com:4443/api/badges/dankamongmen/outcurses/status.svg)](https://drone.dsscaw.com:4443/dankamongmen/outcurses)
 
-Outcurses is an extension of NCURSES by Thomas Dickey et al, in the spirit of
-the Panels, Menu, and Forms extensions. It does not require patching the
-NCURSES source. You might need to rebuild it to take advantage of all features,
-but this is unlikely if you're using your distro's NCURSES package. Make sure
-that the "wide" version (NCURSESW) is available.
+Outcurses is middleware atop NCURSES by Thomas Dickey et al, in the spirit of
+the Panels, Menu, and Forms extensions. Its capabilities include "panelwheels",
+palette fades, and other miscellany.
 
-* Building
+## Building
 
- - NCURSES 6.1+ with wide character support is required.
- - GoogleTest 1.9.0+ is required.
-   - As of 2019-10, GoogleTest 1.9.0 has not yet been released. Debian ships
-	 a prerelease. Arch is lacking. You need a build with `GTEST_SKIP`.
- - CMake 3.16+ is required on Arch. You can get by with 3.13 on Debian. Chant
-   the standard incantations, and form your parentheses of salt.
+- NCURSES 6.1+ with wide character support is required.
+- GoogleTest 1.9.0+ is required. As of 2019-10, GoogleTest 1.9.0 has not yet
+    been released. Debian ships a prerelease. Arch is lacking. You need a build
+    with `GTEST_SKIP`.
+- CMake 3.16+ is required on Arch. You can get by with 3.13 on Debian. Chant
+    the standard incantations, and form your parentheses of salt.
 
-## Panel wheels
-Panel wheels implement a dynamic collection of collapsible panels within a
-provided Ncurses WINDOW *. The panels can be independently grown and shrunk,
-any number of panels can be created, and panels and disappear and reappear. At
-any time, zero or one panels have the focus (zero only if there exist no
-panels). Visible space is allocated to the focused panel up through its needs,
-if possible. If any space remains, it is allocated to other panels based in
-order of their distance from the focused panel, until exhausted.
+## Getting started
+
+`init_outcurses()` must be called before calling most functions in outcurses.
+If you have not initialized ncurses yourself, pass `true`, and
+`init_outcurses()` will do so. Otherwise, pass `false` and ncurses proper will
+be left unmolested.
+
+When you're done, call `stop_outcurses()` with `true` to have it tear down
+itself and ncurses. If you intend to close down ncurses yourself, pass `false`.
+
+Outcurses is thread-safe so long as multiple threads never call into it
+concurrently (to the degree that the underlying ncurses is thread-safe).
+
+## Outcurses and SIGWINCH
+
+Outcurses does not explicitly install any SIGWINCH (SIGnal WIndow CHange)
+handler. Ncurses itself will install a SIGWINCH handler *if the signal is
+currently ignored* (the default). The effect of said handler is twofold:
+
+* The next call to `wgetch()` et al will return `KEY_RESIZE`, and
+* The next call to either the `wgetch()` family or `doupdate()` will invoke
+    `resizeterm()`, prior to returning `KEY_RESIZE` (in the former case).
+
+A call into any Ncurses-related outcurses function will result in redraws
+taking into account the new window dimensions.
+
+## Panelwheels
+Panelwheels implement a dynamic collection of collapsible, tiling subwindows
+("panels") within a provided Ncurses WINDOW. The panels can be independently
+grown and shrunk, any number of panels can be created, and panels and disappear and reappear. At any time, zero or one panels have the focus (zero only if
+there exist no panels). Visible space is allocated to the focused panel up
+through its needs, if possible. If any space remains, it is allocated to other
+panels based in order of their distance from the focused panel, until
+exhausted. Subselection (the concept of an active member of a panel) and
+scrolling within a panel are supported.
 
 Arbitrary absolute selection of a panel is supported, as are "next" and
 "previous" relative selections (i.e., search, up/left, and down/right). The
@@ -35,6 +60,29 @@ means, if the visual space is not exhausted, that selecting "next" or
 "previous" at the lower or upper boundary respectively will permute the
 displayed panels. This is so that the user interface is consistent across all
 possible panel dynamics.
+
+### Panelwheel details
+
+It is useful to consider three classes of event that affect panelwheel state:
+
+* The user can perform an action. Examples include moving to the previous or
+    next panel, expanding or collapsing a panel, or moving among members within
+    a panel.
+* An action can arise from program control flow. Examples include adding a
+    panel (perhaps based on a kernel event) and updating a statistic (perhaps
+    based on a periodic sampling).
+
+the terminal associated with the program can change. By far the
+most important example is a window resize resulting in SIGWINCH. Outcurses does
+not by itself install a SIGWINCH handler.
+So long as your
+
+not install a SIGWINCH handler; so long as your program doesn't, either
+
+
+* Either zero or one panel is "active". If any panels exist, one of them is the
+   active panel (there can only be no active panel if there are no panels). 
+* If the active panel is removed, if there
 
 ## fade()
 
