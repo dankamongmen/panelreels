@@ -47,7 +47,7 @@ int fade(WINDOW* w, unsigned ms);
 // uprefix: character to print following suffix ('i' for kibibytes basically).
 //   only printed if suffix is actually printed (input >= mult).
 static inline const char *
-genprefix(uintmax_t val, unsigned decimal, char *buf, int omitdec,
+enmetric(uintmax_t val, unsigned decimal, char *buf, int omitdec,
 		  unsigned mult, int uprefix){
 	const char prefixes[] = "KMGTPEZY"; // 10^21-1 encompasses 2^64-1
 	unsigned consumed = 0;
@@ -103,13 +103,13 @@ genprefix(uintmax_t val, unsigned decimal, char *buf, int omitdec,
 // Mega, kilo, gigabytes. Use PREFIXSTRLEN.
 static inline const char *
 qprefix(uintmax_t val, unsigned decimal, char *buf, int omitdec){
-	return genprefix(val, decimal, buf, omitdec, 1000, '\0');
+	return enmetric(val, decimal, buf, omitdec, 1000, '\0');
 }
 
 // Mibi, kebi, gibibytes. Use BPREFIXSTRLEN.
 static inline const char *
 bprefix(uintmax_t val, unsigned decimal, char *buf, int omitdec){
-	return genprefix(val, decimal, buf, omitdec, 1024, 'i');
+	return enmetric(val, decimal, buf, omitdec, 1024, 'i');
 }
 
 #ifdef __cplusplus

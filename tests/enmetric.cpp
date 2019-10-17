@@ -4,60 +4,60 @@
 
 TEST(OutcursesPrefix, CornerInts) {
 	char buf[PREFIXSTRLEN + 1];
-	genprefix(0, 1, buf, 0, 1000, '\0');
+	enmetric(0, 1, buf, 0, 1000, '\0');
 	EXPECT_STREQ("0.00", buf);
-	genprefix(0, 1, buf, 0, 1024, 'i');
+	enmetric(0, 1, buf, 0, 1024, 'i');
 	EXPECT_STREQ("0.00", buf); // no suffix on < mult
-	genprefix(1, 1, buf, 0, 1000, '\0');
+	enmetric(1, 1, buf, 0, 1000, '\0');
 	EXPECT_STREQ("1.00", buf);
-	genprefix(1, 1, buf, 0, 1024, 'i');
+	enmetric(1, 1, buf, 0, 1024, 'i');
 	EXPECT_STREQ("1.00", buf);
-	genprefix(0, 1, buf, 1, 1000, '\0');
+	enmetric(0, 1, buf, 1, 1000, '\0');
 	EXPECT_STREQ("0", buf);
-	genprefix(0, 1, buf, 1, 1024, 'i');
+	enmetric(0, 1, buf, 1, 1024, 'i');
 	EXPECT_STREQ("0", buf); // no suffix on < mult
-	genprefix(1, 1, buf, 1, 1000, '\0');
+	enmetric(1, 1, buf, 1, 1000, '\0');
 	EXPECT_STREQ("1", buf);
-	genprefix(1, 1, buf, 1, 1024, 'i');
+	enmetric(1, 1, buf, 1, 1024, 'i');
 	EXPECT_STREQ("1", buf);
-	genprefix(999, 1, buf, 1, 1000, '\0');
+	enmetric(999, 1, buf, 1, 1000, '\0');
 	EXPECT_STREQ("999", buf);
-	genprefix(1000, 1, buf, 1, 1000, '\0');
+	enmetric(1000, 1, buf, 1, 1000, '\0');
 	EXPECT_STREQ("1K", buf);
-	genprefix(1000, 1, buf, 1, 1000, 'i');
+	enmetric(1000, 1, buf, 1, 1000, 'i');
 	EXPECT_STREQ("1Ki", buf);
-	genprefix(1000, 1, buf, 1, 1024, 'i');
+	enmetric(1000, 1, buf, 1, 1024, 'i');
 	EXPECT_STREQ("1000", buf); // FIXME should be 0.977Ki
-	genprefix(1023, 1, buf, 1, 1000, '\0');
+	enmetric(1023, 1, buf, 1, 1000, '\0');
 	EXPECT_STREQ("1.02K", buf);
-	genprefix(1023, 1, buf, 1, 1024, 'i');
+	enmetric(1023, 1, buf, 1, 1024, 'i');
 	EXPECT_STREQ("1023", buf);
-	genprefix(1024, 1, buf, 1, 1000, '\0');
+	enmetric(1024, 1, buf, 1, 1000, '\0');
 	EXPECT_STREQ("1.02K", buf);
-	genprefix(1024, 1, buf, 1, 1024, 'i');
+	enmetric(1024, 1, buf, 1, 1024, 'i');
 	EXPECT_STREQ("1Ki", buf);
-	genprefix(1025, 1, buf, 1, 1000, '\0');
+	enmetric(1025, 1, buf, 1, 1000, '\0');
 	EXPECT_STREQ("1.02K", buf);
-	genprefix(1025, 1, buf, 0, 1024, 'i');
+	enmetric(1025, 1, buf, 0, 1024, 'i');
 	EXPECT_STREQ("1.00Ki", buf);
-	genprefix(1025, 1, buf, 1, 1024, 'i');
+	enmetric(1025, 1, buf, 1, 1024, 'i');
 	EXPECT_STREQ("1.00Ki", buf);
-	genprefix(4096, 1, buf, 1, 1000, '\0');
+	enmetric(4096, 1, buf, 1, 1000, '\0');
 	EXPECT_STREQ("4.09K", buf);
-	genprefix(4096, 1, buf, 1, 1024, 'i');
+	enmetric(4096, 1, buf, 1, 1024, 'i');
 	EXPECT_STREQ("4Ki", buf);
 }
 
 TEST(OutcursesPrefix, Maxints) {
 	char buf[PREFIXSTRLEN + 1];
 	// FIXME these will change based on the size of intmax_t and uintmax_t
-	genprefix(INTMAX_MAX - 1, 1, buf, 0, 1000, '\0');
+	enmetric(INTMAX_MAX - 1, 1, buf, 0, 1000, '\0');
 	EXPECT_STREQ("9.22E", buf);
-	genprefix(INTMAX_MAX, 1, buf, 0, 1000, '\0');
+	enmetric(INTMAX_MAX, 1, buf, 0, 1000, '\0');
 	EXPECT_STREQ("9.22E", buf);
-	genprefix(UINTMAX_MAX - 1, 1, buf, 0, 1000, '\0');
+	enmetric(UINTMAX_MAX - 1, 1, buf, 0, 1000, '\0');
 	EXPECT_STREQ("18.44E", buf);
-	genprefix(UINTMAX_MAX, 1, buf, 0, 1000, '\0');
+	enmetric(UINTMAX_MAX, 1, buf, 0, 1000, '\0');
 	EXPECT_STREQ("18.44E", buf);
 }
 
@@ -65,17 +65,17 @@ TEST(OutcursesPrefix, Maxints1024) {
 	ASSERT_EQ(0, fesetround(FE_TOWARDZERO));
 	char buf[PREFIXSTRLEN + 1], gold[PREFIXSTRLEN + 1];
 	// FIXME these will change based on the size of intmax_t and uintmax_t
-	genprefix(INTMAX_MAX - 1, 1, buf, 0, 1024, 'i');
+	enmetric(INTMAX_MAX - 1, 1, buf, 0, 1024, 'i');
 	sprintf(gold, "%.2fEi", ((double)(INTMAX_MAX - (1ull << 53))) / (1ull << 60));
 	EXPECT_STREQ(gold, buf);
-	genprefix(INTMAX_MAX + 1ull, 1, buf, 0, 1024, 'i');
+	enmetric(INTMAX_MAX + 1ull, 1, buf, 0, 1024, 'i');
 	sprintf(gold, "%.2fEi", ((double)(INTMAX_MAX + 1ull)) / (1ull << 60));
 	EXPECT_STREQ(gold, buf);
-	genprefix(UINTMAX_MAX - 1, 1, buf, 0, 1024, 'i');
+	enmetric(UINTMAX_MAX - 1, 1, buf, 0, 1024, 'i');
 	EXPECT_STREQ("15.99Ei", buf);
-	genprefix(UINTMAX_MAX, 1, buf, 0, 1024, 'i');
+	enmetric(UINTMAX_MAX, 1, buf, 0, 1024, 'i');
 	EXPECT_STREQ("15.99Ei", buf);
-	genprefix(UINTMAX_MAX - (1ull << 53), 1, buf, 0, 1024, 'i');
+	enmetric(UINTMAX_MAX - (1ull << 53), 1, buf, 0, 1024, 'i');
 	sprintf(gold, "%.2fEi", ((double)UINTMAX_MAX - (1ull << 53)) / (1ull << 60));
 	EXPECT_STREQ(gold, buf);
 }
@@ -89,7 +89,7 @@ TEST(OutcursesPrefix, PowersOfTen) {
 	uintmax_t val = 1;
 	int i = 0;
 	do{
-		genprefix(val, 1, buf, 0, 1000, '\0');
+		enmetric(val, 1, buf, 0, 1000, '\0');
 		const int sidx = i / 3;
 		snprintf(gold, sizeof(gold), "%ju.00%c", goldval, suffixes[sidx]);
 		EXPECT_STREQ(gold, buf);
@@ -112,7 +112,7 @@ TEST(OutcursesPrefix, PowersOfTenNoDec) {
 	uintmax_t val = 1;
 	int i = 0;
 	do{
-		genprefix(val, 1, buf, 1, 1000, '\0');
+		enmetric(val, 1, buf, 1, 1000, '\0');
 		const int sidx = i / 3;
 		snprintf(gold, sizeof(gold), "%ju%c", goldval, suffixes[sidx]);
 		EXPECT_STREQ(gold, buf);
@@ -135,7 +135,7 @@ TEST(OutcursesPrefix, PowersOfTwo) {
 	uintmax_t val = 1;
 	int i = 0;
 	do{
-		genprefix(val, 1, buf, 0, 1024, 'i');
+		enmetric(val, 1, buf, 0, 1024, 'i');
 		const int sidx = i / 10;
 		snprintf(gold, sizeof(gold), "%ju.00%ci", goldval, suffixes[sidx]);
 		EXPECT_STREQ(gold, buf);
@@ -158,7 +158,7 @@ TEST(OutcursesPrefix, PowersOfTwoNoDec) {
 	uintmax_t val = 1;
 	int i = 0;
 	do{
-		genprefix(val, 1, buf, 1, 1024, 'i');
+		enmetric(val, 1, buf, 1, 1024, 'i');
 		const int sidx = i / 10;
 		snprintf(gold, sizeof(gold), "%ju%ci", goldval, suffixes[sidx]);
 		EXPECT_STREQ(gold, buf);
@@ -182,7 +182,7 @@ TEST(OutcursesPrefix, PowersOfTwoAsTens) {
 	int i = 0;
 	ASSERT_EQ(0, fesetround(FE_TOWARDZERO));
 	do{
-		genprefix(val, 1, buf, 0, 1000, '\0');
+		enmetric(val, 1, buf, 0, 1000, '\0');
 		const int sidx = i / 10;
 		snprintf(gold, sizeof(gold), "%.2f%c",
 				 ((double)val) / vfloor, suffixes[sidx]);
@@ -207,7 +207,7 @@ TEST(OutcursesPrefix, PowersOfTenAsTwos) {
 	int i = 0;
 	ASSERT_EQ(0, fesetround(FE_TOWARDZERO));
 	do{
-		genprefix(val, 1, buf, 0, 1024, 'i');
+		enmetric(val, 1, buf, 0, 1024, 'i');
 		const int sidx = (i - 1) / 3;
 		snprintf(gold, sizeof(gold), "%.2f%ci",
 				 ((double)val) / vfloor, suffixes[sidx]);
@@ -232,7 +232,7 @@ TEST(OutcursesPrefix, PowersOfTenMinusOne) {
 	int i = 0;
 	ASSERT_EQ(0, fesetround(FE_TOWARDZERO));
 	do{
-		genprefix(val - 1, 1, buf, 0, 1000, '\0');
+		enmetric(val - 1, 1, buf, 0, 1000, '\0');
 		const int sidx = (i - 1) / 3;
 		snprintf(gold, sizeof(gold), "%.2f%c",
 				 ((double)(val - 1)) / vfloor, suffixes[sidx]);
@@ -257,7 +257,7 @@ TEST(OutcursesPrefix, PowersOfTenPlusOne) {
 	int i = 0;
 	ASSERT_EQ(0, fesetround(FE_TOWARDZERO));
 	do{
-		genprefix(val + 1, 1, buf, 0, 1000, '\0');
+		enmetric(val + 1, 1, buf, 0, 1000, '\0');
 		const int sidx = i / 3;
 		snprintf(gold, sizeof(gold), "%.2f%c",
 				 ((double)(val + 1)) / vfloor, suffixes[sidx]);
@@ -282,7 +282,7 @@ TEST(OutcursesPrefix, PowersOfTenMinusOneAsTwos) {
 	int i = 0;
 	ASSERT_EQ(0, fesetround(FE_TOWARDZERO));
 	do{
-		genprefix(val - 1, 1, buf, 0, 1024, 'i');
+		enmetric(val - 1, 1, buf, 0, 1024, 'i');
 		const int sidx = (i - 1) / 3;
 		snprintf(gold, sizeof(gold), "%.2f%ci",
 				 ((double)(val - 1)) / vfloor, suffixes[sidx]);
