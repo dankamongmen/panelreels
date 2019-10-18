@@ -23,8 +23,12 @@ typedef struct panelreel_options {
   int headerlines;     // leave this many lines alone at top, >=0
   int leftcolumns;     // leave this many columns alone on left, >=0
   int rightcolumns;    // leave this many columns alone on right, >=0 
+  bool infinitescroll; // is scrolling infinite (can one move down or up
+                       //  forever, or is an end reached?)
   bool circular;       // is navigation circular (does moving down from the
-                       //  last panel move to the first, and vice versa)?
+                       //  last panel move to the first, and vice versa)? only
+                       //  meaningful when infinitescroll is true.
+                       //  if infinitescroll is false, this must be false.
 } panelreel_options;
 
 struct panelreel;
