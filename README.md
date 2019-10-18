@@ -117,6 +117,7 @@ a screen border and tablet borders are in use. The tablets are A, B, and C.
 No gap is in use between tablets. Xs indicate focus. If B currently has focus,
 and the next tablet is selected, the result would be something like:
 
+```
  -------------                         -------------
  | --------- |                         | --------- |
  | |   A   | |                         | |   A   | |
@@ -128,9 +129,11 @@ and the next tablet is selected, the result would be something like:
  | |   C   | |                         | |XX C XX| |
  | --------- |                         | --------- |
  -------------                         -------------
+```
 
 If instead the previous tablet had been selected, we would of course get:
 
+```
  -------------                         -------------
  | --------- |                         | --------- |
  | |   A   | |                         | |XX A XX| |
@@ -142,6 +145,7 @@ If instead the previous tablet had been selected, we would of course get:
  | |   C   | |                         | |   C   | |
  | --------- |                         | --------- |
  -------------                         -------------
+```
 
 If A instead has the focus, choosing the "next tablet" is trivial: the tablets
 do not change, and focus shifts to B. If we choose the "previous tablet", there
@@ -149,6 +153,7 @@ are three possibilities:
 
 * Finite scrolling: No change. The tablets stay in place. A remains focused.
 
+```
  -------------                         -------------
  | --------- |                         | --------- |
  | |XX A XX| |                         | |XX A XX| |
@@ -160,9 +165,11 @@ are three possibilities:
  | |   C   | |                         | |   C   | |
  | --------- |                         | --------- |
  -------------                         -------------
+```
 
 * Infinite scrolling with rotation: Focus shifts to C, which moves to the top:
 
+```
  -------------                         -------------
  | --------- |                         | --------- |
  | |XX A XX| |                         | |XX C XX| |
@@ -174,9 +181,11 @@ are three possibilities:
  | |   C   | |                         | |   B   | |
  | --------- |                         | --------- |
  -------------                         -------------
+```
 
 * Infinite scrolling with focus rotation: Focus shifts to C, and moves to the bottom:
 
+```
  -------------                         -------------
  | --------- |                         | --------- |
  | |XX A XX| |                         | |   A   | |
@@ -188,12 +197,14 @@ are three possibilities:
  | |   C   | |                         | |XX C XX| |
  | --------- |                         | --------- |
  -------------                         -------------
+```
 
 Now imagine us to have the same 3 tablets, but each is now 4 lines. It is
 impossible to have two of these tablets wholly onscreen at once, let alone all
 three. If we started with A focused and at the top, the result after all three
 tablets have grown will be:
 
+```
  -------------                         -------------
  | --------- |                         | --------- | A remains at the top, and
  | |XX A XX| |                         | |XXXXXXX| | is wholly on-screen. B is
@@ -205,6 +216,7 @@ tablets have grown will be:
  | |   C   | |                         | |       | |
  | --------- |                         | |   B   | |
  -------------                         -------------
+```
 
 When a tablet is enlarged, it grows towards the nearest boundary, unless that
 would result in the focused tablet being moved, in which case the growing
@@ -216,6 +228,7 @@ screen is always filled from the top), even if it moves the focused tablet.
 A 12-line screen has three tablets: A (2 lines), B (1 line), C (1 line), filling
 the screen exactly. B is focused, and grows two lines:
 
+```
  -------------                         -------------
  | --------- |                         | --------- | B grows down, since it is
  | |   A   | |                         | |   A   | | closer to the bottom (3
@@ -228,9 +241,11 @@ the screen exactly. B is focused, and grows two lines:
  | |   C   | |                         | --------- |
  | --------- |                         | --------- |
  -------------                         -------------
+```
 
 Starting with the same situation, A grows by 2 lines instead:
 
+```
  -------------                         -------------
  | --------- |                         | |       | | A grows up. It would have
  | |   A   | |                         | |   A   | | grown down, but that would
@@ -243,6 +258,7 @@ Starting with the same situation, A grows by 2 lines instead:
  | |   C   | |                         | |   C   | |
  | --------- |                         | --------- |
  -------------                         -------------
+```
 
 If we started with the same situation, and B grew by 7 lines, it would first
 push C entirely off-screen (B would then have four lines of text), and then
