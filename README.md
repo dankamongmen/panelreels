@@ -1,4 +1,4 @@
-# outcurses
+# [outcurses](https://nick-black.com/dankwiki/index.php/Outcurses)
 by Nick Black <dankamongmen@gmail.com>
 
 [![Build Status](https://drone.dsscaw.com:4443/api/badges/dankamongmen/outcurses/status.svg)](https://drone.dsscaw.com:4443/dankamongmen/outcurses)
@@ -45,14 +45,14 @@ fade. Blocks, and adapts to timing irregularities (i.e. smoothly takes into
 account early or late wakeups). Upon completion, restores the palette to that
 in use upon entry.
 
-## genprefix()
+## enmetric()
 
-genprefix() reduces a (potentially very large) `uintmax_t` to a string of fixed
-width, employing a metrix suffix when appropriate. The base should be specified
+enmetric() reduces a (potentially very large) `uintmax_t` to a string of fixed
+width, employing a metrix suffix when appropriate. `base` should be specified
 as 1000 for most uses, or 1024 for digital information ('kibibytes' etc.). The
 uprefix is an additional character printed following the suffix, if and only if
 the suffix is printed. If 1024 is the base, it makes sense to use 'i' as a
-uprefix. If omitdecimal is not zero, a mantissae consisting entirely of zeroes
+uprefix. If `omitdecimal` is not zero, a mantissa consisting entirely of zeroes
 will not be printed if the value is indeed precise. Rounding is always towards
 zero.
 
@@ -64,31 +64,31 @@ Examples:
 
 ```C
 char out[PREFIXSTRLEN + 1]
-genprefix(999, 1, out, 0, 1000, '\0');           ---> "999.00"
-genprefix(999, 1, out, 1, 1000, '\0');           ---> "999"
-genprefix(999, 1, out, 0, 1024, 'i');            ---> "999.00"
-genprefix(999, 1, out, 1, 1024, 'i');            ---> "999.00"
-genprefix(1000, 1, out, 0, 1000, '\0');          ---> "1.00K"
-genprefix(1000, 1, out, 1, 1000, '\0');          ---> "1K"
-genprefix(1000, 1, out, 0, 1024, 'i');           ---> "1000.00"
-genprefix(1023, 1, out, 0, 1024, 'i');           ---> "1023.00"
-genprefix(1024, 1, out, 0, 1024, 'i');           ---> "1.00Ki"
-genprefix(1024, 1, out, 1, 1024, 'i');           ---> "1Ki"
-genprefix(1025, 1, out, 0, 1024, 'i');           ---> "1.00Ki"
-genprefix(99999, 1, out, 0, 1000, '\0');         ---> "999.99K"
-genprefix(99999, 1, out, 1, 1000, '\0');         ---> "999.99K"
-genprefix(100000, 1, out, 0, 1000, '\0');        ---> "100.00K"
-genprefix(100000, 1, out, 1, 1000, '\0');        ---> "100K"
-genprefix(100000, 1, out, 1, 1024, 'i');         ---> "97.65Ki"
-genprefix(1u << 17, 1, out, 1, 1000, '\0');      ---> "131.07K"
-genprefix(1u << 17, 1, out, 0, 1024, 'i');       ---> "128.00Ki"
-genprefix(1u << 17, 1, out, 1, 1024, 'i');       ---> "128Ki"
-genprefix(INTMAX_MAX, 1, out, 1, 1000, '\0');    ---> "9.22E"
-genprefix(INTMAX_MAX + 1, 1, out, 1, 1000, '\0');---> "9.22E"
-genprefix(INTMAX_MAX, 1, out, 1, 1024, 'i');     ---> "7.99Ei"
-genprefix(INTMAX_MAX + 1, 1, out, 1, 1024, 'i'); ---> "8Ei"
-genprefix(UINTMAX_MAX, 1, out, 1, 1000, '\0');   ---> "18.44E"
-genprefix(UINTMAX_MAX, 1, out, 1, 1024, 'i');    ---> "15.99Ei"
+enmetric(999, 1, out, 0, 1000, '\0');           ---> "999.00"
+enmetric(999, 1, out, 1, 1000, '\0');           ---> "999"
+enmetric(999, 1, out, 0, 1024, 'i');            ---> "999.00"
+enmetric(999, 1, out, 1, 1024, 'i');            ---> "999.00"
+enmetric(1000, 1, out, 0, 1000, '\0');          ---> "1.00K"
+enmetric(1000, 1, out, 1, 1000, '\0');          ---> "1K"
+enmetric(1000, 1, out, 0, 1024, 'i');           ---> "1000.00"
+enmetric(1023, 1, out, 0, 1024, 'i');           ---> "1023.00"
+enmetric(1024, 1, out, 0, 1024, 'i');           ---> "1.00Ki"
+enmetric(1024, 1, out, 1, 1024, 'i');           ---> "1Ki"
+enmetric(1025, 1, out, 0, 1024, 'i');           ---> "1.00Ki"
+enmetric(99999, 1, out, 0, 1000, '\0');         ---> "999.99K"
+enmetric(99999, 1, out, 1, 1000, '\0');         ---> "999.99K"
+enmetric(100000, 1, out, 0, 1000, '\0');        ---> "100.00K"
+enmetric(100000, 1, out, 1, 1000, '\0');        ---> "100K"
+enmetric(100000, 1, out, 1, 1024, 'i');         ---> "97.65Ki"
+enmetric(1u << 17, 1, out, 1, 1000, '\0');      ---> "131.07K"
+enmetric(1u << 17, 1, out, 0, 1024, 'i');       ---> "128.00Ki"
+enmetric(1u << 17, 1, out, 1, 1024, 'i');       ---> "128Ki"
+enmetric(INTMAX_MAX, 1, out, 1, 1000, '\0');    ---> "9.22E"
+enmetric(INTMAX_MAX + 1, 1, out, 1, 1000, '\0');---> "9.22E"
+enmetric(INTMAX_MAX, 1, out, 1, 1024, 'i');     ---> "7.99Ei"
+enmetric(INTMAX_MAX + 1, 1, out, 1, 1024, 'i'); ---> "8Ei"
+enmetric(UINTMAX_MAX, 1, out, 1, 1000, '\0');   ---> "18.44E"
+enmetric(UINTMAX_MAX, 1, out, 1, 1024, 'i');    ---> "15.99Ei"
 ```
 
 I know this doesn't have anything to do with ncurses, but eh, it's output.
