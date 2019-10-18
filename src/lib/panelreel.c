@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
-#include "outcurses.h"
+#include "panelreel.h"
 
 typedef struct panelreel {
   panelreel_options popts;
