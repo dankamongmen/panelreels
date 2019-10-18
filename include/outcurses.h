@@ -19,7 +19,7 @@ int init_outcurses(bool initcurses);
 // restoring the screen and cleaning up ncurses.
 int stop_outcurses(bool stopcurses);
 
-// A panelwheel is an ncurses window devoted to displaying zero or more
+// A panelreel is an ncurses window devoted to displaying zero or more
 // line-oriented, contained panels between which the user may navigate. If at
 // least one panel exists, there is an active panel. As much of the active
 // panel as is possible is always displayed. If there is space left over, other
@@ -28,7 +28,7 @@ int stop_outcurses(bool stopcurses);
 // levels of hierarchal data ought be shown).
 //
 // This structure is amenable both to scrolling gestures and keystrokes.
-typedef struct panelwheel {
+typedef struct panelreel_options {
   WINDOW* w;           // ncurses WINDOW we're taking over, non-NULL
   int footerlines;     // leave this many lines alone at bottom, >=0
   int headerlines;     // leave this many lines alone at top, >=0
@@ -36,10 +36,17 @@ typedef struct panelwheel {
   int rightcolumns;    // leave this many columns alone on right, >=0 
   bool circular;       // is navigation circular (does moving down from the
                        //  last panel move to the first, and vice versa)?
-} panelwheel;
+} panelreel_options;
 
-// Create a panelwheel according to the provided specifications.
-int init_panelwheel(panelwheel* pwheel);
+struct panelreel;
+
+// Create a panelreel according to the provided specifications. Returns NULL on
+// failure.
+struct panelreel* create_panelreel(const panelreel_options* popts);
+
+// Destroy a panelreel allocated with create_panelreel(). Does not destroy the
+// underlying WINDOW. Returns non-zero on failure.
+int destroy_panelreel(struct panelreel* preel);
 
 // Do a palette fade on the specified screen over the course of ms milliseconds.
 int fade(WINDOW* w, unsigned ms);

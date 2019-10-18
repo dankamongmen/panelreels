@@ -1,24 +1,27 @@
 #include "main.h"
 #include <iostream>
 
-TEST(OutcursesPanelWheel, InitLinear) {
+TEST(OutcursesPanelReel, InitLinear) {
   if(getenv("TERM") == nullptr){
     GTEST_SKIP();
   }
-  panelwheel p = { };
+  panelreel_options p = { };
   ASSERT_EQ(0, init_outcurses(true));
-  ASSERT_EQ(0, init_panelwheel(&p));
+  struct panelreel* pr = create_panelreel(&p);
+  ASSERT_NE(nullptr, pr);
   ASSERT_EQ(0, stop_outcurses(true));
 }
 
-TEST(OutcursesPanelWheel, InitCircular) {
+TEST(OutcursesPanelReel, InitCircular) {
   if(getenv("TERM") == nullptr){
     GTEST_SKIP();
   }
-  panelwheel p = {
+  panelreel_options p = {
     .circular = true,
   };
   ASSERT_EQ(0, init_outcurses(true));
-  ASSERT_EQ(0, init_panelwheel(&p));
+  struct panelreel* pr = create_panelreel(&p);
+  ASSERT_NE(nullptr, pr);
+  ASSERT_EQ(0, destroy_panelreel(pr));
   ASSERT_EQ(0, stop_outcurses(true));
 }
