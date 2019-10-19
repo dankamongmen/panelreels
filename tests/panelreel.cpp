@@ -54,3 +54,19 @@ TEST(OutcursesPanelReel, FiniteCircleRejected) {
   ASSERT_EQ(nullptr, pr);
   ASSERT_EQ(0, stop_outcurses(true));
 }
+
+TEST(OutcursesPanelReel, OnePanel) {
+  if(getenv("TERM") == nullptr){
+    GTEST_SKIP();
+  }
+  panelreel_options p = {
+    .infinitescroll = false,
+  };
+  ASSERT_EQ(0, init_outcurses(true));
+  struct panelreel* pr = create_panelreel(&p);
+  ASSERT_NE(nullptr, pr);
+  struct tablet* t = add_tablet(pr, nullptr, nullptr, nullptr);
+  ASSERT_NE(nullptr, t);
+  // FIXME remove it
+  ASSERT_EQ(0, stop_outcurses(true));
+}

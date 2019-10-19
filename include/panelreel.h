@@ -67,6 +67,8 @@ struct panelreel* create_panelreel(const panelreel_options* popts);
 struct tablet* add_tablet(struct panelreel* pr, struct tablet* after,
                           struct tablet *before, void* opaque);
 
+int del_table(struct panelreel* pr, struct tablet* t);
+
 // Destroy a panelreel allocated with create_panelreel(). Does not destroy the
 // underlying WINDOW. Returns non-zero on failure.
 int destroy_panelreel(struct panelreel* preel);
