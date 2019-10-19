@@ -67,6 +67,14 @@ tablet* add_tablet(panelreel* pr, tablet* after, tablet *before, void* opaque){
   return t;
 }
 
+int del_table(struct panelreel* pr, struct tablet* t){
+  if(pr == NULL || t == NULL){
+    return -1;
+  }
+  // FIXME
+  return 0;
+}
+
 int destroy_panelreel(panelreel* preel){
   int ret = 0;
   if(preel){
