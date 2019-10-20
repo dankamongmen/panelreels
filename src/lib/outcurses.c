@@ -16,6 +16,8 @@ int init_outcurses(bool initcurses){
 		if(assume_default_colors(-1, -1) != OK){
 			fprintf(stderr, "Warning: couldn't assume default colors\n");
 		}
+    // FIXME need be checking errors on all these, and probably shouldn't be
+    // embedding this functionality at all
 		cbreak();
 		noecho();
 		nonl();
