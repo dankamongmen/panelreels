@@ -1,7 +1,7 @@
 #include <panel.h>
 #include <stdlib.h>
 #include <string.h>
-#include "panelreel.h"
+#include "outcurses.h"
 
 // Tablets are the toplevel entitites within a panelreel. Each corresponds to
 // a single, distinct PANEL.

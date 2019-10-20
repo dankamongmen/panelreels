@@ -3,7 +3,6 @@
 
 #include <gtest/gtest.h>
 #include <outcurses.h>
-#include <panelreel.h>
 
 // GTEST_SKIP only came along in GoogleTest 1.9
 #ifndef GTEST_SKIP

@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <outcurses.h>
-#include <panelreel.h>
 
 static int
 panelreel_demo(struct panelreel* pr){
@@ -20,14 +19,9 @@ print_intro(WINDOW *w){
   }while(key == ERR);
 }
 
-int main(void){
-  int ret = EXIT_FAILURE;
-
-  if(init_outcurses(true)){
-    fprintf(stderr, "Error initializing outcurses\n");
-    return EXIT_FAILURE;
-  }
-  print_intro(stdscr);
+static int
+demo(WINDOW* w){
+  print_intro(w);
   panelreel_options popts = {
     .infinitescroll = true,
     .circular = true,
@@ -35,16 +29,27 @@ int main(void){
   struct panelreel* pr = create_panelreel(&popts);
   if(pr == NULL){
     fprintf(stderr, "Error creating panelreel\n");
-    goto done;
+    return -1;
   }
   panelreel_demo(pr);
+  fade(w, 1000);
   if(destroy_panelreel(pr)){
     fprintf(stderr, "Error destroying panelreel\n");
-    goto done;
+    return -1;
   }
-  ret = EXIT_SUCCESS;
+  return 0;
+}
 
-done:
+int main(void){
+  int ret = EXIT_FAILURE;
+
+  if(init_outcurses(true)){
+    fprintf(stderr, "Error initializing outcurses\n");
+    return EXIT_FAILURE;
+  }
+  if(demo(stdscr) == 0){
+    ret = EXIT_SUCCESS;
+  }
   if(stop_outcurses(true)){
     fprintf(stderr, "Error initializing outcurses\n");
     return EXIT_FAILURE;
