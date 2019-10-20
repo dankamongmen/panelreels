@@ -1,12 +1,12 @@
 #include <outcurses.h>
 
-int init_outcurses(bool initcurses){
+WINDOW* init_outcurses(bool initcurses){
   WINDOW* scr;
 
   if(initcurses){
     if((scr = initscr()) == NULL){
       fprintf(stderr, "Couldn't initialize ncurses\n");
-      return -1;
+      return NULL;
     }
     if(start_color() != OK){
       fprintf(stderr, "Couldn't start color support\n");
@@ -53,15 +53,14 @@ int init_outcurses(bool initcurses){
   }else{
     if((scr = stdscr) == NULL){
       fprintf(stderr, "Couldn't get stdscr (was ncurses initialized?)\n");
-      endwin();
-      return -1;
+      return NULL;
     }
   }
-  return 0;
+  return scr;
 
 error:
   endwin();
-  return -1;
+  return NULL;
 }
 
 int stop_outcurses(bool stopcurses){

@@ -7,7 +7,7 @@ TEST(Outcurses, Init){
   if(getenv("TERM") == nullptr){
     GTEST_SKIP();
   }
-  ASSERT_EQ(0, init_outcurses(true));
+  ASSERT_NE(nullptr, init_outcurses(true));
   ASSERT_EQ(0, stop_outcurses(true));
 }
 
@@ -17,6 +17,6 @@ TEST(Outcurses, InitWithoutNcurses){
     GTEST_SKIP();
   }
   ASSERT_NE(nullptr, initscr());
-  ASSERT_EQ(0, init_outcurses(false));
+  ASSERT_NE(nullptr, init_outcurses(false));
   ASSERT_EQ(0, stop_outcurses(false));
 }

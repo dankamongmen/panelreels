@@ -10,10 +10,10 @@
 extern "C" {
 #endif
 
-// Initialize the library. Will initialize ncurses unless initcurses is false.
-// You are recommended to call init_outcurses prior to interacting with ncurses,
-// and to set initcurses to true.
-int init_outcurses(bool initcurses);
+// Initialize the library. Will initialize ncurses suitably for fullscreen mode
+// unless initcurses is false. You are recommended to call init_outcurses prior
+// to interacting with ncurses, and to set initcurses to true.
+WINDOW* init_outcurses(bool initcurses);
 
 // Stop the library. If stopcurses is true, endwin() will be called, (ideally)
 // restoring the screen and cleaning up ncurses.
