@@ -53,6 +53,7 @@ typedef struct panelreel_options {
   int headerlines;     // leave this many lines alone at top, >=0
   int leftcolumns;     // leave this many columns alone on left, >=0
   int rightcolumns;    // leave this many columns alone on right, >=0
+  int mindatacols;     // require this many columns, in addition to borders
   bool infinitescroll; // is scrolling infinite (can one move down or up
    //  forever, or is an end reached?). if true, 'circular' specifies how to
    //  handle the special case of an incompletely-filled reel.

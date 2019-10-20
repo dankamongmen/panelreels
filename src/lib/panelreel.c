@@ -12,9 +12,17 @@ typedef struct tablet {
   struct tablet* prev;
 } tablet;
 
+// The visible screen can be reconstructed from three things:
+//  * which tablet is focused (pointed at by tablets)
+//  * which row the focused tablet starts at (held by focusrow)
+//  * the list of tablets (available from the focused tablet)
 typedef struct panelreel {
   panelreel_options popts;
-  tablet* tablets;         // doubly-linked list, circular for infinity scrolls
+  tablet* tablets;         // doubly-linked list, a circular one when infinity
+    // scrolling is in effect. points at the focused tablet (when at least one
+    // tablet exists, one must be focused), which might be anywhere on the
+    // screen (but is guaranteed to be visible).
+  int focusrow;            // row at which focused tablet starts
 } panelreel;
 
 panelreel* create_panelreel(const panelreel_options* popts){
