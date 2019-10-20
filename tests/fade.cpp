@@ -6,7 +6,7 @@ TEST(OutcursesFade, Fade) {
   if(getenv("TERM") == nullptr){
 	  GTEST_SKIP();
   }
-  ASSERT_EQ(0, init_outcurses(true));
+  ASSERT_NE(nullptr, init_outcurses(true));
   wmove(stdscr, 1, 1);
   const auto PERLINE = 16;
   for(int i = 0 ; i < COLORS ; i += PERLINE){

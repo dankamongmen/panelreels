@@ -4,7 +4,7 @@
 static int
 panelreel_demo(struct panelreel* pr){
   struct tablet* t;
-  add_tablet(pr, NULL, NULL, NULL);
+  t = add_tablet(pr, NULL, NULL, NULL);
   return 0;
 }
 

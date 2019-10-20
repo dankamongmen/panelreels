@@ -6,7 +6,7 @@ TEST(OutcursesPanelReel, InitLinear) {
     GTEST_SKIP();
   }
   panelreel_options p = { };
-  ASSERT_EQ(0, init_outcurses(true));
+  ASSERT_NE(nullptr, init_outcurses(true));
   struct panelreel* pr = create_panelreel(&p);
   ASSERT_NE(nullptr, pr);
   ASSERT_EQ(0, stop_outcurses(true));
@@ -19,7 +19,7 @@ TEST(OutcursesPanelReel, InitLinearInfinite) {
   panelreel_options p = {
     .infinitescroll = true,
   };
-  ASSERT_EQ(0, init_outcurses(true));
+  ASSERT_NE(nullptr, init_outcurses(true));
   struct panelreel* pr = create_panelreel(&p);
   ASSERT_NE(nullptr, pr);
   ASSERT_EQ(0, stop_outcurses(true));
@@ -33,7 +33,7 @@ TEST(OutcursesPanelReel, InitCircular) {
     .infinitescroll = true,
     .circular = true,
   };
-  ASSERT_EQ(0, init_outcurses(true));
+  ASSERT_NE(nullptr, init_outcurses(true));
   struct panelreel* pr = create_panelreel(&p);
   ASSERT_NE(nullptr, pr);
   ASSERT_EQ(0, destroy_panelreel(pr));
@@ -49,7 +49,7 @@ TEST(OutcursesPanelReel, FiniteCircleRejected) {
     .infinitescroll = false,
     .circular = true,
   };
-  ASSERT_EQ(0, init_outcurses(true));
+  ASSERT_NE(nullptr, init_outcurses(true));
   struct panelreel* pr = create_panelreel(&p);
   ASSERT_EQ(nullptr, pr);
   ASSERT_EQ(0, stop_outcurses(true));
@@ -62,7 +62,7 @@ TEST(OutcursesPanelReel, OnePanel) {
   panelreel_options p = {
     .infinitescroll = false,
   };
-  ASSERT_EQ(0, init_outcurses(true));
+  ASSERT_NE(nullptr, init_outcurses(true));
   struct panelreel* pr = create_panelreel(&p);
   ASSERT_NE(nullptr, pr);
   struct tablet* t = add_tablet(pr, nullptr, nullptr, nullptr);
