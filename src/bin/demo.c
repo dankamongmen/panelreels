@@ -42,12 +42,13 @@ demo(WINDOW* w){
 
 int main(void){
   int ret = EXIT_FAILURE;
+  WINDOW* w;
 
-  if(init_outcurses(true)){
+  if((w = init_outcurses(true)) == NULL){
     fprintf(stderr, "Error initializing outcurses\n");
     return EXIT_FAILURE;
   }
-  if(demo(stdscr) == 0){
+  if(demo(w) == 0){
     ret = EXIT_SUCCESS;
   }
   if(stop_outcurses(true)){
