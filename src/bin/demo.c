@@ -10,15 +10,16 @@ panelreel_demo(WINDOW* w, struct panelreel* pr){
   do{
     attron(COLOR_PAIR(2));
     struct tablet* t;
-    key = getch();
+    key = wgetch(w);
+    wmove(w, 2, 2);
+    clrtoeol();
     switch(key){
       case 'a': t = add_tablet(pr, NULL, NULL, NULL); break;
       case 'b': t = add_tablet(pr, NULL, NULL, NULL); break;
       case 'c': t = add_tablet(pr, NULL, NULL, NULL); break;
       case 'q': break;
-      default: mvwprintw(w, 2, 1, "Unknown key: %d\n", key);
+      default: wprintw(w, "Unknown key: %d\n", key);
     }
-    wrefresh(w);
   }while(key != 'q');
   return 0;
 }
@@ -29,8 +30,7 @@ print_intro(WINDOW *w){
 
   mvwprintw(w, 1, 1, "About to run the Outcurses demo. Press any key to continue...\n");
   do{
-    key = getch();
-    fprintf(stderr, "Keypress: %d\n", key);
+    key = wgetch(w);
   }while(key == ERR);
 }
 
