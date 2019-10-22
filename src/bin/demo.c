@@ -2,9 +2,24 @@
 #include <outcurses.h>
 
 static int
-panelreel_demo(struct panelreel* pr){
-  struct tablet* t;
-  t = add_tablet(pr, NULL, NULL, NULL);
+panelreel_demo(WINDOW* w, struct panelreel* pr){
+  // Press a for a new panel above the current, c for a new one below the current,
+  // and b for a new block at arbitrary placement. q quits.
+  int key;
+  init_pair(2, COLOR_BLACK, COLOR_GREEN);
+  do{
+    attron(COLOR_PAIR(2));
+    struct tablet* t;
+    key = getch();
+    switch(key){
+      case 'a': t = add_tablet(pr, NULL, NULL, NULL); break;
+      case 'b': t = add_tablet(pr, NULL, NULL, NULL); break;
+      case 'c': t = add_tablet(pr, NULL, NULL, NULL); break;
+      case 'q': break;
+      default: mvwprintw(w, 2, 1, "Unknown key: %d\n", key);
+    }
+    wrefresh(w);
+  }while(key != 'q');
   return 0;
 }
 
@@ -31,7 +46,7 @@ demo(WINDOW* w){
     fprintf(stderr, "Error creating panelreel\n");
     return -1;
   }
-  panelreel_demo(pr);
+  panelreel_demo(w, pr);
   fade(w, 1000);
   if(destroy_panelreel(pr)){
     fprintf(stderr, "Error destroying panelreel\n");
