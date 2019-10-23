@@ -23,6 +23,7 @@ typedef struct panelreel {
     // tablet exists, one must be focused), which might be anywhere on the
     // screen (but is guaranteed to be visible).
   int focusrow;            // row at which focused tablet starts
+  int tabletcount;         // could be derived, but we keep it o(1)
 } panelreel;
 
 panelreel* create_panelreel(const panelreel_options* popts){
@@ -35,6 +36,7 @@ panelreel* create_panelreel(const panelreel_options* popts){
   }
   if( (pr = malloc(sizeof(*pr))) ){
     pr->tablets = NULL;
+    pr->tabletcount = 0;
     // FIXME verify margins work for window size
     memcpy(&pr->popts, popts, sizeof(*popts));
   }
@@ -70,6 +72,7 @@ tablet* add_tablet(panelreel* pr, tablet* after, tablet *before, void* opaque){
       t->prev = t->next = t;
     }
     t->opaque = opaque;
+    ++pr->tabletcount;
     // FIXME determine whether we're on the screen, and if so, draw us
   }
   return t;
@@ -80,6 +83,7 @@ int del_table(struct panelreel* pr, struct tablet* t){
     return -1;
   }
   // FIXME
+  --pr->tabletcount;
   return 0;
 }
 
@@ -96,4 +100,8 @@ int destroy_panelreel(panelreel* preel){
     free(preel);
   }
   return ret;
+}
+
+int panelreel_tabletcount(const panelreel* preel){
+  return preel->tabletcount;
 }
