@@ -10,8 +10,7 @@ panelreel_demo(WINDOW* w, struct panelreel* pr){
   do{
     attron(COLOR_PAIR(2));
     struct tablet* t;
-    key = wgetch(w);
-    wmove(w, 2, 2);
+    key = mvwgetch(w, 2, 2);
     clrtoeol();
     switch(key){
       case 'a': t = add_tablet(pr, NULL, NULL, NULL); break;
@@ -28,6 +27,8 @@ static void
 print_intro(WINDOW *w){
   int key;
 
+  init_pair(1, COLOR_GREEN, COLOR_BLACK);
+  attron(COLOR_PAIR(1));
   mvwprintw(w, 1, 1, "About to run the Outcurses demo. Press any key to continue...\n");
   do{
     key = wgetch(w);
