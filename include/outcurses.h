@@ -81,6 +81,9 @@ struct panelreel* create_panelreel(const panelreel_options* popts);
 struct tablet* add_tablet(struct panelreel* pr, struct tablet* after,
                           struct tablet *before, void* opaque);
 
+// Return the number of tablets.
+int panelreel_tabletcount(const struct panelreel* preel);
+
 int del_table(struct panelreel* pr, struct tablet* t);
 
 // Destroy a panelreel allocated with create_panelreel(). Does not destroy the
