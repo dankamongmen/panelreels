@@ -21,8 +21,11 @@ TEST(OutcursesFade, Fade) {
       wprintw(stdscr, "*");
       wattrset(stdscr, A_BOLD | COLOR_PAIR(i + j));
       wprintw(stdscr, "*");
+      if(j % PERLINE == PERLINE / 2){
+        wprintw(stdscr, " ");
+      }
 	  }
-    wprintw(stdscr, " (%d)\n", i);
+    wprintw(stdscr, " (%3d)\n", i);
   }
   wrefresh(stdscr);
   struct timespec ts = {.tv_sec = 0, .tv_nsec = 500000000, };
