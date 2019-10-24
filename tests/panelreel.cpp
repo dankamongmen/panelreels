@@ -70,3 +70,31 @@ TEST(OutcursesPanelReel, OnePanel) {
   // FIXME remove it
   ASSERT_EQ(0, stop_outcurses(true));
 }
+
+TEST(OutcursesPanelReel, NoBorder) {
+  if(getenv("TERM") == nullptr){
+    GTEST_SKIP();
+  }
+  panelreel_options p = {
+    .bordermask = BORDERMASK_LEFT |
+                  BORDERMASK_RIGHT |
+                  BORDERMASK_TOP |
+                  BORDERMASK_BOTTOM,
+  };
+  ASSERT_NE(nullptr, init_outcurses(true));
+  struct panelreel* pr = create_panelreel(&p);
+  ASSERT_NE(nullptr, pr);
+  ASSERT_EQ(0, stop_outcurses(true));
+}
+TEST(OutcursesPanelReel, BadBorderBitsRejected) {
+  if(getenv("TERM") == nullptr){
+    GTEST_SKIP();
+  }
+  panelreel_options p = {
+    .bordermask = BORDERMASK_LEFT * 2,
+  };
+  ASSERT_NE(nullptr, init_outcurses(true));
+  struct panelreel* pr = create_panelreel(&p);
+  ASSERT_EQ(nullptr, pr);
+  ASSERT_EQ(0, stop_outcurses(true));
+}
