@@ -47,6 +47,13 @@ typedef int (*LineCountCB)(const void*);
 // opaque object provided to add_tablet().
 typedef int (*DrawLinesCB)(WINDOW*, int, int, int, void*);
 
+enum bordermaskbits {
+  BORDERMASK_TOP    = 0x1,
+  BORDERMASK_RIGHT  = 0x2,
+  BORDERMASK_BOTTOM = 0x4,
+  BORDERMASK_LEFT   = 0x8,
+};
+
 typedef struct panelreel_options {
   WINDOW* w;           // ncurses WINDOW we're taking over, non-NULL
   int footerlines;     // leave this many lines alone at bottom, >=0
@@ -60,6 +67,7 @@ typedef struct panelreel_options {
   bool circular;       // is navigation circular (does moving down from the
    //  last panel move to the first, and vice versa)? only meaningful when
    //  infinitescroll is true. if infinitescroll is false, this must be false.
+  unsigned bordermask; // bitfield; 1s will not be drawn. taken from bordermaskbits
   LineCountCB linecb;
   DrawLinesCB drawcb;
 } panelreel_options;

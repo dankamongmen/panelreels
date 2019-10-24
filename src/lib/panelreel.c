@@ -34,6 +34,13 @@ panelreel* create_panelreel(const panelreel_options* popts){
       return NULL; // can't set circular without infinitescroll
     }
   }
+  const unsigned fullmask = BORDERMASK_LEFT |
+                            BORDERMASK_RIGHT |
+                            BORDERMASK_TOP |
+                            BORDERMASK_BOTTOM;
+  if(popts->bordermask > fullmask){
+    return NULL;
+  }
   if( (pr = malloc(sizeof(*pr))) ){
     pr->tablets = NULL;
     pr->tabletcount = 0;
