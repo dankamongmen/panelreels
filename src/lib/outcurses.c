@@ -1,11 +1,27 @@
 #include <outcurses.h>
 
+static const int MAXHUE = 1000;
+
+static int
+init_system_colors(void){
+  int ret = 0;
+  ret |= init_extended_color(COLOR_RED, MAXHUE, 0, 0);
+  ret |= init_extended_color(COLOR_GREEN, 0, MAXHUE, 0);
+  ret |= init_extended_color(COLOR_BLUE, 0, 0, MAXHUE);
+  ret |= init_extended_color(COLOR_CYAN, 0, MAXHUE, MAXHUE);
+  if(ret){
+    fprintf(stderr, "Error initializing system colors\n");
+  }
+  return ret;
+}
+
 static int
 init_8bit_colors(void){
-  // Prepare our palette. We leave the first 16 colors (system colors) alone;
-  // they correspond to ANSI values (if not the precise definitions). We then
+  // Prepare our palette. Use the system palette for the first 16 colors, then
   // build a 6x6x6 RGB color cube, and finally a greyscale ramp.
-  const int MAXHUE = 1000;
+  if(init_system_colors()){
+    return -1;
+  }
   int idx = 0;
   int r, g, b;
   const int RGBSTEP = MAXHUE / 6;
@@ -46,19 +62,19 @@ prep_colors(void){
   if(assume_default_colors(-1, -1) != OK){
     fprintf(stderr, "Warning: couldn't assume default colors\n");
   }
-  int i;
-  switch(COLORS){
-    case 16:
-      break;
-    case 256:
-      init_8bit_colors();
-      break;
-    default:
-      fprintf(stderr, "Unexpected number of colors (%d)\n", COLORS);
-      if(COLORS > 256){
-        init_8bit_colors(); // get at least the first 256
-      }
+  if(COLORS >= 256){
+    if(init_8bit_colors()){
+      return -1;
+    }
+  }else if(COLORS >= 16){
+    if(init_system_colors()){
+      return -1;
+    }
   }
+  if(COLORS != 16 && COLORS != 256){
+    fprintf(stderr, "Warning: unexpected number of colors (%d)\n", COLORS);
+  }
+  int i;
   for(i = 0 ; i < COLOR_PAIRS ; ++i){
     if(init_extended_pair(i, i % COLORS, -1)){
       fprintf(stderr, "Warning: couldn't initialize colorpair %d\n", i);
