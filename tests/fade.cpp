@@ -14,14 +14,15 @@ TEST(OutcursesFade, Fade) {
     for(int j = 0 ; j < PERLINE ; ++j){
       if(i + j >= COLORS){
         break;
+      }
+      wattrset(stdscr, COLOR_PAIR(i + j));
+      wprintw(stdscr, "*");
+      wattrset(stdscr, A_DIM | COLOR_PAIR(i + j));
+      wprintw(stdscr, "*");
+      wattrset(stdscr, A_BOLD | COLOR_PAIR(i + j));
+      wprintw(stdscr, "*");
 	  }
-	  wattrset(stdscr, COLOR_PAIR(i + j));
-	  wprintw(stdscr, "*");
-	  wattrset(stdscr, A_DIM | COLOR_PAIR(i + j));
-	  wprintw(stdscr, "*");
-	  wattrset(stdscr, A_BOLD | COLOR_PAIR(i + j));
-	  wprintw(stdscr, "*");
-	}
+    wprintw(stdscr, " (%d)\n", i);
   }
   wrefresh(stdscr);
   struct timespec ts = {.tv_sec = 0, .tv_nsec = 500000000, };
