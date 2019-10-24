@@ -1,5 +1,72 @@
 #include <outcurses.h>
 
+static int
+init_8bit_colors(void){
+  // Prepare our palette. We leave the first 16 colors (system colors) alone;
+  // they correspond to ANSI values (if not the precise definitions). We then
+  // build a 6x6x6 RGB color cube, and finally a greyscale ramp.
+  const int MAXHUE = 1000;
+  int idx = 0;
+  int r, g, b;
+  const int RGBSTEP = MAXHUE / 6;
+  for(r = 0 ; r < 6 ; ++r){
+    for(g = 0 ; g < 6 ; ++g){
+      for(b = 0 ; b < 6 ; ++b){
+        if(init_extended_color(idx++, r * RGBSTEP, g * RGBSTEP, b * RGBSTEP)){
+          fprintf(stderr, "Error initializing color %d\n", idx - 1);
+          return -1;
+        }
+      }
+    }
+  }
+  // We explicitly leave out black and white, so take bigger steps
+  const int GREYSTEP = MAXHUE / (256 - idx + 2);
+  int grey = 0;
+  while(idx < 256){
+    grey += GREYSTEP;
+    if(init_extended_color(idx++, grey, grey, grey)){
+      fprintf(stderr, "Error initializing color %d\n", idx - 1);
+      return -1;
+    }
+  }
+  return 0;
+}
+
+static int
+prep_colors(void){
+  if(start_color() != OK){
+    fprintf(stderr, "Couldn't start color support\n");
+    return -1;
+  }
+  // Use the default terminal colors for COLOR(-1)
+  if(use_default_colors()){
+    fprintf(stderr, "Warning: couldn't use default terminal colors\n");
+  }
+  // Defines COLOR_PAIR(0) to be -1, -1 (default terminal colors, see above)
+  if(assume_default_colors(-1, -1) != OK){
+    fprintf(stderr, "Warning: couldn't assume default colors\n");
+  }
+  int i;
+  switch(COLORS){
+    case 16:
+      break;
+    case 256:
+      init_8bit_colors();
+      break;
+    default:
+      fprintf(stderr, "Unexpected number of colors (%d)\n", COLORS);
+      if(COLORS > 256){
+        init_8bit_colors(); // get at least the first 256
+      }
+  }
+  for(i = 0 ; i < COLOR_PAIRS ; ++i){
+    if(init_extended_pair(i, i % COLORS, -1)){
+      fprintf(stderr, "Warning: couldn't initialize colorpair %d\n", i);
+    }
+  }
+  return 0;
+}
+
 WINDOW* init_outcurses(bool initcurses){
   WINDOW* scr;
 
@@ -8,12 +75,8 @@ WINDOW* init_outcurses(bool initcurses){
       fprintf(stderr, "Couldn't initialize ncurses\n");
       return NULL;
     }
-    if(start_color() != OK){
-      fprintf(stderr, "Couldn't start color support\n");
+    if(prep_colors()){
       goto error;
-    }
-    if(assume_default_colors(-1, -1) != OK){
-      fprintf(stderr, "Warning: couldn't assume default colors\n");
     }
     // Sets input to character-at-a-time mode, honoring the terminal driver
     // (thus things like Ctrl+C will not reach us without raw()).
