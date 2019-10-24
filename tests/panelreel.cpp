@@ -86,12 +86,41 @@ TEST(OutcursesPanelReel, NoBorder) {
   ASSERT_NE(nullptr, pr);
   ASSERT_EQ(0, stop_outcurses(true));
 }
+
 TEST(OutcursesPanelReel, BadBorderBitsRejected) {
   if(getenv("TERM") == nullptr){
     GTEST_SKIP();
   }
   panelreel_options p = {
     .bordermask = BORDERMASK_LEFT * 2,
+  };
+  ASSERT_NE(nullptr, init_outcurses(true));
+  struct panelreel* pr = create_panelreel(&p);
+  ASSERT_EQ(nullptr, pr);
+  ASSERT_EQ(0, stop_outcurses(true));
+}
+
+TEST(OutcursesPanelReel, NoTabletBorder) {
+  if(getenv("TERM") == nullptr){
+    GTEST_SKIP();
+  }
+  panelreel_options p = {
+    .tabletmask = BORDERMASK_LEFT |
+                  BORDERMASK_RIGHT |
+                  BORDERMASK_TOP |
+                  BORDERMASK_BOTTOM,
+  };
+  ASSERT_NE(nullptr, init_outcurses(true));
+  struct panelreel* pr = create_panelreel(&p);
+  ASSERT_NE(nullptr, pr);
+  ASSERT_EQ(0, stop_outcurses(true));
+}
+TEST(OutcursesPanelReel, BadTabletBorderBitsRejected) {
+  if(getenv("TERM") == nullptr){
+    GTEST_SKIP();
+  }
+  panelreel_options p = {
+    .tabletmask = BORDERMASK_LEFT * 2,
   };
   ASSERT_NE(nullptr, init_outcurses(true));
   struct panelreel* pr = create_panelreel(&p);

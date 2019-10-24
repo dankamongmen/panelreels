@@ -68,6 +68,7 @@ typedef struct panelreel_options {
    //  last panel move to the first, and vice versa)? only meaningful when
    //  infinitescroll is true. if infinitescroll is false, this must be false.
   unsigned bordermask; // bitfield; 1s will not be drawn. taken from bordermaskbits
+  unsigned tabletmask; // bitfield; same as bordermask but for tablet borders
   LineCountCB linecb;
   DrawLinesCB drawcb;
 } panelreel_options;
