@@ -65,22 +65,6 @@ set_palette(int count, const ccomps* palette){
   return 0;
 }
 
-// Returns the number of color pairs initialized, which will not be greater
-// (but might be less) than the number of colors.
-static int
-init_color_pairs(int pairs, int colors){
-  const int pmax = colors > pairs ? pairs : colors;
-  int p;
-
-  // Pairs start at 1.
-  for(p = 1 ; p < pmax ; ++p){
-    if(init_extended_pair(p, p, -1) != OK){
-      return -1;
-    }
-  }
-  return pairs;
-}
-
 #define NANOSECS_IN_SEC 1000000000ull
 #define NANOSECS_IN_MS  (NANOSECS_IN_SEC / 1000ul)
 
@@ -109,10 +93,6 @@ int fade(WINDOW* w, unsigned ms){
     goto done;
   }
   memcpy(cur, orig, sizeof(*cur) * COLORS);
-  // FIXME should be called earlier, probably during initialization
-  if(init_color_pairs(COLOR_PAIRS, COLORS) <= 0){
-    goto done;
-  }
   // We have this many nanoseconds to work through compmax iterations. Our
   // natural rate might be slower or faster than what's desirable, so at each
   // iteration, we (a) set the palette to the intensity corresponding to time
