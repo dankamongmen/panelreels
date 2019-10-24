@@ -20,7 +20,7 @@ panelreel_demo(WINDOW* w, struct panelreel* pr){
       case 'b': t = add_tablet(pr, NULL, NULL, NULL); break;
       case 'c': t = add_tablet(pr, NULL, NULL, NULL); break;
       case 'q': break;
-      default: wprintw(w, "Unknown key: %d\n", key);
+      default: wprintw(w, "Unknown key: %c (%d)\n", key, key);
     }
   }while(key != 'q');
   return 0;

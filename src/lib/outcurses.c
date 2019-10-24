@@ -68,9 +68,10 @@ prep_colors(void){
     fprintf(stderr, "Warning: couldn't use default terminal colors\n");
   }
   // Defines COLOR_PAIR(0) to be -1, -1 (default terminal colors, see above)
+  /*
   if(assume_default_colors(-1, -1) != OK){
     fprintf(stderr, "Warning: couldn't assume default colors\n");
-  }
+  }*/
   if(COLORS >= 256){
     if(init_8bit_colors()){
       return -1;
