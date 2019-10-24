@@ -26,6 +26,16 @@ typedef struct panelreel {
   int tabletcount;         // could be derived, but we keep it o(1)
 } panelreel;
 
+static int
+draw_panelreel_borders(WINDOW* w){
+  int begx, begy;
+  int maxx, maxy;
+  getbegyx(w, begy, begx);
+  getmaxyx(w, maxy, maxx);
+  // FIXME
+  return 0;
+}
+
 panelreel* create_panelreel(const panelreel_options* popts){
   panelreel* pr;
 
@@ -39,6 +49,9 @@ panelreel* create_panelreel(const panelreel_options* popts){
                             BORDERMASK_TOP |
                             BORDERMASK_BOTTOM;
   if(popts->bordermask > fullmask){
+    return NULL;
+  }
+  if(popts->tabletmask > fullmask){
     return NULL;
   }
   if( (pr = malloc(sizeof(*pr))) ){
