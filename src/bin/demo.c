@@ -6,11 +6,14 @@ panelreel_demo(WINDOW* w, struct panelreel* pr){
   // Press a for a new panel above the current, c for a new one below the current,
   // and b for a new block at arbitrary placement. q quits.
   int key;
-  init_pair(2, COLOR_BLACK, COLOR_GREEN);
+  mvwprintw(w, 1, 1, "Press a, b, c for new tablets, q to quit.");
+  clrtoeol();
   do{
-    attron(COLOR_PAIR(2));
+    attron(COLOR_PAIR(COLOR_RED));
+    mvwprintw(w, 2, 2, "%d tablets", panelreel_tabletcount(pr));
+    attron(COLOR_PAIR(COLOR_BLUE));
     struct tablet* t;
-    key = mvwgetch(w, 2, 2);
+    key = mvwgetch(w, 3, 2);
     clrtoeol();
     switch(key){
       case 'a': t = add_tablet(pr, NULL, NULL, NULL); break;
@@ -27,8 +30,7 @@ static void
 print_intro(WINDOW *w){
   int key;
 
-  init_pair(1, COLOR_GREEN, COLOR_BLACK);
-  attron(COLOR_PAIR(1));
+  attron(COLOR_PAIR(COLOR_GREEN));
   mvwprintw(w, 1, 1, "About to run the Outcurses demo. Press any key to continue...\n");
   do{
     key = wgetch(w);
