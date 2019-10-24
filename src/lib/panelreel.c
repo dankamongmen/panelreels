@@ -26,14 +26,74 @@ typedef struct panelreel {
   int tabletcount;         // could be derived, but we keep it o(1)
 } panelreel;
 
+// These ought be part of ncurses, probably
+
+// Repeat the cchar_t ch n times at the current location in w.
 static int
-draw_panelreel_borders(WINDOW* w){
+whwline(WINDOW *w, const cchar_t* ch, int n){
+  while(n-- > 0){
+    int ret;
+    if((ret = wadd_wch(w, ch)) != OK){
+      return ret;
+    }
+  }
+  return OK;
+}
+
+#define WACS_L_LLCORNER L"╰"
+#define WACS_L_LRCORNER L"╯"
+#define WACS_L_ULCORNER L"╭"
+#define WACS_L_URCORNER L"╮"
+#define WACS_L_HLINE L"─"
+#define WACS_L_VLINE L"│"
+
+// Nicest border corners, but they don't line up with all fonts :/
+static const cchar_t lightboxchars[] = {
+  { .attr = 0, .chars = WACS_L_ULCORNER, },
+  { .attr = 0, .chars = WACS_L_URCORNER, },
+  { .attr = 0, .chars = WACS_L_LLCORNER, },
+  { .attr = 0, .chars = WACS_L_LRCORNER, },
+  { .attr = 0, .chars = WACS_L_VLINE, },
+  { .attr = 0, .chars = WACS_L_HLINE, },
+};
+
+// bchrs: 6-element array of wide border characters + attributes
+static int
+draw_borders(WINDOW* w, unsigned nobordermask, int begx, int begy,
+            int maxx, int maxy, const cchar_t* bchrs){
+  int ret = OK;
+  // FIXME might still need a ULCORNER/URCORNER...
+  if(!(nobordermask & BORDERMASK_TOP)){
+    ret |= mvwadd_wch(w, begx, begy, &bchrs[0]);
+    ret |= whwline(w, &bchrs[5], maxx - 3 - begx);
+    ret |= wadd_wch(w, &bchrs[1]);
+  }
+  if(!(nobordermask & BORDERMASK_BOTTOM)){
+    ret |= mvwadd_wch(w, begx, maxy, &bchrs[2]);
+    ret |= whwline(w, &bchrs[5], maxx - 3 - begx);
+    ret |= wadd_wch(w, &bchrs[3]);
+  }
+  return ret;
+}
+
+static int
+draw_panelreel_borders(const panelreel* pr, WINDOW* w){
   int begx, begy;
   int maxx, maxy;
   getbegyx(w, begy, begx);
   getmaxyx(w, maxy, maxx);
-  // FIXME
-  return 0;
+  begx += pr->popts.headerlines;
+  begy += pr->popts.leftcolumns;
+  maxx -= pr->popts.footerlines;
+  maxy -= pr->popts.rightcolumns;
+  if(begx + 1 >= maxx){
+    return 0; // no room FIXME clear screen?
+  }
+  if(begy + 1 >= maxy){
+    return 0; // no room FIXME clear screen?
+  }
+  return draw_borders(w, pr->popts.bordermask, begx, begy, maxx, maxy,
+                      lightboxchars);
 }
 
 panelreel* create_panelreel(const panelreel_options* popts){
@@ -57,8 +117,8 @@ panelreel* create_panelreel(const panelreel_options* popts){
   if( (pr = malloc(sizeof(*pr))) ){
     pr->tablets = NULL;
     pr->tabletcount = 0;
-    // FIXME verify margins work for window size
     memcpy(&pr->popts, popts, sizeof(*popts));
+    draw_panelreel_borders(pr, pr->popts.w);
   }
   return pr;
 }

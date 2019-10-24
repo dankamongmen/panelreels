@@ -7,6 +7,7 @@ TEST(OutcursesFade, Fade) {
 	  GTEST_SKIP();
   }
   ASSERT_NE(nullptr, init_outcurses(true));
+  wborder(stdscr, 0, 0, 0, 0, 0, 0, 0, 0);
   wmove(stdscr, 1, 1);
   const auto PERLINE = 16;
   for(int i = 0 ; i < COLORS ; i += PERLINE){
@@ -25,7 +26,7 @@ TEST(OutcursesFade, Fade) {
         wprintw(stdscr, " ");
       }
 	  }
-    wprintw(stdscr, " (%3d)\n", i);
+    wprintw(stdscr, " (%3d)", i);
   }
   wrefresh(stdscr);
   struct timespec ts = {.tv_sec = 0, .tv_nsec = 500000000, };
