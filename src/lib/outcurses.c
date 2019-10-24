@@ -5,10 +5,10 @@ static const int MAXHUE = 1000;
 static int
 init_system_colors(void){
   int ret = 0;
-  ret |= init_extended_color(COLOR_RED, MAXHUE, 0, 0);
+  /*ret |= init_extended_color(COLOR_RED, MAXHUE, 0, 0);
   ret |= init_extended_color(COLOR_GREEN, 0, MAXHUE, 0);
   ret |= init_extended_color(COLOR_BLUE, 0, 0, MAXHUE);
-  ret |= init_extended_color(COLOR_CYAN, 0, MAXHUE, MAXHUE);
+  ret |= init_extended_color(COLOR_CYAN, 0, MAXHUE, MAXHUE);*/
   if(ret){
     fprintf(stderr, "Error initializing system colors\n");
   }
