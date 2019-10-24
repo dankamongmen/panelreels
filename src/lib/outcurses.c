@@ -2,13 +2,22 @@
 
 static const int MAXHUE = 1000;
 
+#define RGB(r, g, b) (r) * MAXHUE / 256, (g) * MAXHUE / 256, (b) * MAXHUE / 256
+
+// RGB values for system colors taken from Windows 10 Console. I don't use
+// Windows or anything, but these do look nice, and Redmond certainly outspends
+// the Free world on ... color consultants(?).
 static int
 init_system_colors(void){
   int ret = 0;
-  /*ret |= init_extended_color(COLOR_RED, MAXHUE, 0, 0);
-  ret |= init_extended_color(COLOR_GREEN, 0, MAXHUE, 0);
-  ret |= init_extended_color(COLOR_BLUE, 0, 0, MAXHUE);
-  ret |= init_extended_color(COLOR_CYAN, 0, MAXHUE, MAXHUE);*/
+  ret |= init_extended_color(COLOR_BLACK, RGB(0, 0, 0));
+  ret |= init_extended_color(COLOR_RED, RGB(197, 15, 31));
+  ret |= init_extended_color(COLOR_GREEN, RGB(19, 161, 14));
+  ret |= init_extended_color(COLOR_YELLOW, RGB(193, 156, 0));
+  ret |= init_extended_color(COLOR_BLUE, RGB(0, 55, 218));
+  ret |= init_extended_color(COLOR_MAGENTA, RGB(136, 23, 152));
+  ret |= init_extended_color(COLOR_CYAN, RGB(58, 150, 221));
+  ret |= init_extended_color(COLOR_WHITE, RGB(204, 204, 204));
   if(ret){
     fprintf(stderr, "Error initializing system colors\n");
   }
