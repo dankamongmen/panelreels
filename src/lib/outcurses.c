@@ -22,7 +22,7 @@ init_8bit_colors(void){
   if(init_system_colors()){
     return -1;
   }
-  int idx = 0;
+  int idx = 16;
   int r, g, b;
   const int RGBSTEP = MAXHUE / 6;
   for(r = 0 ; r < 6 ; ++r){
