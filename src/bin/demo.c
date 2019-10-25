@@ -44,7 +44,7 @@ demo(WINDOW* w){
     .infinitescroll = true,
     .circular = true,
   };
-  struct panelreel* pr = create_panelreel(&popts);
+  struct panelreel* pr = create_panelreel(w, &popts);
   if(pr == NULL){
     fprintf(stderr, "Error creating panelreel\n");
     return -1;

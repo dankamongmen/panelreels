@@ -17,6 +17,7 @@ typedef struct tablet {
 //  * which row the focused tablet starts at (held by focusrow)
 //  * the list of tablets (available from the focused tablet)
 typedef struct panelreel {
+  WINDOW* w;               // WINDOW this panelreel occupies
   panelreel_options popts;
   tablet* tablets;         // doubly-linked list, a circular one when infinity
     // scrolling is in effect. points at the focused tablet (when at least one
@@ -31,7 +32,6 @@ typedef struct panelreel {
 // Repeat the cchar_t ch n times at the current location in w.
 static int
 whwline(WINDOW *w, const cchar_t* ch, int n){
-  // fprintf(stderr, "printing %d pieces of shit\n", n);
   while(n-- > 0){
     int ret;
     if((ret = wadd_wch(w, ch)) != OK){
@@ -46,7 +46,6 @@ static int
 draw_borders(WINDOW* w, unsigned nobordermask, int begx, int begy,
             int maxx, int maxy){
   int ret = OK;
-  // fprintf(stderr, "printing %u pieces of shit\n", nobordermask);
   // FIXME might still need a ULCORNER/URCORNER...
   if(!(nobordermask & BORDERMASK_TOP)){
     ret |= mvwadd_wch(w, begx, begy, WACS_ULCORNER);
@@ -72,8 +71,6 @@ draw_panelreel_borders(const panelreel* pr, WINDOW* w){
   begy += pr->popts.leftcolumns;
   maxx -= pr->popts.footerlines;
   maxy -= pr->popts.rightcolumns;
-/* fprintf(stderr, "begx: %d begy: %d maxx: %d maxy: %d\n",
-    begx, begy, maxx, maxy); */
   if(begx + 1 >= maxx){
     return 0; // no room FIXME clear screen?
   }
@@ -83,9 +80,12 @@ draw_panelreel_borders(const panelreel* pr, WINDOW* w){
   return draw_borders(w, pr->popts.bordermask, begx, begy, maxx, maxy);
 }
 
-panelreel* create_panelreel(const panelreel_options* popts){
+panelreel* create_panelreel(WINDOW* w, const panelreel_options* popts){
   panelreel* pr;
 
+  if(w == NULL){
+    return NULL;
+  }
   if(!popts->infinitescroll){
     if(popts->circular){
       return NULL; // can't set circular without infinitescroll
@@ -104,8 +104,9 @@ panelreel* create_panelreel(const panelreel_options* popts){
   if( (pr = malloc(sizeof(*pr))) ){
     pr->tablets = NULL;
     pr->tabletcount = 0;
+    pr->w = w;
     memcpy(&pr->popts, popts, sizeof(*popts));
-    draw_panelreel_borders(pr, pr->popts.w);
+    draw_panelreel_borders(pr, pr->w);
   }
   return pr;
 }

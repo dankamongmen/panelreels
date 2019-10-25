@@ -7,7 +7,7 @@ TEST(OutcursesPanelReel, InitLinear) {
   }
   panelreel_options p = { };
   ASSERT_NE(nullptr, init_outcurses(true));
-  struct panelreel* pr = create_panelreel(&p);
+  struct panelreel* pr = create_panelreel(stdscr, &p);
   ASSERT_NE(nullptr, pr);
   ASSERT_EQ(0, stop_outcurses(true));
 }
@@ -20,7 +20,7 @@ TEST(OutcursesPanelReel, InitLinearInfinite) {
     .infinitescroll = true,
   };
   ASSERT_NE(nullptr, init_outcurses(true));
-  struct panelreel* pr = create_panelreel(&p);
+  struct panelreel* pr = create_panelreel(stdscr, &p);
   ASSERT_NE(nullptr, pr);
   ASSERT_EQ(0, stop_outcurses(true));
 }
@@ -34,7 +34,7 @@ TEST(OutcursesPanelReel, InitCircular) {
     .circular = true,
   };
   ASSERT_NE(nullptr, init_outcurses(true));
-  struct panelreel* pr = create_panelreel(&p);
+  struct panelreel* pr = create_panelreel(stdscr, &p);
   ASSERT_NE(nullptr, pr);
   ASSERT_EQ(0, destroy_panelreel(pr));
   ASSERT_EQ(0, stop_outcurses(true));
@@ -50,7 +50,7 @@ TEST(OutcursesPanelReel, FiniteCircleRejected) {
     .circular = true,
   };
   ASSERT_NE(nullptr, init_outcurses(true));
-  struct panelreel* pr = create_panelreel(&p);
+  struct panelreel* pr = create_panelreel(stdscr, &p);
   ASSERT_EQ(nullptr, pr);
   ASSERT_EQ(0, stop_outcurses(true));
 }
@@ -63,7 +63,7 @@ TEST(OutcursesPanelReel, OnePanel) {
     .infinitescroll = false,
   };
   ASSERT_NE(nullptr, init_outcurses(true));
-  struct panelreel* pr = create_panelreel(&p);
+  struct panelreel* pr = create_panelreel(stdscr, &p);
   ASSERT_NE(nullptr, pr);
   struct tablet* t = add_tablet(pr, nullptr, nullptr, nullptr);
   ASSERT_NE(nullptr, t);
@@ -82,7 +82,7 @@ TEST(OutcursesPanelReel, NoBorder) {
                   BORDERMASK_BOTTOM,
   };
   ASSERT_NE(nullptr, init_outcurses(true));
-  struct panelreel* pr = create_panelreel(&p);
+  struct panelreel* pr = create_panelreel(stdscr, &p);
   ASSERT_NE(nullptr, pr);
   ASSERT_EQ(0, stop_outcurses(true));
 }
@@ -95,7 +95,7 @@ TEST(OutcursesPanelReel, BadBorderBitsRejected) {
     .bordermask = BORDERMASK_LEFT * 2,
   };
   ASSERT_NE(nullptr, init_outcurses(true));
-  struct panelreel* pr = create_panelreel(&p);
+  struct panelreel* pr = create_panelreel(stdscr, &p);
   ASSERT_EQ(nullptr, pr);
   ASSERT_EQ(0, stop_outcurses(true));
 }
@@ -111,7 +111,7 @@ TEST(OutcursesPanelReel, NoTabletBorder) {
                   BORDERMASK_BOTTOM,
   };
   ASSERT_NE(nullptr, init_outcurses(true));
-  struct panelreel* pr = create_panelreel(&p);
+  struct panelreel* pr = create_panelreel(stdscr, &p);
   ASSERT_NE(nullptr, pr);
   ASSERT_EQ(0, stop_outcurses(true));
 }
@@ -123,7 +123,7 @@ TEST(OutcursesPanelReel, BadTabletBorderBitsRejected) {
     .tabletmask = BORDERMASK_LEFT * 2,
   };
   ASSERT_NE(nullptr, init_outcurses(true));
-  struct panelreel* pr = create_panelreel(&p);
+  struct panelreel* pr = create_panelreel(stdscr, &p);
   ASSERT_EQ(nullptr, pr);
   ASSERT_EQ(0, stop_outcurses(true));
 }
