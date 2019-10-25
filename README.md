@@ -42,6 +42,16 @@ currently ignored* (the default). The effect of said handler is twofold:
 A call into any Ncurses-related outcurses function will result in redraws
 taking into account the new window dimensions.
 
+## Outcurses and colors
+
+If told to initialize ncurses (by providing `true` to `init_outcurses`),
+outcurses will initialize up to 256 colors and colorpairs. The first 16 colors
+will maintain their ANSI definitions. The colors between 16 and 231, inclusive,
+will be assigned an RGB 6x6x6 color cube, while the final 24 colors get a
+linear greyscale ramp (not including black or white). Each color, along with
+a neutral background, will be assigned to the corresponding colorpair. You may
+freely redefine the palette following `init_outcurses`.
+
 ## Panelreels
 The panelreel is a UI abstraction supported by outcurses in which
 dynamically-created and -destroyed toplevel entities (referred to as tablets)
