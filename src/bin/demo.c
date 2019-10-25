@@ -43,6 +43,7 @@ demo(WINDOW* w){
   panelreel_options popts = {
     .infinitescroll = true,
     .circular = true,
+    .headerlines = 4,
   };
   struct panelreel* pr = create_panelreel(w, &popts);
   if(pr == NULL){
