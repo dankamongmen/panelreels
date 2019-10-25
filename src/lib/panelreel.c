@@ -46,18 +46,41 @@ static int
 draw_borders(WINDOW* w, unsigned nobordermask, int begx, int begy,
             int maxx, int maxy){
   int ret = OK;
-  // FIXME might still need a ULCORNER/URCORNER...
+  // maxx - begx + 1 is the number of columns we have, but drop 2 due to
+  // corners. we thus want maxx - begx - 1 horizontal lines.
   if(!(nobordermask & BORDERMASK_TOP)){
-    ret |= mvwadd_wch(w, begx, begy, WACS_ULCORNER);
-    ret |= whwline(w, WACS_HLINE, maxx - 3 - begx);
+    ret |= mvwadd_wch(w, begy, begx, WACS_ULCORNER);
+    ret |= whwline(w, WACS_HLINE, maxx - begx - 1);
     ret |= wadd_wch(w, WACS_URCORNER);
+  }else{
+    if(!(nobordermask & BORDERMASK_LEFT)){
+      ret |= mvwadd_wch(w, begy, begx, WACS_ULCORNER);
+    }
+    if(!(nobordermask & BORDERMASK_RIGHT)){
+      ret |= mvwadd_wch(w, begy, maxx, WACS_URCORNER);
+    }
+  }
+  int y;
+  for(y = begy + 1 ; y < maxy ; ++y){
+    if(!(nobordermask & BORDERMASK_LEFT)){
+      ret |= mvwadd_wch(w, y, begx, WACS_VLINE);
+    }
+    if(!(nobordermask & BORDERMASK_RIGHT)){
+      ret |= mvwadd_wch(w, y, maxx, WACS_VLINE);
+    }
   }
   if(!(nobordermask & BORDERMASK_BOTTOM)){
-    ret |= mvwadd_wch(w, begx, maxy, WACS_LLCORNER);
-    ret |= whwline(w, WACS_HLINE, maxx - 3 - begx);
+    ret |= mvwadd_wch(w, maxy, begx, WACS_LLCORNER);
+    ret |= whwline(w, WACS_HLINE, maxx - begx - 1);
     ret |= wadd_wch(w, WACS_LRCORNER);
+  }else{
+    if(!(nobordermask & BORDERMASK_LEFT)){
+      ret |= mvwadd_wch(w, maxy, begx, WACS_LLCORNER);
+    }
+    if(!(nobordermask & BORDERMASK_RIGHT)){
+      ret |= mvwadd_wch(w, maxy, maxx, WACS_LRCORNER);
+    }
   }
-  ret |= wrefresh(w);
   return ret;
 }
 
@@ -69,6 +92,8 @@ draw_panelreel_borders(const panelreel* pr, WINDOW* w){
   getmaxyx(w, maxy, maxx);
   begx += pr->popts.headerlines;
   begy += pr->popts.leftcolumns;
+  --maxx; // last column we can safely write to
+  --maxy; // last line we can safely write to
   maxx -= pr->popts.footerlines;
   maxy -= pr->popts.rightcolumns;
   if(begx + 1 >= maxx){
