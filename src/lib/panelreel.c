@@ -31,6 +31,7 @@ typedef struct panelreel {
 // Repeat the cchar_t ch n times at the current location in w.
 static int
 whwline(WINDOW *w, const cchar_t* ch, int n){
+  // fprintf(stderr, "printing %d pieces of shit\n", n);
   while(n-- > 0){
     int ret;
     if((ret = wadd_wch(w, ch)) != OK){
@@ -40,39 +41,24 @@ whwline(WINDOW *w, const cchar_t* ch, int n){
   return OK;
 }
 
-#define WACS_L_LLCORNER L"╰"
-#define WACS_L_LRCORNER L"╯"
-#define WACS_L_ULCORNER L"╭"
-#define WACS_L_URCORNER L"╮"
-#define WACS_L_HLINE L"─"
-#define WACS_L_VLINE L"│"
-
-// Nicest border corners, but they don't line up with all fonts :/
-static const cchar_t lightboxchars[] = {
-  { .attr = 0, .chars = WACS_L_ULCORNER, },
-  { .attr = 0, .chars = WACS_L_URCORNER, },
-  { .attr = 0, .chars = WACS_L_LLCORNER, },
-  { .attr = 0, .chars = WACS_L_LRCORNER, },
-  { .attr = 0, .chars = WACS_L_VLINE, },
-  { .attr = 0, .chars = WACS_L_HLINE, },
-};
-
 // bchrs: 6-element array of wide border characters + attributes
 static int
 draw_borders(WINDOW* w, unsigned nobordermask, int begx, int begy,
-            int maxx, int maxy, const cchar_t* bchrs){
+            int maxx, int maxy){
   int ret = OK;
+  // fprintf(stderr, "printing %u pieces of shit\n", nobordermask);
   // FIXME might still need a ULCORNER/URCORNER...
   if(!(nobordermask & BORDERMASK_TOP)){
-    ret |= mvwadd_wch(w, begx, begy, &bchrs[0]);
-    ret |= whwline(w, &bchrs[5], maxx - 3 - begx);
-    ret |= wadd_wch(w, &bchrs[1]);
+    ret |= mvwadd_wch(w, begx, begy, WACS_ULCORNER);
+    ret |= whwline(w, WACS_HLINE, maxx - 3 - begx);
+    ret |= wadd_wch(w, WACS_URCORNER);
   }
   if(!(nobordermask & BORDERMASK_BOTTOM)){
-    ret |= mvwadd_wch(w, begx, maxy, &bchrs[2]);
-    ret |= whwline(w, &bchrs[5], maxx - 3 - begx);
-    ret |= wadd_wch(w, &bchrs[3]);
+    ret |= mvwadd_wch(w, begx, maxy, WACS_LLCORNER);
+    ret |= whwline(w, WACS_HLINE, maxx - 3 - begx);
+    ret |= wadd_wch(w, WACS_LRCORNER);
   }
+  ret |= wrefresh(w);
   return ret;
 }
 
@@ -86,14 +72,15 @@ draw_panelreel_borders(const panelreel* pr, WINDOW* w){
   begy += pr->popts.leftcolumns;
   maxx -= pr->popts.footerlines;
   maxy -= pr->popts.rightcolumns;
+/* fprintf(stderr, "begx: %d begy: %d maxx: %d maxy: %d\n",
+    begx, begy, maxx, maxy); */
   if(begx + 1 >= maxx){
     return 0; // no room FIXME clear screen?
   }
   if(begy + 1 >= maxy){
     return 0; // no room FIXME clear screen?
   }
-  return draw_borders(w, pr->popts.bordermask, begx, begy, maxx, maxy,
-                      lightboxchars);
+  return draw_borders(w, pr->popts.bordermask, begx, begy, maxx, maxy);
 }
 
 panelreel* create_panelreel(const panelreel_options* popts){
