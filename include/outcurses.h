@@ -55,7 +55,6 @@ enum bordermaskbits {
 };
 
 typedef struct panelreel_options {
-  WINDOW* w;           // ncurses WINDOW we're taking over, non-NULL
   int footerlines;     // leave this many lines alone at bottom, >=0
   int headerlines;     // leave this many lines alone at top, >=0
   int leftcolumns;     // leave this many columns alone on left, >=0
@@ -77,8 +76,8 @@ struct tablet;
 struct panelreel;
 
 // Create a panelreel according to the provided specifications. Returns NULL on
-// failure.
-struct panelreel* create_panelreel(const panelreel_options* popts);
+// failure. w must be a valid WINDOW*.
+struct panelreel* create_panelreel(WINDOW* w, const panelreel_options* popts);
 
 // Add a new tablet to the provided panelreel, having the callback object
 // opaque. Neither, either, or both of after and before may be specified. If
