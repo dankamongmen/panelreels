@@ -7,6 +7,7 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 11)
 
 include(GNUInstallDirs)
+find_package(PkgConfig REQUIRED)
 
 file(GLOB LIBSRCS CONFIGURE_DEPENDS src/lib/*.c)
 add_library(outcurses SHARED ${LIBSRCS})
@@ -17,9 +18,11 @@ set_target_properties(outcurses PROPERTIES
 	SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
-set(CURSES_NEED_WIDE TRUE)
-set(CURSES_NEED_NCURSES TRUE)
-find_package(Curses 6.1 REQUIRED)
+# CMake (even 3.16.0) has issues with ncurses wide support. Use pkg-config.
+#set(CURSES_NEED_WIDE TRUE)
+#set(CURSES_NEED_NCURSES TRUE)
+#find_package(Curses 6.1 REQUIRED)
+pkg_check_modules(CURSES REQUIRED ncursesw>=6.1)
 target_include_directories(outcurses PRIVATE ${CURSES_INCLUDE_DIR})
 target_link_libraries(outcurses INTERFACE ${CURSES_LIBRARIES})
 # FIXME ideally this would come from FindCurses.cmake
