@@ -1,4 +1,5 @@
 #include <panel.h>
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 #include "outcurses.h"
@@ -90,12 +91,14 @@ draw_panelreel_borders(const panelreel* pr, WINDOW* w){
   int maxx, maxy;
   getbegyx(w, begy, begx);
   getmaxyx(w, maxy, maxx);
-  begx += pr->popts.headerlines;
-  begy += pr->popts.leftcolumns;
+  assert(begy >= 0 && begx >= 0);
+  assert(maxy >= 0 && maxx >= 0);
+  begy += pr->popts.headerlines;
+  begx += pr->popts.leftcolumns;
   --maxx; // last column we can safely write to
   --maxy; // last line we can safely write to
-  maxx -= pr->popts.footerlines;
-  maxy -= pr->popts.rightcolumns;
+  maxy -= pr->popts.footerlines;
+  maxx -= pr->popts.rightcolumns;
   if(begx + 1 >= maxx){
     return 0; // no room FIXME clear screen?
   }
