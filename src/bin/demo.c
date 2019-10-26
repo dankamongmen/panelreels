@@ -7,7 +7,7 @@ panelreel_demo(WINDOW* w, struct panelreel* pr){
   // Press a for a new panel above the current, c for a new one below the current,
   // and b for a new block at arbitrary placement. q quits.
   int key;
-  mvwprintw(w, 1, 1, "Press a, b, c for new tablets, q to quit.");
+  mvwprintw(w, 1, 1, "a, b, c create tablets, DEL kills tablet, q quits.");
   clrtoeol();
   do{
     attron(COLOR_PAIR(COLOR_RED));
@@ -20,6 +20,7 @@ panelreel_demo(WINDOW* w, struct panelreel* pr){
       case 'a': t = add_tablet(pr, NULL, NULL, NULL); break;
       case 'b': t = add_tablet(pr, NULL, NULL, NULL); break;
       case 'c': t = add_tablet(pr, NULL, NULL, NULL); break;
+      case KEY_DC: del_active_tablet(pr); break;
       case 'q': break;
       default: wprintw(w, "Unknown key: %c (%d)\n", key, key);
     }
