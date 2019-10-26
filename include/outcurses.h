@@ -92,7 +92,12 @@ struct tablet* add_tablet(struct panelreel* pr, struct tablet* after,
 // Return the number of tablets.
 int panelreel_tabletcount(const struct panelreel* preel);
 
-int del_table(struct panelreel* pr, struct tablet* t);
+// Delete the tablet specified by t from the panelreel specified by pr. Returns
+// -1 if the tablet cannot be found.
+int del_tablet(struct panelreel* pr, struct tablet* t);
+
+// Delete the active tablet. Returns -1 if there are no tablets.
+int del_active_tablet(struct panelreel* pr);
 
 // Destroy a panelreel allocated with create_panelreel(). Does not destroy the
 // underlying WINDOW. Returns non-zero on failure.
