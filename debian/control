@@ -3,7 +3,7 @@ Priority: optional
 Maintainer: Nick Black <dankamongmen@gmail.com>
 Build-Depends: debhelper-compat (= 12), libncurses-dev (>= 6.1),
  cmake (>= 3.13), libgtest-dev (>= 1.9.0), googletest (>= 1.9.0), pkg-config
-Standards-Version: 4.4.0
+Standards-Version: 4.4.1.1
 Section: libs
 Homepage: https://nick-black.com/dankwiki/index.php/Outcurses
 Vcs-Browser: https://github.com/dankamongmen/outcurses

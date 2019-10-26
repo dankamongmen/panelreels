@@ -1,3 +1,10 @@
+outcurses (0.0.4-1) unstable; urgency=medium
+
+  * New upstream version 0.0.4
+  * Debian policy 4.4.1.1 (no changes)
+
+ -- Nick Black <dankamongmen@gmail.com>  Sat, 26 Oct 2019 13:38:50 -0400
+
 outcurses (0.0.3-1) unstable; urgency=medium
 
   * Include pkgconfig and CMake helpers
