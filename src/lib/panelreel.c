@@ -42,6 +42,11 @@ whwline(WINDOW *w, const cchar_t* ch, int n){
   return OK;
 }
 
+static const cchar_t WACS_ULROUNDCORNER = { .attr = 0, .chars = L"╭", };
+static const cchar_t WACS_URROUNDCORNER = { .attr = 0, .chars = L"╮", };
+static const cchar_t WACS_LLROUNDCORNER = { .attr = 0, .chars = L"╰", };
+static const cchar_t WACS_LRROUNDCORNER = { .attr = 0, .chars = L"╯", };
+
 // bchrs: 6-element array of wide border characters + attributes
 static int
 draw_borders(WINDOW* w, unsigned nobordermask, int begx, int begy,
@@ -50,15 +55,15 @@ draw_borders(WINDOW* w, unsigned nobordermask, int begx, int begy,
   // maxx - begx + 1 is the number of columns we have, but drop 2 due to
   // corners. we thus want maxx - begx - 1 horizontal lines.
   if(!(nobordermask & BORDERMASK_TOP)){
-    ret |= mvwadd_wch(w, begy, begx, WACS_ULCORNER);
+    ret |= mvwadd_wch(w, begy, begx, &WACS_ULROUNDCORNER);
     ret |= whwline(w, WACS_HLINE, maxx - begx - 1);
-    ret |= wadd_wch(w, WACS_URCORNER);
+    ret |= wadd_wch(w, &WACS_URROUNDCORNER);
   }else{
     if(!(nobordermask & BORDERMASK_LEFT)){
-      ret |= mvwadd_wch(w, begy, begx, WACS_ULCORNER);
+      ret |= mvwadd_wch(w, begy, begx, &WACS_ULROUNDCORNER);
     }
     if(!(nobordermask & BORDERMASK_RIGHT)){
-      ret |= mvwadd_wch(w, begy, maxx, WACS_URCORNER);
+      ret |= mvwadd_wch(w, begy, maxx, &WACS_URROUNDCORNER);
     }
   }
   int y;
@@ -71,15 +76,15 @@ draw_borders(WINDOW* w, unsigned nobordermask, int begx, int begy,
     }
   }
   if(!(nobordermask & BORDERMASK_BOTTOM)){
-    ret |= mvwadd_wch(w, maxy, begx, WACS_LLCORNER);
+    ret |= mvwadd_wch(w, maxy, begx, &WACS_LLROUNDCORNER);
     ret |= whwline(w, WACS_HLINE, maxx - begx - 1);
-    ret |= wadd_wch(w, WACS_LRCORNER);
+    ret |= wadd_wch(w, &WACS_LRROUNDCORNER);
   }else{
     if(!(nobordermask & BORDERMASK_LEFT)){
-      ret |= mvwadd_wch(w, maxy, begx, WACS_LLCORNER);
+      ret |= mvwadd_wch(w, maxy, begx, &WACS_LLROUNDCORNER);
     }
     if(!(nobordermask & BORDERMASK_RIGHT)){
-      ret |= mvwadd_wch(w, maxy, maxx, WACS_LRCORNER);
+      ret |= mvwadd_wch(w, maxy, maxx, &WACS_LRROUNDCORNER);
     }
   }
   return ret;

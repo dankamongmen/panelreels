@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <locale.h>
 #include <outcurses.h>
 
 static int
@@ -44,6 +45,7 @@ demo(WINDOW* w){
     .infinitescroll = true,
     .circular = true,
     .headerlines = 4,
+    .leftcolumns = 4,
   };
   struct panelreel* pr = create_panelreel(w, &popts);
   if(pr == NULL){
@@ -63,6 +65,10 @@ int main(void){
   int ret = EXIT_FAILURE;
   WINDOW* w;
 
+  if(!setlocale(LC_ALL, "")){
+    fprintf(stderr, "Coudln't set locale based on user preferences\n");
+    return EXIT_FAILURE;
+  }
   if((w = init_outcurses(true)) == NULL){
     fprintf(stderr, "Error initializing outcurses\n");
     return EXIT_FAILURE;
