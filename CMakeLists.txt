@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.13)
 project(Outcurses VERSION 0.0.4
-		DESCRIPTION "High-level UI via ncurses"
-		HOMEPAGE_URL "https://nick-black.com/dankwiki/index.php/Outcurses"
-		LANGUAGES C CXX)
+  DESCRIPTION "High-level UI via ncurses"
+  HOMEPAGE_URL "https://nick-black.com/dankwiki/index.php/Outcurses"
+  LANGUAGES C CXX)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 11)
 
@@ -13,9 +13,9 @@ file(GLOB LIBSRCS CONFIGURE_DEPENDS src/lib/*.c)
 add_library(outcurses SHARED ${LIBSRCS})
 target_include_directories(outcurses PRIVATE include)
 set_target_properties(outcurses PROPERTIES
-	PUBLIC_HEADER "include/outcurses.h"
-	VERSION ${PROJECT_VERSION}
-	SOVERSION ${PROJECT_VERSION_MAJOR}
+  PUBLIC_HEADER "include/outcurses.h"
+  VERSION ${PROJECT_VERSION}
+  SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
 # CMake (even 3.16.0) has issues with ncurses wide support. Use pkg-config.
@@ -28,15 +28,15 @@ target_link_libraries(outcurses INTERFACE ${CURSES_LIBRARIES})
 # FIXME ideally this would come from FindCurses.cmake
 target_compile_definitions(outcurses PRIVATE _DEFAULT_SOURCE _XOPEN_SOURCE=600)
 target_compile_options(outcurses PRIVATE
-		${CURSES_CFLAGS} ${CURSES_CFLAGS_OTHER}
-		-Wall -Wextra -W
+  ${CURSES_CFLAGS} ${CURSES_CFLAGS_OTHER}
+  -Wall -Wextra -W
 )
 
 file(GLOB BINSRCS CONFIGURE_DEPENDS src/bin/*.c)
 add_executable(outcurses-demo ${BINSRCS})
 target_include_directories(outcurses-demo PRIVATE include)
 target_compile_options(outcurses-demo PRIVATE
-    -Wall -Wextra
+  -Wall -Wextra
 )
 target_link_libraries(outcurses-demo outcurses)
 
@@ -44,8 +44,8 @@ file(GLOB TESTSRCS CONFIGURE_DEPENDS tests/*.cpp)
 add_executable(outcurses-tester ${TESTSRCS})
 find_package(GTest 1.9 REQUIRED)
 target_link_libraries(outcurses-tester
-	GTest::GTest
-	outcurses
+  GTest::GTest
+  outcurses
 )
 target_include_directories(outcurses-tester PRIVATE include)
 
@@ -53,39 +53,40 @@ gtest_discover_tests(outcurses-tester)
 enable_testing()
 
 configure_file(tools/outcurses.pc.in
-	${CMAKE_CURRENT_BINARY_DIR}/outcurses.pc
-	@ONLY
+  ${CMAKE_CURRENT_BINARY_DIR}/outcurses.pc
+  @ONLY
 )
 
 include(CMakePackageConfigHelpers)
 
 configure_package_config_file(tools/OutcursesConfig.cmake.in
-	${CMAKE_CURRENT_BINARY_DIR}/OutcursesConfig.cmake
-	INSTALL_DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/Outcurses/cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/OutcursesConfig.cmake
+  INSTALL_DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/Outcurses/cmake
 )
 
 write_basic_package_version_file(
-	${CMAKE_CURRENT_BINARY_DIR}/OutcursesConfigVersion.cmake
-	COMPATIBILITY SameMajorVersion
+  ${CMAKE_CURRENT_BINARY_DIR}/OutcursesConfigVersion.cmake
+  COMPATIBILITY SameMajorVersion
 )
 
 install(FILES
-	${CMAKE_CURRENT_BINARY_DIR}/OutcursesConfig.cmake
-	${CMAKE_CURRENT_BINARY_DIR}/OutcursesConfigVersion.cmake
-	DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake/Outcurses
+  ${CMAKE_CURRENT_BINARY_DIR}/OutcursesConfig.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/OutcursesConfigVersion.cmake
+  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake/Outcurses
 )
 
 install(FILES
-	${CMAKE_CURRENT_BINARY_DIR}/outcurses.pc
-		DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/pkgconfig
+  ${CMAKE_CURRENT_BINARY_DIR}/outcurses.pc
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/pkgconfig
 )
 
 install(TARGETS outcurses
-	LIBRARY
-		DESTINATION ${CMAKE_INSTALL_LIBDIR}
-		COMPONENT Libraries
-		NAMELINK_COMPONENT Development
-	PUBLIC_HEADER
-		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-		COMPONENT Development
+  TARGETS outcurses-demo DESTINATION bin
+  LIBRARY
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    COMPONENT Libraries
+    NAMELINK_COMPONENT Development
+  PUBLIC_HEADER
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    COMPONENT Development
 )
