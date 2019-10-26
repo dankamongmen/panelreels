@@ -29,7 +29,16 @@ itself and ncurses. If you intend to close down ncurses yourself, pass `false`.
 Outcurses is thread-safe so long as multiple threads never call into it
 concurrently (to the degree that the underlying ncurses is thread-safe).
 
-## Outcurses and SIGWINCH
+## Threads and signals
+
+Unless explicitly mentioned, it is never safe to call an outcurses function
+from a signal handler.
+
+So long as external locking is employed to ensure only one thread calls into
+outcurses at a time, all functions are safe to use in threaded programs. The
+enmetric family of functions are reentrant and thread-safe.
+
+### Outcurses and SIGWINCH
 
 Outcurses does not explicitly install any SIGWINCH (SIGnal WIndow CHange)
 handler. Ncurses itself will install a SIGWINCH handler *if the signal is
