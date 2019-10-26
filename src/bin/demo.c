@@ -62,6 +62,7 @@ widecolor_demo(WINDOW* w){
   wattron(w, COLOR_PAIR(COLOR_WHITE));
   mvwaddwstr(w, 0, 0, L"wide chars, multiple colors…");
   int cpair = 16;
+  // FIXME change color with each char, and show 6x6x6 structure
   for(s = strs ; *s ; ++s){
     waddch(w, ' ');
     wattron(w, COLOR_PAIR(cpair++));
