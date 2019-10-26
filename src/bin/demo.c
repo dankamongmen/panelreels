@@ -6,13 +6,14 @@ static int
 panelreel_demo(WINDOW* w, struct panelreel* pr){
   // Press a for a new panel above the current, c for a new one below the current,
   // and b for a new block at arbitrary placement. q quits.
+  wattron(w, COLOR_PAIR(COLOR_CYAN));
   int key;
   mvwprintw(w, 1, 1, "a, b, c create tablets, DEL kills tablet, q quits.");
   clrtoeol();
   do{
-    attron(COLOR_PAIR(COLOR_RED));
+    wattron(w, COLOR_PAIR(COLOR_RED));
     mvwprintw(w, 2, 2, "%d tablets", panelreel_tabletcount(pr));
-    attron(COLOR_PAIR(COLOR_BLUE));
+    wattron(w, COLOR_PAIR(COLOR_BLUE));
     struct tablet* t;
     key = mvwgetch(w, 3, 2);
     clrtoeol();
@@ -25,6 +26,51 @@ panelreel_demo(WINDOW* w, struct panelreel* pr){
       default: wprintw(w, "Unknown key: %c (%d)\n", key, key);
     }
   }while(key != 'q');
+  return 0;
+}
+
+static int
+widecolor_demo(WINDOW* w){
+  static const wchar_t* strs[] = {
+    L"Война и мир",
+    L"Бра́тья Карама́зовы",
+    L"Час сэканд-хэнд",
+    L"ஸீரோ டிகிரி",
+    L"Tonio Kröger",
+    L"بين القصرين",
+    L"قصر الشوق",
+    L"السكرية",
+    L"三体",
+    L"血的神话: 公元1967年湖南道县文革大屠杀纪实",
+    L"三国演义",
+    L"紅樓夢",
+    L"Hónglóumèng",
+    L"红楼梦",
+    L"महाभारतम्",
+    L"Mahābhāratam",
+    L" रामायणम्",
+    L"Rāmāyaṇam",
+    L"القرآن",
+    L"תּוֹרָה",
+    L"תָּנָ״ךְ",
+    L"Osudy dobrého vojáka Švejka za světové války",
+    NULL
+  };
+  const wchar_t** s;
+  int key;
+
+  wattron(w, COLOR_PAIR(COLOR_WHITE));
+  mvwaddwstr(w, 0, 0, L"wide chars, multiple colors…");
+  int cpair = 16;
+  for(s = strs ; *s ; ++s){
+    waddch(w, ' ');
+    wattron(w, COLOR_PAIR(cpair++));
+    waddwstr(w, *s);
+  }
+  do{
+    key = wgetch(w);
+  }while(key == ERR);
+  wclear(w);
   return 0;
 }
 
@@ -42,6 +88,7 @@ print_intro(WINDOW *w){
 static int
 demo(WINDOW* w){
   print_intro(w);
+  widecolor_demo(w);
   panelreel_options popts = {
     .infinitescroll = true,
     .circular = true,
