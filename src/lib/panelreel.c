@@ -179,7 +179,11 @@ tablet* add_tablet(panelreel* pr, tablet* after, tablet *before, void* opaque){
   return t;
 }
 
-int del_table(struct panelreel* pr, struct tablet* t){
+int del_active_tablet(struct panelreel* pr){
+  return del_tablet(pr, pr->tablets);
+}
+
+int del_tablet(struct panelreel* pr, struct tablet* t){
   if(pr == NULL || t == NULL){
     return -1;
   }
