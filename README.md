@@ -39,8 +39,7 @@ currently ignored* (the default). The effect of said handler is twofold:
 * The next call to either the `wgetch()` family or `doupdate()` will invoke
     `resizeterm()`, prior to returning `KEY_RESIZE` (in the former case).
 
-A call into any Ncurses-related outcurses function will result in redraws
-taking into account the new window dimensions.
+Active panelreels ought be redrawn with `panelreel_redraw()`.
 
 ## Outcurses and colors
 

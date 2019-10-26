@@ -90,7 +90,7 @@ struct tablet* add_tablet(struct panelreel* pr, struct tablet* after,
                           struct tablet *before, void* opaque);
 
 // Return the number of tablets.
-int panelreel_tabletcount(const struct panelreel* preel);
+int panelreel_tabletcount(const struct panelreel* pr);
 
 // Delete the tablet specified by t from the panelreel specified by pr. Returns
 // -1 if the tablet cannot be found.
@@ -99,9 +99,13 @@ int del_tablet(struct panelreel* pr, struct tablet* t);
 // Delete the active tablet. Returns -1 if there are no tablets.
 int del_active_tablet(struct panelreel* pr);
 
+// Redraw the panelreel in its entirety, for instance after
+// clearing the screen due to external corruption, or a SIGWINCH.
+int panelreel_redraw(const struct panelreel* pr);
+
 // Destroy a panelreel allocated with create_panelreel(). Does not destroy the
 // underlying WINDOW. Returns non-zero on failure.
-int destroy_panelreel(struct panelreel* preel);
+int destroy_panelreel(struct panelreel* pr);
 
 #define PREFIXSTRLEN 7  // Does not include a '\0' (xxx.xxU)
 #define BPREFIXSTRLEN 9  // Does not include a '\0' (xxxx.xxUi), i == prefix
