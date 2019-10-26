@@ -113,6 +113,10 @@ draw_panelreel_borders(const panelreel* pr, WINDOW* w){
   return draw_borders(w, pr->popts.bordermask, begx, begy, maxx, maxy);
 }
 
+int panelreel_redraw(const panelreel* pr){
+  return draw_panelreel_borders(pr, pr->w);
+}
+
 panelreel* create_panelreel(WINDOW* w, const panelreel_options* popts){
   panelreel* pr;
 
@@ -139,7 +143,10 @@ panelreel* create_panelreel(WINDOW* w, const panelreel_options* popts){
     pr->tabletcount = 0;
     pr->w = w;
     memcpy(&pr->popts, popts, sizeof(*popts));
-    draw_panelreel_borders(pr, pr->w);
+    if(panelreel_redraw(pr)){
+      free(pr);
+      return NULL;
+    }
   }
   return pr;
 }
