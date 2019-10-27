@@ -80,8 +80,8 @@ install(FILES
     DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/pkgconfig
 )
 
+install(TARGETS outcurses-demo DESTINATION bin)
 install(TARGETS outcurses
-  TARGETS outcurses-demo DESTINATION bin
   LIBRARY
     DESTINATION ${CMAKE_INSTALL_LIBDIR}
     COMPONENT Libraries
