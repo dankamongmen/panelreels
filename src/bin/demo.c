@@ -55,6 +55,7 @@ widecolor_demo(WINDOW* w){
     L"תּוֹרָה",
     L"תָּנָ״ךְ",
     L"Osudy dobrého vojáka Švejka za světové války",
+    L"Σίβνλλα τί ϴέλεις; respondebat illa: άπο ϴανεΐν ϴέλω",
     L"﻿काचं शक्नोम्यत्तुम् । नोपहिनस्ति माम्",
     L"kācaṃ śaknomyattum; nopahinasti mām",
     L"ὕαλον ϕαγεῖν δύναμαι· τοῦτο οὔ με βλάπτει",
