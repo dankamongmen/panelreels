@@ -339,3 +339,8 @@ enmetric(UINTMAX_MAX, 1, out, 1, 1024, 'i');    ---> "15.99Ei"
 ```
 
 I know this doesn't have anything to do with ncurses, but eh, it's output.
+
+## Thanks
+
+Most of the multilingual text used in the demo comes from Frank da Cruz et al's
+[UTF-8 Sampler](http://kermitproject.org/utf8.html).
