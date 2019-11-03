@@ -1,3 +1,9 @@
+outcurses (0.0.4-2) unstable; urgency=medium
+
+  * Install pkgconfig/cmake support to proper multiarch paths
+
+ -- Nick Black <dankamongmen@gmail.com>  Sat, 02 Nov 2019 23:41:07 -0400
+
 outcurses (0.0.4-1) unstable; urgency=medium
 
   * New upstream version 0.0.4

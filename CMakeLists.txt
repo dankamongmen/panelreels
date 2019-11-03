@@ -72,12 +72,12 @@ write_basic_package_version_file(
 install(FILES
   ${CMAKE_CURRENT_BINARY_DIR}/OutcursesConfig.cmake
   ${CMAKE_CURRENT_BINARY_DIR}/OutcursesConfigVersion.cmake
-  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/cmake/Outcurses
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Outcurses
 )
 
 install(FILES
   ${CMAKE_CURRENT_BINARY_DIR}/outcurses.pc
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/pkgconfig
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
 )
 
 install(TARGETS outcurses-demo DESTINATION bin)
