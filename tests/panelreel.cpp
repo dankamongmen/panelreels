@@ -16,9 +16,8 @@ TEST(OutcursesPanelReel, InitLinearInfinite) {
   if(getenv("TERM") == nullptr){
     GTEST_SKIP();
   }
-  panelreel_options p = {
-    .infinitescroll = true,
-  };
+  panelreel_options p{};
+  p.infinitescroll = true;
   ASSERT_NE(nullptr, init_outcurses(true));
   struct panelreel* pr = create_panelreel(stdscr, &p);
   ASSERT_NE(nullptr, pr);
@@ -29,10 +28,9 @@ TEST(OutcursesPanelReel, InitCircular) {
   if(getenv("TERM") == nullptr){
     GTEST_SKIP();
   }
-  panelreel_options p = {
-    .infinitescroll = true,
-    .circular = true,
-  };
+  panelreel_options p{};
+  p.infinitescroll = true;
+  p.circular = true;
   ASSERT_NE(nullptr, init_outcurses(true));
   struct panelreel* pr = create_panelreel(stdscr, &p);
   ASSERT_NE(nullptr, pr);
@@ -45,10 +43,9 @@ TEST(OutcursesPanelReel, FiniteCircleRejected) {
   if(getenv("TERM") == nullptr){
     GTEST_SKIP();
   }
-  panelreel_options p = {
-    .infinitescroll = false,
-    .circular = true,
-  };
+  panelreel_options p{};
+  p.infinitescroll = false;
+  p.circular = true;
   ASSERT_NE(nullptr, init_outcurses(true));
   struct panelreel* pr = create_panelreel(stdscr, &p);
   ASSERT_EQ(nullptr, pr);
@@ -59,9 +56,8 @@ TEST(OutcursesPanelReel, OnePanel) {
   if(getenv("TERM") == nullptr){
     GTEST_SKIP();
   }
-  panelreel_options p = {
-    .infinitescroll = false,
-  };
+  panelreel_options p{};
+  p.infinitescroll = false;
   ASSERT_NE(nullptr, init_outcurses(true));
   struct panelreel* pr = create_panelreel(stdscr, &p);
   ASSERT_NE(nullptr, pr);
@@ -75,12 +71,9 @@ TEST(OutcursesPanelReel, NoBorder) {
   if(getenv("TERM") == nullptr){
     GTEST_SKIP();
   }
-  panelreel_options p = {
-    .bordermask = BORDERMASK_LEFT |
-                  BORDERMASK_RIGHT |
-                  BORDERMASK_TOP |
-                  BORDERMASK_BOTTOM,
-  };
+  panelreel_options p{};
+  p.bordermask = BORDERMASK_LEFT | BORDERMASK_RIGHT |
+                  BORDERMASK_TOP | BORDERMASK_BOTTOM;
   ASSERT_NE(nullptr, init_outcurses(true));
   struct panelreel* pr = create_panelreel(stdscr, &p);
   ASSERT_NE(nullptr, pr);
@@ -91,9 +84,8 @@ TEST(OutcursesPanelReel, BadBorderBitsRejected) {
   if(getenv("TERM") == nullptr){
     GTEST_SKIP();
   }
-  panelreel_options p = {
-    .bordermask = BORDERMASK_LEFT * 2,
-  };
+  panelreel_options p{};
+  p.bordermask = BORDERMASK_LEFT * 2;
   ASSERT_NE(nullptr, init_outcurses(true));
   struct panelreel* pr = create_panelreel(stdscr, &p);
   ASSERT_EQ(nullptr, pr);
@@ -104,12 +96,9 @@ TEST(OutcursesPanelReel, NoTabletBorder) {
   if(getenv("TERM") == nullptr){
     GTEST_SKIP();
   }
-  panelreel_options p = {
-    .tabletmask = BORDERMASK_LEFT |
-                  BORDERMASK_RIGHT |
-                  BORDERMASK_TOP |
-                  BORDERMASK_BOTTOM,
-  };
+  panelreel_options p{};
+  p.tabletmask = BORDERMASK_LEFT | BORDERMASK_RIGHT |
+                  BORDERMASK_TOP | BORDERMASK_BOTTOM;
   ASSERT_NE(nullptr, init_outcurses(true));
   struct panelreel* pr = create_panelreel(stdscr, &p);
   ASSERT_NE(nullptr, pr);
@@ -119,9 +108,8 @@ TEST(OutcursesPanelReel, BadTabletBorderBitsRejected) {
   if(getenv("TERM") == nullptr){
     GTEST_SKIP();
   }
-  panelreel_options p = {
-    .tabletmask = BORDERMASK_LEFT * 2,
-  };
+  panelreel_options p{};
+  p.tabletmask = BORDERMASK_LEFT * 2;
   ASSERT_NE(nullptr, init_outcurses(true));
   struct panelreel* pr = create_panelreel(stdscr, &p);
   ASSERT_EQ(nullptr, pr);
