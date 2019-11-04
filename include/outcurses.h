@@ -167,7 +167,7 @@ enmetric(uintmax_t val, unsigned decimal, char *buf, int omitdec,
           prefixes[consumed - 1], uprefix);
     }else{
       uintmax_t remain = (dv == mult) ?
-                remain = (val % dv) * 100 / dv :
+                (val % dv) * 100 / dv :
                 ((val % dv) / mult * 100) / (dv / mult);
       sprintf(buf, "%ju.%02ju%c%c",
           val / dv,
