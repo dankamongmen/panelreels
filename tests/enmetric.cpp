@@ -87,7 +87,7 @@ TEST(OutcursesPrefix, PowersOfTen) {
 	char buf[PREFIXSTRLEN + 1];
 	uintmax_t goldval = 1;
 	uintmax_t val = 1;
-	int i = 0;
+	size_t i = 0;
 	do{
 		enmetric(val, 1, buf, 0, 1000, '\0');
 		const int sidx = i / 3;
@@ -110,7 +110,7 @@ TEST(OutcursesPrefix, PowersOfTenNoDec) {
 	char buf[PREFIXSTRLEN + 1];
 	uintmax_t goldval = 1;
 	uintmax_t val = 1;
-	int i = 0;
+	size_t i = 0;
 	do{
 		enmetric(val, 1, buf, 1, 1000, '\0');
 		const int sidx = i / 3;
@@ -133,7 +133,7 @@ TEST(OutcursesPrefix, PowersOfTwo) {
 	char buf[BPREFIXSTRLEN + 1];
 	uintmax_t goldval = 1;
 	uintmax_t val = 1;
-	int i = 0;
+	size_t i = 0;
 	do{
 		enmetric(val, 1, buf, 0, 1024, 'i');
 		const int sidx = i / 10;
@@ -156,7 +156,7 @@ TEST(OutcursesPrefix, PowersOfTwoNoDec) {
 	char buf[BPREFIXSTRLEN + 1];
 	uintmax_t goldval = 1;
 	uintmax_t val = 1;
-	int i = 0;
+	size_t i = 0;
 	do{
 		enmetric(val, 1, buf, 1, 1024, 'i');
 		const int sidx = i / 10;
@@ -179,7 +179,7 @@ TEST(OutcursesPrefix, PowersOfTwoAsTens) {
 	char buf[PREFIXSTRLEN + 1];
 	uintmax_t vfloor = 1;
 	uintmax_t val = 1;
-	int i = 0;
+	size_t i = 0;
 	ASSERT_EQ(0, fesetround(FE_TOWARDZERO));
 	do{
 		enmetric(val, 1, buf, 0, 1000, '\0');
@@ -254,7 +254,7 @@ TEST(OutcursesPrefix, PowersOfTenPlusOne) {
 	char buf[PREFIXSTRLEN + 1];
 	uintmax_t vfloor = 1;
 	uintmax_t val = 1;
-	int i = 0;
+	size_t i = 0;
 	ASSERT_EQ(0, fesetround(FE_TOWARDZERO));
 	do{
 		enmetric(val + 1, 1, buf, 0, 1000, '\0');

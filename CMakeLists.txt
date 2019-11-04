@@ -26,7 +26,9 @@ pkg_check_modules(CURSES REQUIRED ncursesw>=6.1)
 target_include_directories(outcurses PRIVATE ${CURSES_INCLUDE_DIR})
 target_link_libraries(outcurses INTERFACE ${CURSES_LIBRARIES})
 # FIXME ideally this would come from FindCurses.cmake
-target_compile_definitions(outcurses PRIVATE _DEFAULT_SOURCE _XOPEN_SOURCE=600)
+target_compile_definitions(outcurses PRIVATE
+  _DEFAULT_SOURCE _XOPEN_SOURCE=600
+)
 target_compile_options(outcurses PRIVATE
   ${CURSES_CFLAGS} ${CURSES_CFLAGS_OTHER}
   -Wall -Wextra -W
@@ -35,19 +37,30 @@ target_compile_options(outcurses PRIVATE
 file(GLOB BINSRCS CONFIGURE_DEPENDS src/bin/*.c)
 add_executable(outcurses-demo ${BINSRCS})
 target_include_directories(outcurses-demo PRIVATE include)
+target_link_libraries(outcurses-demo outcurses)
+target_compile_definitions(outcurses-demo PRIVATE
+  _DEFAULT_SOURCE _XOPEN_SOURCE=600
+)
 target_compile_options(outcurses-demo PRIVATE
+  ${CURSES_CFLAGS} ${CURSES_CFLAGS_OTHER}
   -Wall -Wextra
 )
-target_link_libraries(outcurses-demo outcurses)
 
 file(GLOB TESTSRCS CONFIGURE_DEPENDS tests/*.cpp)
 add_executable(outcurses-tester ${TESTSRCS})
 find_package(GTest 1.9 REQUIRED)
+target_include_directories(outcurses-tester PRIVATE include)
 target_link_libraries(outcurses-tester
   GTest::GTest
   outcurses
 )
-target_include_directories(outcurses-tester PRIVATE include)
+target_compile_definitions(outcurses-tester PRIVATE
+  _DEFAULT_SOURCE _XOPEN_SOURCE=600
+)
+target_compile_options(outcurses-tester PRIVATE
+  ${CURSES_CFLAGS} ${CURSES_CFLAGS_OTHER}
+  -Wall -Wextra -W
+)
 
 gtest_discover_tests(outcurses-tester)
 enable_testing()
