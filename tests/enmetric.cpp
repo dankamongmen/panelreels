@@ -204,11 +204,11 @@ TEST(OutcursesPrefix, PowersOfTenAsTwos) {
 	char buf[BPREFIXSTRLEN + 1];
 	uintmax_t vfloor = 1;
 	uintmax_t val = 1;
-	int i = 0;
+	size_t i = 0;
 	ASSERT_EQ(0, fesetround(FE_TOWARDZERO));
 	do{
 		enmetric(val, 1, buf, 0, 1024, 'i');
-		const int sidx = (i - 1) / 3;
+		const int sidx = i ? (i - 1) / 3 : 0;
 		snprintf(gold, sizeof(gold), "%.2f%ci",
 				 ((double)val) / vfloor, suffixes[sidx]);
 		EXPECT_STREQ(gold, buf);
@@ -229,11 +229,11 @@ TEST(OutcursesPrefix, PowersOfTenMinusOne) {
 	char buf[PREFIXSTRLEN + 1];
 	uintmax_t vfloor = 1;
 	uintmax_t val = 1;
-	int i = 0;
+	size_t i = 0;
 	ASSERT_EQ(0, fesetround(FE_TOWARDZERO));
 	do{
 		enmetric(val - 1, 1, buf, 0, 1000, '\0');
-		const int sidx = (i - 1) / 3;
+		const int sidx = i ? (i - 1) / 3 : 0;
 		snprintf(gold, sizeof(gold), "%.2f%c",
 				 ((double)(val - 1)) / vfloor, suffixes[sidx]);
 		EXPECT_STREQ(gold, buf);
@@ -279,11 +279,11 @@ TEST(OutcursesPrefix, PowersOfTenMinusOneAsTwos) {
 	char buf[BPREFIXSTRLEN + 1];
 	uintmax_t vfloor = 1;
 	uintmax_t val = 1;
-	int i = 0;
+	size_t i = 0;
 	ASSERT_EQ(0, fesetround(FE_TOWARDZERO));
 	do{
 		enmetric(val - 1, 1, buf, 0, 1024, 'i');
-		const int sidx = (i - 1) / 3;
+		const int sidx = i ? (i - 1) / 3 : 0;
 		snprintf(gold, sizeof(gold), "%.2f%ci",
 				 ((double)(val - 1)) / vfloor, suffixes[sidx]);
 		EXPECT_STREQ(gold, buf);
