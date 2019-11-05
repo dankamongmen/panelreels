@@ -1,7 +1,6 @@
 #ifndef OUTCURSES_OUTCURSES
 #define OUTCURSES_OUTCURSES
 
-#include <term.h>
 #include <string.h>
 #include <ncurses.h>
 #include <stdbool.h>
