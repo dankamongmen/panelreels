@@ -107,9 +107,16 @@ int panelreel_redraw(const struct panelreel* pr);
 int destroy_panelreel(struct panelreel* pr);
 
 #define PREFIXSTRLEN 7  // Does not include a '\0' (xxx.xxU)
+#define IPREFIXSTRLEN 8 //  Does not include a '\0' (xxxx.xxU)
 #define BPREFIXSTRLEN 9  // Does not include a '\0' (xxxx.xxUi), i == prefix
-#define PREFIXFMT "%7s"
-#define BPREFIXFMT "%9s"
+
+// A bit of the nasties here to stringize our preprocessor tokens just now
+// #defined, making them usable as printf(3) specifiers.
+#define STRHACK1(x) #x
+#define STRHACK2(x) STRHACK1(x)
+#define PREFIXFMT "%" STRHACK2(PREFIXSTRLEN) "s"
+#define IPREFIXFMT "%" STRHACK2(IPREFIXSTRLEN) "s"
+#define BPREFIXFMT "%" STRHACK2(BPREFIXSTRLEN) "s"
 
 // Takes an arbitrarily large number, and prints it into a fixed-size buffer by
 // adding the necessary SI suffix. Usually, pass a |[B]PREFIXSTRLEN+1|-sized
