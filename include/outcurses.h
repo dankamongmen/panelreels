@@ -157,6 +157,7 @@ enmetric(uintmax_t val, unsigned decimal, char *buf, int omitdec,
     }
   }
   if(dv != mult){ // if consumed == 0, dv must equal mult
+    int sprintfed;
     if(val / dv > 0){
       ++consumed;
     }else{
@@ -169,17 +170,20 @@ enmetric(uintmax_t val, unsigned decimal, char *buf, int omitdec,
     // 1,024). That can overflow with large 64-bit values, but we can first
     // divide both sides by mult, and then scale by 100.
     if(omitdec && (val % dv) == 0){
-      sprintf(buf, "%ju%c%c", val / dv,
-          prefixes[consumed - 1], uprefix);
+      sprintfed = sprintf(buf, "%ju%c", val / dv,
+                          prefixes[consumed - 1]);
     }else{
       uintmax_t remain = (dv == mult) ?
                 (val % dv) * 100 / dv :
                 ((val % dv) / mult * 100) / (dv / mult);
-      sprintf(buf, "%ju.%02ju%c%c",
-          val / dv,
-          remain,
-          prefixes[consumed - 1],
-          uprefix);
+      sprintfed = sprintf(buf, "%ju.%02ju%c",
+                          val / dv,
+                          remain,
+                          prefixes[consumed - 1]);
+    }
+    if(uprefix){
+      buf[sprintfed] = uprefix;
+      buf[sprintfed + 1] = '\0';
     }
   }else{ // unscaled output, consumed == 0, dv == mult
     if(omitdec && val % decimal == 0){
