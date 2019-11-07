@@ -68,7 +68,7 @@ set_palette(int count, const ccomps* palette){
 #define NANOSECS_IN_SEC 1000000000ull
 #define NANOSECS_IN_MS  (NANOSECS_IN_SEC / 1000ul)
 
-int fade(WINDOW* w, unsigned ms){
+int fadeout(WINDOW* w, unsigned ms){
   uint64_t nanosecs_total;
   uint64_t nanosecs_step;
   ccomps* orig;
@@ -146,4 +146,9 @@ done:
   free(orig);
   free(cur);
   return ret;
+}
+
+int fadein(WINDOW* w, unsigned ms){
+  (void)w; (void)ms; // FIXME
+  return -1;
 }

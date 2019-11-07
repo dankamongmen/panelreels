@@ -19,7 +19,9 @@ WINDOW* init_outcurses(bool initcurses);
 int stop_outcurses(bool stopcurses);
 
 // Do a palette fade on the specified screen over the course of ms milliseconds.
-int fade(WINDOW* w, unsigned ms);
+// FIXME allow colorpair range to be specified for partial-screen fades
+int fadeout(WINDOW* w, unsigned ms);
+int fadein(WINDOW* w, unsigned ms);
 
 // A panelreel is an ncurses window devoted to displaying zero or more
 // line-oriented, contained panels between which the user may navigate. If at

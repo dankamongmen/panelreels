@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <iostream>
 
-TEST(OutcursesFade, Fade) {
+TEST(OutcursesFade, FadeOut) {
   if(getenv("TERM") == nullptr){
 	  GTEST_SKIP();
   }
@@ -31,6 +31,6 @@ TEST(OutcursesFade, Fade) {
   wrefresh(stdscr);
   struct timespec ts = {.tv_sec = 0, .tv_nsec = 500000000, };
   nanosleep(&ts, NULL);
-  ASSERT_EQ(0, fade(stdscr, 1500));
+  ASSERT_EQ(0, fadeout(stdscr, 1500));
   ASSERT_EQ(0, stop_outcurses(true));
 }

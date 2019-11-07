@@ -259,7 +259,7 @@ demo(WINDOW* w){
     return -1;
   }
   panelreel_demo(w, pr);
-  fade(w, 1000);
+  fadeout(w, 1000);
   if(destroy_panelreel(pr)){
     fprintf(stderr, "Error destroying panelreel\n");
     return -1;
