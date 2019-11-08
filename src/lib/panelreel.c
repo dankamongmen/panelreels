@@ -83,6 +83,9 @@ draw_borders(WINDOW* w, unsigned nobordermask, int begx, int begy,
       ret |= mvwadd_wch(w, maxy, begx, &WACS_LLROUNDCORNER);
     }
     if(!(nobordermask & BORDERMASK_RIGHT)){
+      // mvwadd_wch returns error if we print to the lowermost+rightmost
+      // character cell. maybe we can make this go away with scrolling controls
+      // at setup? until then, don't check for error here FIXME.
       mvwadd_wch(w, maxy, maxx, &WACS_LRROUNDCORNER);
     }
   }
@@ -162,6 +165,20 @@ panelreel* create_panelreel(WINDOW* w, const panelreel_options* popts){
   return pr;
 }
 
+// Ought the specified tablet currently be (at least in part) visible? This is
+// independent of whether it is currently visible, and derived instead from the
+// prime source of truth regarding layout--the focused tablet, and its position.
+// Returns true if the tablet is visible, setting *vline to the first row
+// within the visible panelreel occupied by the tablet. Note that this might not
+// be where the tablet's first line would be, if the tablet is only partially
+// visible at the top of the reel. Tablets are never split across the top and
+// bottom; they are zero or more contiguous lines in a reel.
+/*static bool
+tablet_visible_p(const panelreel* pr, tablet* t){
+  // FIXME
+  return true;
+}*/
+
 tablet* add_tablet(panelreel* pr, tablet* after, tablet *before, void* opaque){
   tablet* t;
   if(after && before){
@@ -189,10 +206,11 @@ tablet* add_tablet(panelreel* pr, tablet* after, tablet *before, void* opaque){
       t->prev->next = t;
     }else{ // we're the first tablet
       t->prev = t->next = t;
+      pr->tablets = t;
     }
     t->opaque = opaque;
     ++pr->tabletcount;
-    // FIXME determine whether we're on the screen, and if so, draw us
+    panelreel_redraw(pr);
   }
   return t;
 }
