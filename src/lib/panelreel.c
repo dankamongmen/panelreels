@@ -15,7 +15,7 @@ typedef struct tablet {
 
 // The visible screen can be reconstructed from three things:
 //  * which tablet is focused (pointed at by tablets)
-//  * which row the focused tablet starts at (held by focusrow)
+//  * which row the focused tablet starts at (derived from focused window)
 //  * the list of tablets (available from the focused tablet)
 typedef struct panelreel {
   WINDOW* w;               // WINDOW this panelreel occupies
@@ -24,7 +24,6 @@ typedef struct panelreel {
     // scrolling is in effect. points at the focused tablet (when at least one
     // tablet exists, one must be focused), which might be anywhere on the
     // screen (but is guaranteed to be visible).
-  int focusrow;            // row at which focused tablet starts
   int tabletcount;         // could be derived, but we keep it o(1)
 } panelreel;
 
@@ -113,8 +112,20 @@ draw_panelreel_borders(const panelreel* pr, WINDOW* w){
   return draw_borders(w, pr->popts.bordermask, begx, begy, maxx, maxy);
 }
 
+// Arrange the panels, starting with the focused window, wherever it may be.
+// Work in both directions until the screen is filled. If the screen is not
+// filled, move everything towards the top. Supply -1 if we're moving up, 0 if
+// this call is not in response to user movement, and 1 if we're moving down.
+static int
+panelreel_arrange(const panelreel* pr, int direction){
+  return 0;
+}
+
 int panelreel_redraw(const panelreel* pr){
-  return draw_panelreel_borders(pr, pr->w);
+  int ret = 0;
+  ret |= draw_panelreel_borders(pr, pr->w);
+  ret |= panelreel_arrange(pr, 0);
+  return ret;
 }
 
 panelreel* create_panelreel(WINDOW* w, const panelreel_options* popts){
