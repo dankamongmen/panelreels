@@ -224,7 +224,7 @@ widecolor_demo(WINDOW* w){
 
   palette = malloc(sizeof(*palette) * count);
   retrieve_palette(count, palette, NULL, true);
-  int pair = COLOR_WHITE + COLORS;
+  int pair = COLOR_WHITE + (COLORS * COLOR_WHITE);
   wattr_set(w, A_NORMAL, 0, &pair);
   mvwaddwstr(w, 0, 0, L"wide chars, multiple colors…");
   int cpair = 16;
