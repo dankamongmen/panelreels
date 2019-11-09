@@ -8,14 +8,17 @@ static int
 panelreel_demo(WINDOW* w, struct panelreel* pr){
   // Press a for a new panel above the current, c for a new one below the current,
   // and b for a new block at arbitrary placement. q quits.
-  wattron(w, COLOR_PAIR(COLOR_CYAN));
+  int pair = COLOR_CYAN;
+  wattr_set(w, A_NORMAL, 0, &pair);
   int key;
   mvwprintw(w, 1, 1, "a, b, c create tablets, DEL kills tablet, q quits.");
   clrtoeol();
   do{
-    wattron(w, COLOR_PAIR(COLOR_RED));
+    pair = COLOR_RED;
+    wattr_set(w, A_NORMAL, 0, &pair);
     mvwprintw(w, 2, 2, "%d tablets", panelreel_tabletcount(pr));
-    wattron(w, COLOR_PAIR(COLOR_BLUE));
+    pair = COLOR_BLUE;
+    wattr_set(w, A_NORMAL, 0, &pair);
     key = mvwgetch(w, 3, 2);
     clrtoeol();
     switch(key){
@@ -221,14 +224,21 @@ widecolor_demo(WINDOW* w){
 
   palette = malloc(sizeof(*palette) * count);
   retrieve_palette(count, palette, NULL, true);
-  wattron(w, COLOR_PAIR(COLOR_WHITE));
+  int pair = COLOR_WHITE + COLORS;
+  wattr_set(w, A_NORMAL, 0, &pair);
   mvwaddwstr(w, 0, 0, L"wide chars, multiple colors…");
   int cpair = 16;
-  // FIXME change color with each char, and show 6x6x6 structure
+  // FIXME show 6x6x6 color structure
   for(s = strs ; *s ; ++s){
     waddch(w, ' ');
-    wattron(w, COLOR_PAIR(cpair++));
-    waddwstr(w, *s);
+    size_t idx;
+    for(idx = 0 ; idx < wcslen(*s) ; ++idx){
+      pair = cpair++;
+      // wattr_set(w, A_NORMAL, 0, &pair);
+      cchar_t wch;
+      setcchar(&wch, &(*s)[idx], A_NORMAL, 0, &pair);
+      wadd_wch(w, &wch);
+    }
   }
   fadein(w, count, palette, FADE_MILLISECONDS);
   free(palette);
@@ -241,9 +251,10 @@ widecolor_demo(WINDOW* w){
 
 static void
 print_intro(WINDOW *w){
-  int key;
+  int key, pair;
 
-  attron(COLOR_PAIR(COLOR_GREEN));
+  pair = COLOR_GREEN;
+  wattr_set(w, A_NORMAL, 0, &pair);
   mvwprintw(w, 1, 1, "About to run the Outcurses demo. Press any key to continue...\n");
   do{
     key = wgetch(w);
@@ -259,8 +270,14 @@ demo(WINDOW* w){
     .circular = true,
     .headerlines = 4,
     .leftcolumns = 4,
-    .borderattr = COLOR_PAIR(COLOR_MAGENTA),
+    .borderpair = (COLORS * (COLOR_MAGENTA + 1)) + 1,
+    .borderattr = A_NORMAL,
   };
+  int r, g, b, pair;
+  int f, bg;
+  pair = popts.borderpair;
+  extended_pair_content(pair, &f, &bg);
+  extended_color_content(bg, &r, &g, &b);
   struct panelreel* pr = create_panelreel(w, &popts);
   if(pr == NULL){
     fprintf(stderr, "Error creating panelreel\n");

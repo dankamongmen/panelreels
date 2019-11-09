@@ -112,7 +112,8 @@ draw_panelreel_borders(const panelreel* pr, WINDOW* w){
   if(begy + 1 >= maxy){
     return 0; // no room FIXME clear screen?
   }
-  wattrset(w, pr->popts.borderattr);
+  int pair = pr->popts.borderpair;
+  wattr_set(w, pr->popts.borderattr, 0, &pair);
   return draw_borders(w, pr->popts.bordermask, begx, begy, maxx, maxy);
 }
 
