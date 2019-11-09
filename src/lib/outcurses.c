@@ -85,8 +85,13 @@ prep_colors(void){
     fprintf(stderr, "Warning: unexpected number of colors (%d)\n", COLORS);
   }
   int i;
-  for(i = 0 ; i < COLOR_PAIRS ; ++i){
+  for(i = 0 ; i < COLORS ; ++i){
     if(init_extended_pair(i, i % COLORS, -1)){
+      fprintf(stderr, "Warning: couldn't initialize colorpair %d\n", i);
+    }
+  }
+  for(i = COLORS ; i < 2 * COLORS ; ++i){
+    if(init_extended_pair(i, -1, i % COLORS)){
       fprintf(stderr, "Warning: couldn't initialize colorpair %d\n", i);
     }
   }

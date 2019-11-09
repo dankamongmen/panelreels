@@ -135,7 +135,6 @@ panelreel_arrange(const panelreel* pr, int direction){
     if(w == NULL){
       return -1;
     }
-    wbkgd(w, COLOR_PAIR(pr->tabletcount + 2));
     focused->p = new_panel(w);
     if((fp = focused->p) == NULL){
       delwin(w);
