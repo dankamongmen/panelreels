@@ -23,15 +23,26 @@ set_target_properties(outcurses PROPERTIES
 #set(CURSES_NEED_NCURSES TRUE)
 #find_package(Curses 6.1 REQUIRED)
 pkg_check_modules(CURSES REQUIRED ncursesw>=6.1)
-target_include_directories(outcurses PRIVATE ${CURSES_INCLUDE_DIR})
-target_link_libraries(outcurses INTERFACE ${CURSES_LIBRARIES})
+pkg_check_modules(PANEL REQUIRED panelw>=6.1)
+target_include_directories(outcurses
+  PRIVATE
+    ${CURSES_INCLUDE_DIR}
+)
+target_link_libraries(outcurses
+  INTERFACE
+    ${CURSES_LIBRARIES}
+    ${PANEL_LIBRARIES}
+)
 # FIXME ideally this would come from FindCurses.cmake
 target_compile_definitions(outcurses PRIVATE
   _DEFAULT_SOURCE _XOPEN_SOURCE=600
 )
-target_compile_options(outcurses PRIVATE
-  ${CURSES_CFLAGS} ${CURSES_CFLAGS_OTHER}
-  -Wall -Wextra -W
+target_compile_options(outcurses
+  PRIVATE
+    -Wall -Wextra -W
+  INTERFACE
+    ${CURSES_CFLAGS} ${CURSES_CFLAGS_OTHER}
+    ${PANEL_CFLAGS} ${PANEL_CFLAGS_OTHER}
 )
 
 file(GLOB BINSRCS CONFIGURE_DEPENDS src/bin/*.c)
