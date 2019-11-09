@@ -26,13 +26,13 @@ be left unmolested.
 When you're done, call `stop_outcurses()` with `true` to have it tear down
 itself and ncurses. If you intend to close down ncurses yourself, pass `false`.
 
-Outcurses is thread-safe so long as multiple threads never call into it
-concurrently (to the degree that the underlying ncurses is thread-safe).
-
 ## Threads and signals
 
 Unless explicitly mentioned, it is never safe to call an outcurses function
 from a signal handler.
+
+Outcurses is thread-safe so long as multiple threads never call into it
+concurrently (to the degree that the underlying ncurses is thread-safe).
 
 So long as external locking is employed to ensure only one thread calls into
 outcurses at a time, all functions are safe to use in threaded programs. The
