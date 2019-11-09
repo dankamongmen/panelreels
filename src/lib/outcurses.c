@@ -57,23 +57,33 @@ init_8bit_colors(void){
   return 0;
 }
 
+// Ideally, the terminal supports at least 256 independent colors and at least
+// 512 independent color pairs. Colors are made up of 3(4?) 256-bit channels,
+// and comprise the palette. Color pairs are made up of a foreground and
+// background color, both of which index into the palette. The color -1 is the
+// default color for its context (foreground or background) as inherited from
+// the terminal, via the magic of assume_default_colors().
+//
+// We set up the color pairs so that each block of 256 pairs is the 256 colors
+// as the foreground, with one of the 256 as the background.
 static int
 prep_colors(void){
   if(start_color() != OK){
     fprintf(stderr, "Couldn't start color support\n");
     return -1;
   }
-  // Use the default terminal colors for COLOR(-1)
-  if(use_default_colors()){
-    fprintf(stderr, "Warning: couldn't use default terminal colors\n");
+  if(COLOR_PAIRS < COLORS){
+    fprintf(stderr, "Error: fewer COLOR_PAIRS than COLORS\n");
+    return -1;
   }
-  // Defines COLOR_PAIR(0) to be -1, -1 (default terminal colors, see above)
-  /*
+  // Use the default terminal colors for COLOR(-1), then defines COLOR_PAIR(0)
+  // to be -1, -1 (default terminal colors). assume_default_colors(-1, -1)
+  // encompasses use_default_colors().
   if(assume_default_colors(-1, -1) != OK){
     fprintf(stderr, "Warning: couldn't assume default colors\n");
-  }*/
+  }
   if(COLORS >= 256){
-    if(init_8bit_colors()){
+    if(init_8bit_colors()){ // calls init_system_colors()
       return -1;
     }
   }else if(COLORS >= 16){
@@ -84,15 +94,14 @@ prep_colors(void){
   if(COLORS != 16 && COLORS != 256){
     fprintf(stderr, "Warning: unexpected number of colors (%d)\n", COLORS);
   }
-  int i;
-  for(i = 0 ; i < COLORS ; ++i){
-    if(init_extended_pair(i, i % COLORS, -1)){
-      fprintf(stderr, "Warning: couldn't initialize colorpair %d\n", i);
-    }
-  }
-  for(i = COLORS ; i < 2 * COLORS ; ++i){
-    if(init_extended_pair(i, -1, i % COLORS)){
-      fprintf(stderr, "Warning: couldn't initialize colorpair %d\n", i);
+  int bg;
+  for(bg = -1 ; bg < COLORS - 1 ; ++bg){
+    // assume_default_colors() sets up COLOR_PAIR(0), so start at 1
+    int i;
+    for(i = 1 ; i < COLORS ; ++i){
+      if(init_extended_pair(i + (bg + 1) * COLORS, i, bg)){
+        fprintf(stderr, "Warning: couldn't initialize colorpair %d\n", i);
+      }
     }
   }
   return 0;
