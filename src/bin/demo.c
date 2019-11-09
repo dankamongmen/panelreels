@@ -16,13 +16,12 @@ panelreel_demo(WINDOW* w, struct panelreel* pr){
     wattron(w, COLOR_PAIR(COLOR_RED));
     mvwprintw(w, 2, 2, "%d tablets", panelreel_tabletcount(pr));
     wattron(w, COLOR_PAIR(COLOR_BLUE));
-    struct tablet* t;
     key = mvwgetch(w, 3, 2);
     clrtoeol();
     switch(key){
-      case 'a': t = add_tablet(pr, NULL, NULL, NULL); break;
-      case 'b': t = add_tablet(pr, NULL, NULL, NULL); break;
-      case 'c': t = add_tablet(pr, NULL, NULL, NULL); break;
+      case 'a': add_tablet(pr, NULL, NULL, NULL); break;
+      case 'b': add_tablet(pr, NULL, NULL, NULL); break;
+      case 'c': add_tablet(pr, NULL, NULL, NULL); break;
       case KEY_DC: del_active_tablet(pr); break;
       case 'q': break;
       default: wprintw(w, "Unknown key: %c (%d)\n", key, key);
@@ -260,6 +259,7 @@ demo(WINDOW* w){
     .circular = true,
     .headerlines = 4,
     .leftcolumns = 4,
+    .borderattr = COLOR_PAIR(COLOR_MAGENTA),
   };
   struct panelreel* pr = create_panelreel(w, &popts);
   if(pr == NULL){
