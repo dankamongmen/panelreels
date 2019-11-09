@@ -116,6 +116,22 @@ draw_panelreel_borders(const panelreel* pr, WINDOW* w){
   return draw_borders(w, pr->popts.bordermask, begx, begy, maxx, maxy);
 }
 
+// Calculate the starting and ending columns occupied by tablets, relative to
+// the panelreel WINDOW.
+static void
+tablet_columns(const panelreel* pr, int* begx, int* maxx){
+    *begx = getbegx(pr->w);
+    *maxx = getmaxx(pr->w);
+    *begx += pr->popts.leftcolumns;
+    *maxx -= pr->popts.rightcolumns;
+    if(!(pr->popts.bordermask & BORDERMASK_LEFT)){
+      ++*begx;
+    }
+    if(!(pr->popts.bordermask & BORDERMASK_RIGHT)){
+      --*maxx;
+    }
+}
+
 // Arrange the panels, starting with the focused window, wherever it may be.
 // Work in both directions until the screen is filled. If the screen is not
 // filled, move everything towards the top. Supply -1 if we're moving up, 0 if
@@ -128,10 +144,22 @@ panelreel_arrange(const panelreel* pr, int direction){
   }
   PANEL* fp = focused->p;
   if(fp == NULL){
-    int maxx, maxy, begy, begx;
-    getbegyx(pr->w, begy, begx);
-    getmaxyx(pr->w, maxy, maxx);
-    WINDOW* w = derwin(pr->w, maxy, maxx, begy, begx);
+    int maxx, maxy, begy, begx, xlen, ylen;
+    begy = getbegy(pr->w);
+    maxy = getmaxy(pr->w);
+    begy += pr->popts.headerlines;
+    maxy -= pr->popts.footerlines;
+    if(!(pr->popts.bordermask & BORDERMASK_TOP)){
+      ++begy;
+    }
+    if(!(pr->popts.bordermask & BORDERMASK_BOTTOM)){
+      --maxy;
+    }
+    tablet_columns(pr, &begx, &maxx);
+    xlen = maxx - begx + 1;
+    ylen = maxy - begy + 1;
+    ylen = ylen > 3 ? 3 : ylen;
+    WINDOW* w = derwin(pr->w, ylen, xlen, begy, begx);
     if(w == NULL){
       return -1;
     }
@@ -140,11 +168,18 @@ panelreel_arrange(const panelreel* pr, int direction){
       delwin(w);
       return -1;
     }
-  }
-  if(show_panel(fp)){
-    return -1;
+    cchar_t erp;
+    wchar_t zw[] = L"Z";
+    setcchar(&erp, zw, 0, COLOR_PAIR(COLOR_YELLOW), NULL);
+    wbkgrnd(w, &erp);
+  }else{
+    if(show_panel(fp)){
+      return -1;
+    }
   }
   // FIXME others!
+  update_panels();
+  doupdate();
   return 0;
 }
 
