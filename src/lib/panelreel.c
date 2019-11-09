@@ -112,6 +112,7 @@ draw_panelreel_borders(const panelreel* pr, WINDOW* w){
   if(begy + 1 >= maxy){
     return 0; // no room FIXME clear screen?
   }
+  wattrset(w, pr->popts.borderattr);
   return draw_borders(w, pr->popts.bordermask, begx, begy, maxx, maxy);
 }
 
@@ -121,6 +122,29 @@ draw_panelreel_borders(const panelreel* pr, WINDOW* w){
 // this call is not in response to user movement, and 1 if we're moving down.
 static int
 panelreel_arrange(const panelreel* pr, int direction){
+  tablet* focused = pr->tablets;
+  if(focused == NULL){
+    return 0; // if none are focused, none exist
+  }
+  PANEL* fp = focused->p;
+  if(fp == NULL){
+    int maxx, maxy, begy, begx;
+    getbegyx(pr->w, begy, begx);
+    getmaxyx(pr->w, maxy, maxx);
+    WINDOW* w = derwin(pr->w, maxy, maxx, begy, begx);
+    if(w == NULL){
+      return -1;
+    }
+    focused->p = new_panel(w);
+    if((fp = focused->p) == NULL){
+      delwin(w);
+      return -1;
+    }
+  }
+  if(show_panel(fp)){
+    return -1;
+  }
+  // FIXME others!
   return 0;
 }
 
@@ -209,8 +233,11 @@ tablet* add_tablet(panelreel* pr, tablet* after, tablet *before, void* opaque){
       pr->tablets = t;
     }
     t->opaque = opaque;
+    t->p = NULL;
     ++pr->tabletcount;
-    panelreel_redraw(pr);
+    if(panelreel_redraw(pr)){
+      return NULL; // FIXME
+    }
   }
   return t;
 }

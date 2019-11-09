@@ -18,10 +18,30 @@ WINDOW* init_outcurses(bool initcurses);
 // restoring the screen and cleaning up ncurses.
 int stop_outcurses(bool stopcurses);
 
+// A set of RGB color components
+typedef struct outcurses_rgb {
+  int r, g, b;
+} outcurses_rgb;
+
 // Do a palette fade on the specified screen over the course of ms milliseconds.
 // FIXME allow colorpair range to be specified for partial-screen fades
 int fadeout(WINDOW* w, unsigned ms);
-int fadein(WINDOW* w, unsigned ms);
+
+// count ought be COLORS to retrieve the entire palette. palette is a
+// count-element array of rgb values. if maxes is non-NULL, it points to a
+// single rgb triad, which will be filled in with the maximum components found.
+// if zeroout is set, the palette will be set to all 0s. to fade in, we
+// generally want to prepare the screen using a zerod-out palette, then
+// initiate the fadein targeting the true palette.
+int retrieve_palette(int count, outcurses_rgb* palette, outcurses_rgb* maxes,
+                     bool zeroout);
+
+// fade in to the specified palette
+// FIXME can we not just generalize this plus fadeout to 'fadeto'?
+int fadein(WINDOW* w, int count, const outcurses_rgb* palette, unsigned ms);
+
+// Restores a palette through count colors.
+int set_palette(int count, const outcurses_rgb* palette);
 
 // A panelreel is an ncurses window devoted to displaying zero or more
 // line-oriented, contained panels between which the user may navigate. If at
@@ -68,6 +88,7 @@ typedef struct panelreel_options {
    //  last panel move to the first, and vice versa)? only meaningful when
    //  infinitescroll is true. if infinitescroll is false, this must be false.
   unsigned bordermask; // bitfield; 1s will not be drawn. taken from bordermaskbits
+  int borderattr;      // attributes used for panelreel border
   unsigned tabletmask; // bitfield; same as bordermask but for tablet borders
   LineCountCB linecb;
   DrawLinesCB drawcb;

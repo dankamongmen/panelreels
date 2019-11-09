@@ -2,6 +2,8 @@
 #include <locale.h>
 #include <outcurses.h>
 
+#define FADE_MILLISECONDS 1000
+
 static int
 panelreel_demo(WINDOW* w, struct panelreel* pr){
   // Press a for a new panel above the current, c for a new one below the current,
@@ -14,13 +16,12 @@ panelreel_demo(WINDOW* w, struct panelreel* pr){
     wattron(w, COLOR_PAIR(COLOR_RED));
     mvwprintw(w, 2, 2, "%d tablets", panelreel_tabletcount(pr));
     wattron(w, COLOR_PAIR(COLOR_BLUE));
-    struct tablet* t;
     key = mvwgetch(w, 3, 2);
     clrtoeol();
     switch(key){
-      case 'a': t = add_tablet(pr, NULL, NULL, NULL); break;
-      case 'b': t = add_tablet(pr, NULL, NULL, NULL); break;
-      case 'c': t = add_tablet(pr, NULL, NULL, NULL); break;
+      case 'a': add_tablet(pr, NULL, NULL, NULL); break;
+      case 'b': add_tablet(pr, NULL, NULL, NULL); break;
+      case 'c': add_tablet(pr, NULL, NULL, NULL); break;
       case KEY_DC: del_active_tablet(pr); break;
       case 'q': break;
       default: wprintw(w, "Unknown key: %c (%d)\n", key, key);
@@ -214,8 +215,12 @@ widecolor_demo(WINDOW* w){
     NULL
   };
   const wchar_t** s;
+  int count = COLORS;
+  outcurses_rgb* palette;
   int key;
 
+  palette = malloc(sizeof(*palette) * count);
+  retrieve_palette(count, palette, NULL, true);
   wattron(w, COLOR_PAIR(COLOR_WHITE));
   mvwaddwstr(w, 0, 0, L"wide chars, multiple colors…");
   int cpair = 16;
@@ -225,6 +230,8 @@ widecolor_demo(WINDOW* w){
     wattron(w, COLOR_PAIR(cpair++));
     waddwstr(w, *s);
   }
+  fadein(w, count, palette, FADE_MILLISECONDS);
+  free(palette);
   do{
     key = wgetch(w);
   }while(key == ERR);
@@ -252,6 +259,7 @@ demo(WINDOW* w){
     .circular = true,
     .headerlines = 4,
     .leftcolumns = 4,
+    .borderattr = COLOR_PAIR(COLOR_MAGENTA),
   };
   struct panelreel* pr = create_panelreel(w, &popts);
   if(pr == NULL){
@@ -259,7 +267,7 @@ demo(WINDOW* w){
     return -1;
   }
   panelreel_demo(w, pr);
-  fadeout(w, 1000);
+  fadeout(w, FADE_MILLISECONDS);
   if(destroy_panelreel(pr)){
     fprintf(stderr, "Error destroying panelreel\n");
     return -1;
