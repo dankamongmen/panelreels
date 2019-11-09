@@ -2,6 +2,8 @@
 #include <locale.h>
 #include <outcurses.h>
 
+#define FADE_MILLISECONDS 1000
+
 static int
 panelreel_demo(WINDOW* w, struct panelreel* pr){
   // Press a for a new panel above the current, c for a new one below the current,
@@ -214,8 +216,12 @@ widecolor_demo(WINDOW* w){
     NULL
   };
   const wchar_t** s;
+  int count = COLORS;
+  outcurses_rgb* palette;
   int key;
 
+  palette = malloc(sizeof(*palette) * count);
+  retrieve_palette(count, palette, NULL, true);
   wattron(w, COLOR_PAIR(COLOR_WHITE));
   mvwaddwstr(w, 0, 0, L"wide chars, multiple colors…");
   int cpair = 16;
@@ -225,6 +231,8 @@ widecolor_demo(WINDOW* w){
     wattron(w, COLOR_PAIR(cpair++));
     waddwstr(w, *s);
   }
+  fadein(w, count, palette, FADE_MILLISECONDS);
+  free(palette);
   do{
     key = wgetch(w);
   }while(key == ERR);
@@ -259,7 +267,7 @@ demo(WINDOW* w){
     return -1;
   }
   panelreel_demo(w, pr);
-  fadeout(w, 1000);
+  fadeout(w, FADE_MILLISECONDS);
   if(destroy_panelreel(pr)){
     fprintf(stderr, "Error destroying panelreel\n");
     return -1;
