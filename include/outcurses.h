@@ -53,21 +53,6 @@ int set_palette(int count, const outcurses_rgb* palette);
 // This structure is amenable to line- and page-based navigation via keystrokes,
 // scrolling gestures, trackballs, scrollwheels, touchpads, and verbal commands.
 
-// A callback used to ascertain how many lines are available for a given tablet
-// (only the client knows). This will be called with the opaque pointer
-// provided by the client to add_tablet() and a maximum number of rows. The
-// maximum number of rows will not always be usefully set (i.e., sometimes it
-// will be MAXINT), but it can be used to terminate the line calculation
-// procedure early when set. Do not consider borders in this return. Negative
-// returns are currently invalid, resulting in undefined behavior.
-typedef int (*LineCountCB)(const void*);
-
-// A callback used to render lines of information within a tablet. This will be
-// called with the tablet's WINDOW, the logical line offset within the tablet,
-// the number of lines to render, the number of columns available, and the
-// opaque object provided to add_tablet().
-typedef int (*DrawLinesCB)(WINDOW*, int, int, int, void*);
-
 enum bordermaskbits {
   BORDERMASK_TOP    = 0x1,
   BORDERMASK_RIGHT  = 0x2,
@@ -93,8 +78,6 @@ typedef struct panelreel_options {
   unsigned tabletmask; // bitfield; same as bordermask but for tablet borders
   attr_t tabletattr;   // attributes used for tablet borders, no color!
   int tabletpair;      // extended color pair for tablet borders
-  LineCountCB linecb;
-  DrawLinesCB drawcb;
 } panelreel_options;
 
 struct tablet;
