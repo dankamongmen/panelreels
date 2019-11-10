@@ -227,8 +227,10 @@ widecolor_demo(WINDOW* w){
   int pair = COLOR_WHITE + (COLORS * COLOR_WHITE);
   wattr_set(w, A_NORMAL, 0, &pair);
   mvwaddwstr(w, 0, 0, L"wide chars, multiple colors…");
+  // FIXME would be nice to have this move through colors while waiting for
+  // keypress...
   int cpair = 16;
-  // FIXME show 6x6x6 color structure
+  // FIXME show 6x6x6 color structure?
   for(s = strs ; *s ; ++s){
     cchar_t wch;
     pair = 1;
