@@ -35,7 +35,7 @@ TEST(OutcursesFade, FadeOut) {
   fade_setup(stdscr);
   struct timespec ts = {.tv_sec = 0, .tv_nsec = 500000000, };
   nanosleep(&ts, NULL);
-  ASSERT_EQ(0, fadeout(stdscr, 1500));
+  ASSERT_EQ(0, fadeout(stdscr, 1000));
   ASSERT_EQ(0, stop_outcurses(true));
 }
 
@@ -47,7 +47,7 @@ TEST(OutcursesFade, FadeIn) {
   outcurses_rgb* palette = new outcurses_rgb[COLORS];
   retrieve_palette(COLORS, palette, nullptr, true);
   fade_setup(stdscr);
-  ASSERT_EQ(0, fadein(stdscr, COLORS, palette, 1500));
+  ASSERT_EQ(0, fadein(stdscr, COLORS, palette, 1000));
   struct timespec ts = {.tv_sec = 0, .tv_nsec = 500000000, };
   nanosleep(&ts, NULL);
   ASSERT_EQ(0, stop_outcurses(true));

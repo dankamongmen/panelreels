@@ -71,6 +71,10 @@ demo(WINDOW* w){
     .min_supported_rows = 5,
     .borderpair = (COLORS * (COLOR_MAGENTA + 1)) + 1,
     .borderattr = A_NORMAL,
+    .tabletattr = A_NORMAL,
+    .tabletpair = (COLORS * (COLOR_GREEN + 1)) + 1,
+    .focusedattr = A_NORMAL,
+    .focusedpair = (COLORS * (COLOR_CYAN + 1)) + 1,
   };
   struct panelreel* pr = create_panelreel(w, &popts, 4, 0, 0, 4);
   if(pr == NULL){
