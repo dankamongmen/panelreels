@@ -1,7 +1,7 @@
 #ifndef OUTCURSES_OUTCURSES
 #define OUTCURSES_OUTCURSES
 
-#include <string.h>
+#include <panel.h>
 #include <ncurses.h>
 #include <stdbool.h>
 
@@ -104,6 +104,21 @@ struct panelreel;
 // failure. w must be a valid WINDOW*.
 struct panelreel* create_panelreel(WINDOW* w, const panelreel_options* popts);
 
+// Tablet draw callback, provided a PANEL (from which a WINDOW may be derived),
+// the first column that may be used, the first row that may be used, the last
+// column that may be used, the last row that may be used, and a bool indicating
+// whether output ought be clipped at the top (true) or bottom (false). The
+// curry provided to add_tablet() will also be provided. Rows and columns are
+// zero-indexed, and both are relative to the PANEL's WINDOW.
+//
+// Regarding clipping: it is possible that the tablet is only partially
+// displayed on the screen. If so, it is either partially present on the top of
+// the screen, or partially present at the bottom. In the former case, the top
+// is clipped (cliptop will be true), and output ought start from the end. In
+// the latter case, cliptop is false, and output ought start from the beginning.
+typedef void (*tabletcb)(PANEL* p, int begx, int begy, int maxx, int maxy,
+                         bool cliptop, void* curry);
+
 // Add a new tablet to the provided panelreel, having the callback object
 // opaque. Neither, either, or both of after and before may be specified. If
 // neither is specified, the new tablet can be added anywhere on the reel. If
@@ -112,7 +127,7 @@ struct panelreel* create_panelreel(WINDOW* w, const panelreel_options* popts);
 // resulting location, assuming it is valid (after->next == before->prev); if
 // it is not valid, or there is any other error, NULL will be returned.
 struct tablet* add_tablet(struct panelreel* pr, struct tablet* after,
-                          struct tablet *before, void* opaque);
+                          struct tablet *before, tabletcb cb, void* opaque);
 
 // Return the number of tablets.
 int panelreel_tabletcount(const struct panelreel* pr);
@@ -163,63 +178,8 @@ int destroy_panelreel(struct panelreel* pr);
 // mult: base of suffix system (almost always 1000 or 1024)
 // uprefix: character to print following suffix ('i' for kibibytes basically).
 //   only printed if suffix is actually printed (input >= mult).
-static inline const char *
-enmetric(uintmax_t val, unsigned decimal, char *buf, int omitdec,
-         unsigned mult, int uprefix){
-  const char prefixes[] = "KMGTPEZY"; // 10^21-1 encompasses 2^64-1
-  unsigned consumed = 0;
-  uintmax_t dv;
-
-  if(decimal == 0 || mult == 0){
-    return NULL;
-  }
-  dv = mult;
-  // FIXME verify that input < 2^89, wish we had static_assert() :/
-  while((val / decimal) >= dv && consumed < strlen(prefixes)){
-    dv *= mult;
-    ++consumed;
-    if(UINTMAX_MAX / dv < mult){ // near overflow--can't scale dv again
-      break;
-    }
-  }
-  if(dv != mult){ // if consumed == 0, dv must equal mult
-    int sprintfed;
-    if(val / dv > 0){
-      ++consumed;
-    }else{
-      dv /= mult;
-    }
-    val /= decimal;
-    // Remainder is val % dv, but we want a percentage as scaled integer.
-    // Ideally we would multiply by 100 and divide the result by dv, for
-    // maximum accuracy (dv might not be a multiple of 10--it is not for
-    // 1,024). That can overflow with large 64-bit values, but we can first
-    // divide both sides by mult, and then scale by 100.
-    if(omitdec && (val % dv) == 0){
-      sprintfed = sprintf(buf, "%ju%c", val / dv,
-                          prefixes[consumed - 1]);
-    }else{
-      uintmax_t remain = (dv == mult) ?
-                (val % dv) * 100 / dv :
-                ((val % dv) / mult * 100) / (dv / mult);
-      sprintfed = sprintf(buf, "%ju.%02ju%c",
-                          val / dv,
-                          remain,
-                          prefixes[consumed - 1]);
-    }
-    if(uprefix){
-      buf[sprintfed] = uprefix;
-      buf[sprintfed + 1] = '\0';
-    }
-  }else{ // unscaled output, consumed == 0, dv == mult
-    if(omitdec && val % decimal == 0){
-      sprintf(buf, "%ju", val / decimal);
-    }else{
-      sprintf(buf, "%ju.%02ju", val / decimal, val % decimal);
-    }
-  }
-  return buf;
-}
+const char *enmetric(uintmax_t val, unsigned decimal, char *buf, int omitdec,
+                     unsigned mult, int uprefix);
 
 // Mega, kilo, gigabytes. Use PREFIXSTRLEN + 1.
 static inline const char *
