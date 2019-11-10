@@ -19,12 +19,12 @@ typedef struct tablet {
 //  * which row the focused tablet starts at (derived from focused window)
 //  * the list of tablets (available from the focused tablet)
 typedef struct panelreel {
-  WINDOW* w;               // WINDOW this panelreel occupies
-  panelreel_options popts;
-  tablet* tablets;         // doubly-linked list, a circular one when infinity
-    // scrolling is in effect. points at the focused tablet (when at least one
-    // tablet exists, one must be focused), which might be anywhere on the
-    // screen (but is guaranteed to be visible).
+  PANEL* p;                // PANEL this panelreel occupies, under tablets
+  panelreel_options popts; // copied in create_panelreel()
+  // doubly-linked list, a circular one when infinity scrolling is in effect.
+  // points at the focused tablet (when at least one tablet exists, one must be
+  // focused), which might be anywhere on the screen (but is always visible).
+  tablet* tablets;
   int tabletcount;         // could be derived, but we keep it o(1)
 } panelreel;
 
@@ -94,24 +94,21 @@ draw_borders(WINDOW* w, unsigned nobordermask, int begx, int begy,
 }
 
 static int
-draw_panelreel_borders(const panelreel* pr, WINDOW* w){
+draw_panelreel_borders(const panelreel* pr){
+  WINDOW* w = panel_window(pr->p);
   int begx, begy;
   int maxx, maxy;
   getbegyx(w, begy, begx);
   getmaxyx(w, maxy, maxx);
   assert(begy >= 0 && begx >= 0);
   assert(maxy >= 0 && maxx >= 0);
-  begy += pr->popts.headerlines;
-  begx += pr->popts.leftcolumns;
   --maxx; // last column we can safely write to
   --maxy; // last line we can safely write to
-  maxy -= pr->popts.footerlines;
-  maxx -= pr->popts.rightcolumns;
-  if(begx + 1 >= maxx){
-    return 0; // no room FIXME clear screen?
+  if(begx >= maxx || maxx - begx + 1 < pr->popts.min_supported_rows){
+    return 0; // no room
   }
-  if(begy + 1 >= maxy){
-    return 0; // no room FIXME clear screen?
+  if(begy >= maxy || maxy - begy + 1 < pr->popts.min_supported_cols){
+    return 0; // no room
   }
   int pair = pr->popts.borderpair;
   wattr_set(w, pr->popts.borderattr, 0, &pair);
@@ -122,27 +119,24 @@ draw_panelreel_borders(const panelreel* pr, WINDOW* w){
 // tablets, relative to the panelreel's WINDOW.
 static void
 tablet_columns(const panelreel* pr, int* begx, int* begy, int* maxx, int* maxy){
-    *begx = getbegx(pr->w);
-    *maxx = getmaxx(pr->w);
-    *begy = getbegy(pr->w);
-    *maxy = getmaxy(pr->w);
-    *begx += pr->popts.leftcolumns;
-    *begy += pr->popts.headerlines;
-    *maxx -= pr->popts.rightcolumns;
-    *maxy -= pr->popts.footerlines;
-    // account for the panelreel border
-    if(!(pr->popts.bordermask & BORDERMASK_TOP)){
-      ++*begy;
-    }
-    if(!(pr->popts.bordermask & BORDERMASK_BOTTOM)){
-      --*maxy;
-    }
-    if(!(pr->popts.bordermask & BORDERMASK_LEFT)){
-      ++*begx;
-    }
-    if(!(pr->popts.bordermask & BORDERMASK_RIGHT)){
-      --*maxx;
-    }
+  WINDOW* w = panel_window(pr->p);
+  *begx = getbegx(w);
+  *maxx = getmaxx(w);
+  *begy = getbegy(w);
+  *maxy = getmaxy(w);
+  // account for the panelreel border
+  if(!(pr->popts.bordermask & BORDERMASK_TOP)){
+    ++*begy;
+  }
+  if(!(pr->popts.bordermask & BORDERMASK_BOTTOM)){
+    --*maxy;
+  }
+  if(!(pr->popts.bordermask & BORDERMASK_LEFT)){
+    ++*begx;
+  }
+  if(!(pr->popts.bordermask & BORDERMASK_RIGHT)){
+    --*maxx;
+  }
 }
 
 // Arrange the panels, starting with the focused window, wherever it may be.
@@ -162,7 +156,7 @@ panelreel_arrange(const panelreel* pr, int direction){
     xlen = maxx - begx;
     ylen = maxy - begy;
     ylen = ylen > 3 ? 3 : ylen; // FIXME no, just for early testing
-    WINDOW* w = derwin(pr->w, ylen, xlen, begy, begx);
+    WINDOW* w = derwin(panel_window(pr->p), ylen, xlen, begy, begx);
     if(w == NULL){
       return -1;
     }
@@ -186,12 +180,15 @@ panelreel_arrange(const panelreel* pr, int direction){
 
 int panelreel_redraw(const panelreel* pr){
   int ret = 0;
-  ret |= draw_panelreel_borders(pr, pr->w);
+  if(draw_panelreel_borders(pr)){
+    return -1; // enforces specified dimensional minima
+  }
   ret |= panelreel_arrange(pr, 0);
   return ret;
 }
 
-panelreel* create_panelreel(WINDOW* w, const panelreel_options* popts){
+panelreel* create_panelreel(WINDOW* w, const panelreel_options* popts,
+                            int toff, int roff, int boff, int loff){
   panelreel* pr;
 
   if(w == NULL){
@@ -215,9 +212,35 @@ panelreel* create_panelreel(WINDOW* w, const panelreel_options* popts){
   if( (pr = malloc(sizeof(*pr))) ){
     pr->tablets = NULL;
     pr->tabletcount = 0;
-    pr->w = w;
     memcpy(&pr->popts, popts, sizeof(*popts));
+    int x, y;
+    getmaxyx(w, y, x);
+    --y;
+    --x;
+    int ylen, xlen;
+    ylen = y - boff - toff - 1;
+    if(ylen < 0){
+      ylen = y - toff;
+      if(ylen < 0){
+        ylen = 0; // but this translates to a full-screen window...FIXME
+      }
+    }
+    xlen = x - roff - loff - 1;
+    if(xlen < 0){
+      xlen = x - loff;
+      if(xlen < 0){
+        xlen = 0; // FIXME see above...
+      }
+    }
+    WINDOW* pw = derwin(w, ylen, xlen, toff, loff);
+    if((pr->p = new_panel(pw)) == NULL){
+      free(pr);
+      delwin(pw);
+      return NULL;
+    }
     if(panelreel_redraw(pr)){
+      del_panel(pr->p);
+      delwin(pw);
       free(pr);
       return NULL;
     }

@@ -26,7 +26,7 @@ panelreel_demo(WINDOW* w, struct panelreel* pr){
   int pair = COLOR_CYAN;
   wattr_set(w, A_NORMAL, 0, &pair);
   int key;
-  mvwprintw(w, 1, 1, "a, b, c create tablets, DEL kills tablet, q quits.");
+  mvwprintw(w, 1, 1, "a, b, c create tablets, q quits.");
   clrtoeol();
   do{
     pair = COLOR_RED;
@@ -67,12 +67,12 @@ demo(WINDOW* w){
   panelreel_options popts = {
     .infinitescroll = true,
     .circular = true,
-    .headerlines = 4,
-    .leftcolumns = 4,
+    .min_supported_cols = 8,
+    .min_supported_rows = 5,
     .borderpair = (COLORS * (COLOR_MAGENTA + 1)) + 1,
     .borderattr = A_NORMAL,
   };
-  struct panelreel* pr = create_panelreel(w, &popts);
+  struct panelreel* pr = create_panelreel(w, &popts, 4, 0, 0, 4);
   if(pr == NULL){
     fprintf(stderr, "Error creating panelreel\n");
     return -1;
