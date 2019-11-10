@@ -61,31 +61,46 @@ enum bordermaskbits {
 };
 
 typedef struct panelreel_options {
-  int footerlines;     // leave this many lines alone at bottom, >=0
-  int headerlines;     // leave this many lines alone at top, >=0
-  int leftcolumns;     // leave this many columns alone on left, >=0
-  int rightcolumns;    // leave this many columns alone on right, >=0
-  int mindatacols;     // require this many columns, in addition to borders
-  bool infinitescroll; // is scrolling infinite (can one move down or up
-   //  forever, or is an end reached?). if true, 'circular' specifies how to
-   //  handle the special case of an incompletely-filled reel.
-  bool circular;       // is navigation circular (does moving down from the
-   //  last panel move to the first, and vice versa)? only meaningful when
-   //  infinitescroll is true. if infinitescroll is false, this must be false.
+  // require this many rows and columns (including borders) for the panelreel
+  // to be displayed. otherwise, a message will be displayed stating that a
+  // larger terminal is necessary, and input will be queued. if 0, no minima
+  // will be enforced. may not be negative.
+  int min_supported_cols;
+  int min_supported_rows;
+  // is scrolling infinite (can one move down or up forever, or is an end
+  // reached?). if true, 'circular' specifies how to handle the special case of
+  // an incompletely-filled reel.
+  bool infinitescroll;
+  // is navigation circular (does moving down from the last panel move to the
+  // first, and vice versa)? only meaningful when infinitescroll is true. if
+  // infinitescroll is false, this must be false.
+  bool circular;
+  // outcurses can draw a border around the panelreel, and also around the
+  // component tablets. inhibit borders by setting all valid bits in the masks.
+  // partially inhibit borders by setting individual bits in the masks. the
+  // appropriate attr and pair values will be used to style the borders.
+  // focused and non-focused tablets can have different styles. you can instead
+  // draw your own borders, or forgo borders entirely.
   unsigned bordermask; // bitfield; 1s will not be drawn. taken from bordermaskbits
   attr_t borderattr;   // attributes used for panelreel border, no color!
   int borderpair;      // extended color pair for panelreel border
   unsigned tabletmask; // bitfield; same as bordermask but for tablet borders
   attr_t tabletattr;   // attributes used for tablet borders, no color!
   int tabletpair;      // extended color pair for tablet borders
+  attr_t focusedattr;  // attributes used for focused tablet borders, no color!
+  int focusedpair;     // extended color pair for focused tablet borders
 } panelreel_options;
 
 struct tablet;
 struct panelreel;
 
 // Create a panelreel according to the provided specifications. Returns NULL on
-// failure. w must be a valid WINDOW*.
-struct panelreel* create_panelreel(WINDOW* w, const panelreel_options* popts);
+// failure. w must be a valid WINDOW*, to which offsets are relative. Note that
+// there might not be enough room for the specified offsets, in which case the
+// panelreel will be clipped on the bottom and right. A minimum number of rows
+// and columns can be enforced via popts.
+struct panelreel* create_panelreel(WINDOW* w, const panelreel_options* popts,
+                                   int toff, int roff, int boff, int loff);
 
 // Tablet draw callback, provided a PANEL (from which a WINDOW may be derived),
 // the first column that may be used, the first row that may be used, the first
