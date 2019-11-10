@@ -230,14 +230,18 @@ widecolor_demo(WINDOW* w){
   int cpair = 16;
   // FIXME show 6x6x6 color structure
   for(s = strs ; *s ; ++s){
-    waddch(w, ' ');
+    cchar_t wch;
+    pair = 1;
+    setcchar(&wch, L" ", A_NORMAL, 0, &pair);
+    wadd_wch(w, &wch);
     size_t idx;
     for(idx = 0 ; idx < wcslen(*s) ; ++idx){
       pair = cpair++;
-      // wattr_set(w, A_NORMAL, 0, &pair);
-      cchar_t wch;
       setcchar(&wch, &(*s)[idx], A_NORMAL, 0, &pair);
       wadd_wch(w, &wch);
+      if(cpair == COLORS){
+        cpair = 16;
+      }
     }
   }
   fadein(w, count, palette, FADE_MILLISECONDS);
