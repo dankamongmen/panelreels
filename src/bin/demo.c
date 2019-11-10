@@ -4,8 +4,19 @@
 #include "demo.h"
 
 static void
-tabletdraw(PANEL* p, int begx, int begy, int max, int maxy, bool cliptop,
+tabletdraw(PANEL* p, int begx, int begy, int maxx, int maxy, bool cliptop,
            void* curry){
+  int cpair = random() % (COLORS - 16) + 16;
+  int x, y;
+  WINDOW* w = panel_window(p);
+  for(y = begy ; y < maxy ; ++y){
+    wmove(w, y, begx);
+    cchar_t cch;
+    setcchar(&cch, L"X", A_NORMAL, 0, &cpair);
+    for(x = begx ; x < maxx ; ++x){
+      wadd_wch(w, &cch);
+    }
+  }
 }
 
 static int
