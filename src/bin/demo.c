@@ -5,8 +5,8 @@
 
 static int
 panelreel_demo(WINDOW* w, struct panelreel* pr){
-  // Press a for a new panel above the current, c for a new one below the current,
-  // and b for a new block at arbitrary placement. q quits.
+  // Press a for a new panel above the current, c for a new one below the
+  // current, and b for a new block at arbitrary placement. q quits.
   int pair = COLOR_CYAN;
   wattr_set(w, A_NORMAL, 0, &pair);
   int key;
@@ -56,11 +56,6 @@ demo(WINDOW* w){
     .borderpair = (COLORS * (COLOR_MAGENTA + 1)) + 1,
     .borderattr = A_NORMAL,
   };
-  int r, g, b, pair;
-  int f, bg;
-  pair = popts.borderpair;
-  extended_pair_content(pair, &f, &bg);
-  extended_color_content(bg, &r, &g, &b);
   struct panelreel* pr = create_panelreel(w, &popts);
   if(pr == NULL){
     fprintf(stderr, "Error creating panelreel\n");
