@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
-#include <outcurses.h>
+#include "outcurses.h"
 
 // These arrays are too large to be safely placed on the stack.
 static int
