@@ -47,52 +47,61 @@ static const cchar_t WACS_URROUNDCORNER = { .attr = 0, .chars = L"╮", };
 static const cchar_t WACS_LLROUNDCORNER = { .attr = 0, .chars = L"╰", };
 static const cchar_t WACS_LRROUNDCORNER = { .attr = 0, .chars = L"╯", };
 
-// bchrs: 6-element array of wide border characters + attributes
+// bchrs: 6-element array of wide border characters + attributes FIXME
 static int
-draw_borders(WINDOW* w, unsigned nobordermask, int begx, int begy,
-            int maxx, int maxy){
+draw_borders(WINDOW* w, unsigned nobordermask, attr_t attr, int pair){
+  wattr_set(w, attr, 0, &pair);
+  int begx, begy, lenx, leny;
   int ret = OK;
-  // maxx - begx + 1 is the number of columns we have, but drop 2 due to
-  // corners. we thus want maxx - begx - 1 horizontal lines.
+  getbegyx(w, begy, begx);
+  getmaxyx(w, leny, lenx);
+  --leny;
+  --lenx;
+  begx = 0;
+  begy = 0;
+  // lenx - begx + 1 is the number of columns we have, but drop 2 due to
+  // corners. we thus want lenx - begx - 1 horizontal lines.
   if(!(nobordermask & BORDERMASK_TOP)){
     ret |= mvwadd_wch(w, begy, begx, &WACS_ULROUNDCORNER);
-    ret |= whwline(w, WACS_HLINE, maxx - begx - 1);
+    ret |= whwline(w, WACS_HLINE, lenx - begx - 1);
     ret |= wadd_wch(w, &WACS_URROUNDCORNER);
   }else{
     if(!(nobordermask & BORDERMASK_LEFT)){
       ret |= mvwadd_wch(w, begy, begx, &WACS_ULROUNDCORNER);
     }
     if(!(nobordermask & BORDERMASK_RIGHT)){
-      ret |= mvwadd_wch(w, begy, maxx, &WACS_URROUNDCORNER);
+      ret |= mvwadd_wch(w, begy, lenx, &WACS_URROUNDCORNER);
     }
   }
   int y;
-  for(y = begy + 1 ; y < maxy ; ++y){
+  for(y = begy + 1 ; y < leny ; ++y){
     if(!(nobordermask & BORDERMASK_LEFT)){
       ret |= mvwadd_wch(w, y, begx, WACS_VLINE);
     }
     if(!(nobordermask & BORDERMASK_RIGHT)){
-      ret |= mvwadd_wch(w, y, maxx, WACS_VLINE);
+      ret |= mvwadd_wch(w, y, lenx, WACS_VLINE);
     }
   }
   if(!(nobordermask & BORDERMASK_BOTTOM)){
-    ret |= mvwadd_wch(w, maxy, begx, &WACS_LLROUNDCORNER);
-    ret |= whwline(w, WACS_HLINE, maxx - begx - 1);
+    ret |= mvwadd_wch(w, leny, begx, &WACS_LLROUNDCORNER);
+    ret |= whwline(w, WACS_HLINE, lenx - begx - 1);
     wadd_wch(w, &WACS_LRROUNDCORNER);
   }else{
     if(!(nobordermask & BORDERMASK_LEFT)){
-      ret |= mvwadd_wch(w, maxy, begx, &WACS_LLROUNDCORNER);
+      ret |= mvwadd_wch(w, leny, begx, &WACS_LLROUNDCORNER);
     }
     if(!(nobordermask & BORDERMASK_RIGHT)){
       // mvwadd_wch returns error if we print to the lowermost+rightmost
       // character cell. maybe we can make this go away with scrolling controls
       // at setup? until then, don't check for error here FIXME.
-      mvwadd_wch(w, maxy, maxx, &WACS_LRROUNDCORNER);
+      mvwadd_wch(w, leny, lenx, &WACS_LRROUNDCORNER);
     }
   }
   return ret;
 }
 
+// Draws the border (if one should be drawn) around the panelreel, and enforces
+// any provided restrictions on visible window size.
 static int
 draw_panelreel_borders(const panelreel* pr){
   WINDOW* w = panel_window(pr->p);
@@ -110,32 +119,33 @@ draw_panelreel_borders(const panelreel* pr){
   if(begy >= maxy || maxy - begy + 1 < pr->popts.min_supported_cols){
     return 0; // no room
   }
-  int pair = pr->popts.borderpair;
-  wattr_set(w, pr->popts.borderattr, 0, &pair);
-  return draw_borders(w, pr->popts.bordermask, begx, begy, maxx, maxy);
+  return draw_borders(w, pr->popts.bordermask, pr->popts.borderattr,
+                      pr->popts.borderpair);
 }
 
 // Calculate the starting and ending columns available for occupation by
 // tablets, relative to the panelreel's WINDOW.
 static void
-tablet_columns(const panelreel* pr, int* begx, int* begy, int* maxx, int* maxy){
+tablet_columns(const panelreel* pr, int* begx, int* begy, int* lenx, int* leny){
   WINDOW* w = panel_window(pr->p);
   *begx = getbegx(w);
-  *maxx = getmaxx(w);
+  *lenx = getmaxx(w);
   *begy = getbegy(w);
-  *maxy = getmaxy(w);
+  *leny = getmaxy(w);
+  --*lenx;
+  --*leny;
   // account for the panelreel border
   if(!(pr->popts.bordermask & BORDERMASK_TOP)){
     ++*begy;
   }
   if(!(pr->popts.bordermask & BORDERMASK_BOTTOM)){
-    --*maxy;
+    --*leny;
   }
   if(!(pr->popts.bordermask & BORDERMASK_LEFT)){
     ++*begx;
   }
   if(!(pr->popts.bordermask & BORDERMASK_RIGHT)){
-    --*maxx;
+    --*lenx;
   }
 }
 
@@ -153,10 +163,10 @@ panelreel_arrange(const panelreel* pr, int direction){
   if(fp == NULL){ // create a panel for the focused tablet
     int maxx, maxy, begy, begx, xlen, ylen;
     tablet_columns(pr, &begx, &begy, &maxx, &maxy);
-    xlen = maxx - begx;
-    ylen = maxy - begy;
-    ylen = ylen > 3 ? 3 : ylen; // FIXME no, just for early testing
-    WINDOW* w = derwin(panel_window(pr->p), ylen, xlen, begy, begx);
+    xlen = maxx;
+    ylen = maxy;
+    ylen = ylen > 4 ? 4 : ylen; // FIXME no, just for early testing
+    WINDOW* w = subwin(panel_window(pr->p), ylen, xlen, begy, begx);
     if(w == NULL){
       return -1;
     }
@@ -165,8 +175,10 @@ panelreel_arrange(const panelreel* pr, int direction){
       delwin(w);
       return -1;
     }
-    focused->cbfxn(fp, 0, 0, xlen, ylen, false, focused->curry);
-    box(w, '|', '-'); // FIXME draw border
+    draw_borders(w, pr->popts.tabletmask, pr->popts.focusedattr,
+                 pr->popts.focusedpair);
+    // discount for inhibited borders FIXME
+    focused->cbfxn(fp, 1, 1, xlen - 1, ylen - 1, false, focused->curry);
   }else{
     if(show_panel(fp)){
       return -1;
@@ -213,29 +225,33 @@ panelreel* create_panelreel(WINDOW* w, const panelreel_options* popts,
     pr->tablets = NULL;
     pr->tabletcount = 0;
     memcpy(&pr->popts, popts, sizeof(*popts));
-    int x, y;
-    getmaxyx(w, y, x);
-    --y;
-    --x;
+    int maxx, maxy;
+    getmaxyx(w, maxy, maxx);
+    --maxy;
+    --maxx;
     int ylen, xlen;
-    ylen = y - boff - toff - 1;
+    ylen = maxy - boff - toff + 1;
     if(ylen < 0){
-      ylen = y - toff;
+      ylen = maxy - toff;
       if(ylen < 0){
         ylen = 0; // but this translates to a full-screen window...FIXME
       }
     }
-    xlen = x - roff - loff - 1;
+    xlen = maxx - roff - loff + 1;
     if(xlen < 0){
-      xlen = x - loff;
+      xlen = maxx - loff;
       if(xlen < 0){
         xlen = 0; // FIXME see above...
       }
     }
-    WINDOW* pw = derwin(w, ylen, xlen, toff, loff);
-    if((pr->p = new_panel(pw)) == NULL){
+    WINDOW* pw = subwin(w, ylen, xlen, toff, loff);
+    if(pw == NULL){
       free(pr);
+      return NULL;
+    }
+    if((pr->p = new_panel(pw)) == NULL){
       delwin(pw);
+      free(pr);
       return NULL;
     }
     if(panelreel_redraw(pr)){
