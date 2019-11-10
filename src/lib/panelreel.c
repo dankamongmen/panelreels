@@ -236,7 +236,8 @@ tablet_visible_p(const panelreel* pr, tablet* t){
   return true;
 }*/
 
-tablet* add_tablet(panelreel* pr, tablet* after, tablet *before, void* opaque){
+tablet* add_tablet(panelreel* pr, tablet* after, tablet *before,
+                   tabletcb cbfxn, void* opaque){
   tablet* t;
   if(after && before){
     if(after->prev != before || before->next != after){

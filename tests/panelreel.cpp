@@ -52,6 +52,10 @@ TEST(OutcursesPanelReel, FiniteCircleRejected) {
   ASSERT_EQ(0, stop_outcurses(true));
 }
 
+void panelcb(PANEL* p, int begx, int begy, int maxx, int maxy, bool cliptop,
+             void* curry){
+}
+
 TEST(OutcursesPanelReel, OnePanel) {
   if(getenv("TERM") == nullptr){
     GTEST_SKIP();
@@ -61,7 +65,7 @@ TEST(OutcursesPanelReel, OnePanel) {
   ASSERT_NE(nullptr, init_outcurses(true));
   struct panelreel* pr = create_panelreel(stdscr, &p);
   ASSERT_NE(nullptr, pr);
-  struct tablet* t = add_tablet(pr, nullptr, nullptr, nullptr);
+  struct tablet* t = add_tablet(pr, nullptr, nullptr, panelcb, nullptr);
   ASSERT_NE(nullptr, t);
   // FIXME remove it
   ASSERT_EQ(0, stop_outcurses(true));

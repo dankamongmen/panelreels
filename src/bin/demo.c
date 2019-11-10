@@ -3,6 +3,11 @@
 #include <outcurses.h>
 #include "demo.h"
 
+static void
+tabletdraw(PANEL* p, int begx, int begy, int max, int maxy, bool cliptop,
+           void* curry){
+}
+
 static int
 panelreel_demo(WINDOW* w, struct panelreel* pr){
   // Press a for a new panel above the current, c for a new one below the
@@ -21,9 +26,9 @@ panelreel_demo(WINDOW* w, struct panelreel* pr){
     key = mvwgetch(w, 3, 2);
     clrtoeol();
     switch(key){
-      case 'a': add_tablet(pr, NULL, NULL, NULL); break;
-      case 'b': add_tablet(pr, NULL, NULL, NULL); break;
-      case 'c': add_tablet(pr, NULL, NULL, NULL); break;
+      case 'a': add_tablet(pr, NULL, NULL, tabletdraw, NULL); break;
+      case 'b': add_tablet(pr, NULL, NULL, tabletdraw, NULL); break;
+      case 'c': add_tablet(pr, NULL, NULL, tabletdraw, NULL); break;
       case KEY_DC: del_active_tablet(pr); break;
       case 'q': break;
       default: wprintw(w, "Unknown key: %c (%d)\n", key, key);
