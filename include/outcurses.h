@@ -105,11 +105,11 @@ struct panelreel;
 struct panelreel* create_panelreel(WINDOW* w, const panelreel_options* popts);
 
 // Tablet draw callback, provided a PANEL (from which a WINDOW may be derived),
-// the first column that may be used, the first row that may be used, the last
-// column that may be used, the last row that may be used, and a bool indicating
-// whether output ought be clipped at the top (true) or bottom (false). The
-// curry provided to add_tablet() will also be provided. Rows and columns are
-// zero-indexed, and both are relative to the PANEL's WINDOW.
+// the first column that may be used, the first row that may be used, the first
+// column that may not be used, the first row that may not be used, and a bool
+// indicating whether output ought be clipped at the top (true) or bottom
+// (false). The curry provided to add_tablet() will also be provided. Rows and
+// columns are zero-indexed, and both are relative to the PANEL's WINDOW.
 //
 // Regarding clipping: it is possible that the tablet is only partially
 // displayed on the screen. If so, it is either partially present on the top of

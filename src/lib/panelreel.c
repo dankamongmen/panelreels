@@ -8,9 +8,10 @@
 // a single, distinct PANEL.
 typedef struct tablet {
   PANEL* p;
-  void* opaque;
+  void* curry;
   struct tablet* next;
   struct tablet* prev;
+  tabletcb cbfxn;
 } tablet;
 
 // The visible screen can be reconstructed from three things:
@@ -117,14 +118,25 @@ draw_panelreel_borders(const panelreel* pr, WINDOW* w){
   return draw_borders(w, pr->popts.bordermask, begx, begy, maxx, maxy);
 }
 
-// Calculate the starting and ending columns occupied by tablets, relative to
-// the panelreel WINDOW.
+// Calculate the starting and ending columns available for occupation by
+// tablets, relative to the panelreel's WINDOW.
 static void
-tablet_columns(const panelreel* pr, int* begx, int* maxx){
+tablet_columns(const panelreel* pr, int* begx, int* begy, int* maxx, int* maxy){
     *begx = getbegx(pr->w);
     *maxx = getmaxx(pr->w);
+    *begy = getbegy(pr->w);
+    *maxy = getmaxy(pr->w);
     *begx += pr->popts.leftcolumns;
+    *begy += pr->popts.headerlines;
     *maxx -= pr->popts.rightcolumns;
+    *maxy -= pr->popts.footerlines;
+    // account for the panelreel border
+    if(!(pr->popts.bordermask & BORDERMASK_TOP)){
+      ++*begy;
+    }
+    if(!(pr->popts.bordermask & BORDERMASK_BOTTOM)){
+      --*maxy;
+    }
     if(!(pr->popts.bordermask & BORDERMASK_LEFT)){
       ++*begx;
     }
@@ -144,22 +156,12 @@ panelreel_arrange(const panelreel* pr, int direction){
     return 0; // if none are focused, none exist
   }
   PANEL* fp = focused->p;
-  if(fp == NULL){
+  if(fp == NULL){ // create a panel for the focused tablet
     int maxx, maxy, begy, begx, xlen, ylen;
-    begy = getbegy(pr->w);
-    maxy = getmaxy(pr->w);
-    begy += pr->popts.headerlines;
-    maxy -= pr->popts.footerlines;
-    if(!(pr->popts.bordermask & BORDERMASK_TOP)){
-      ++begy;
-    }
-    if(!(pr->popts.bordermask & BORDERMASK_BOTTOM)){
-      --maxy;
-    }
-    tablet_columns(pr, &begx, &maxx);
-    xlen = maxx - begx + 1;
-    ylen = maxy - begy + 1;
-    ylen = ylen > 3 ? 3 : ylen;
+    tablet_columns(pr, &begx, &begy, &maxx, &maxy);
+    xlen = maxx - begx;
+    ylen = maxy - begy;
+    ylen = ylen > 3 ? 3 : ylen; // FIXME no, just for early testing
     WINDOW* w = derwin(pr->w, ylen, xlen, begy, begx);
     if(w == NULL){
       return -1;
@@ -169,7 +171,8 @@ panelreel_arrange(const panelreel* pr, int direction){
       delwin(w);
       return -1;
     }
-    // FIXME draw border
+    focused->cbfxn(fp, 0, 0, xlen, ylen, false, focused->curry);
+    box(w, '|', '-'); // FIXME draw border
   }else{
     if(show_panel(fp)){
       return -1;
@@ -266,7 +269,8 @@ tablet* add_tablet(panelreel* pr, tablet* after, tablet *before,
       t->prev = t->next = t;
       pr->tablets = t;
     }
-    t->opaque = opaque;
+    t->cbfxn = cbfxn;
+    t->curry = opaque;
     t->p = NULL;
     ++pr->tabletcount;
     if(panelreel_redraw(pr)){
