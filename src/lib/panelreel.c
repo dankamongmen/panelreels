@@ -169,10 +169,7 @@ panelreel_arrange(const panelreel* pr, int direction){
       delwin(w);
       return -1;
     }
-    cchar_t erp;
-    wchar_t zw[] = L"Z";
-    setcchar(&erp, zw, 0, COLOR_PAIR(COLOR_YELLOW), NULL);
-    wbkgrnd(w, &erp);
+    // FIXME draw border
   }else{
     if(show_panel(fp)){
       return -1;
