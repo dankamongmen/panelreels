@@ -30,6 +30,14 @@ typedef struct panelreel {
   int tabletcount;         // could be derived, but we keep it o(1)
 } panelreel;
 
+static inline void
+window_coordinates(const WINDOW* w, int* begy, int* begx, int* leny, int* lenx){
+  *begx = getbegx(w);
+  *begy = getbegy(w);
+  *lenx = getmaxx(w);
+  *leny = getmaxy(w);
+}
+
 // These ought be part of ncurses, probably
 static const cchar_t WACS_R_ULCORNER = { .attr = 0, .chars = L"╭", };
 static const cchar_t WACS_R_URCORNER = { .attr = 0, .chars = L"╮", };
@@ -42,8 +50,7 @@ draw_borders(WINDOW* w, unsigned nobordermask, attr_t attr, int pair){
   wattr_set(w, attr, 0, &pair);
   int begx, begy, lenx, leny;
   int ret = OK;
-  getbegyx(w, begy, begx);
-  getmaxyx(w, leny, lenx);
+  window_coordinates(w, &begy, &begx, &leny, &lenx);
   --leny;
   --lenx;
   begx = 0;
@@ -117,10 +124,7 @@ draw_panelreel_borders(const panelreel* pr){
 static void
 tablet_columns(const panelreel* pr, int* begx, int* begy, int* lenx, int* leny){
   WINDOW* w = panel_window(pr->p);
-  *begx = getbegx(w);
-  *lenx = getmaxx(w);
-  *begy = getbegy(w);
-  *leny = getmaxy(w);
+  window_coordinates(w, begy, begx, leny, lenx);
   --*lenx;
   --*leny;
   // account for the panelreel border
@@ -185,7 +189,30 @@ panelreel_arrange(const panelreel* pr, int direction){
     return 0; // if none are focused, none exist
   }
   ret |= panelreel_draw_focused(pr, focused, direction);
-  // FIXME work down to bottom
+  int wbegy, wbegx, wlenx, wleny; // working tablet window coordinates
+  int pbegy, pbegx, plenx, pleny; // panelreel window coordinates
+  window_coordinates(panel_window(pr->p), &pbegy, &pbegx, &pleny, &plenx);
+  int pmaxy = pbegy + pleny - 1;
+  tablet* working = focused;
+  window_coordinates(panel_window(working->p), &wbegy, &wbegx, &wleny, &wlenx);
+  int wmaxy = wbegy + wleny - 1;
+  while(wmaxy + 1 < pmaxy){
+    if((working = working->prev) == focused){
+      break;
+    }
+    window_coordinates(panel_window(working->p), &wbegy, &wbegx, &wleny, &wlenx);
+    wmaxy = wbegy + wleny - 1;
+  }
+  working = focused;
+  window_coordinates(panel_window(working->p), &wbegy, &wbegx, &wleny, &wlenx);
+  wmaxy = wbegy + wleny - 1;
+  while(wbegy > pbegy + 1){
+    if((working = working->next) == focused){
+      break;
+    }
+    window_coordinates(panel_window(working->p), &wbegy, &wbegx, &wleny, &wlenx);
+    wmaxy = wbegy + wleny - 1;
+  }
   // FIXME work up to top
   return 0;
 }
