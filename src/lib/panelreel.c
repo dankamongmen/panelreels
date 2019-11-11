@@ -254,6 +254,7 @@ panelreel_arrange(const panelreel* pr, int direction){
     wmaxy = wbegy + wleny - 1;
     frontiery = wmaxy + 2;
   }
+  // FIXME keep going forward, hiding those no longer visible
   // move up above the focused tablet, filling up the reel to the top
   working = focused;
   window_coordinates(panel_window(working->p), &wbegy, &wbegx, &wleny, &wlenx);
@@ -266,7 +267,7 @@ panelreel_arrange(const panelreel* pr, int direction){
     window_coordinates(panel_window(working->p), &wbegy, &wbegx, &wleny, &wlenx);
     frontiery = wbegy - 2;
   }
-  // FIXME work up to top
+  // FIXME keep going backwards, hiding those no longer visible
   return 0;
 }
 
