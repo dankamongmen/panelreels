@@ -51,7 +51,7 @@ new_tabletctx(struct panelreel* pr){
   }
   pthread_mutex_init(&tctx->lock, NULL);
   tctx->pr = pr;
-  tctx->lines = random() % 5; // FIXME a nice gaussian would be swell
+  tctx->lines = random() % 10; // FIXME a nice gaussian would be swell
   tctx->cpair = random() % COLORS;
   if((tctx->t = add_tablet(pr, NULL, NULL, tabletdraw, tctx)) == NULL){
     pthread_mutex_destroy(&tctx->lock);
