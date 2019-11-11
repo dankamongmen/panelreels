@@ -166,10 +166,6 @@ panelreel_arrange(const panelreel* pr, int direction){
                  pr->popts.focusedpair);
     // discount for inhibited borders FIXME
     focused->cbfxn(fp, 1, 1, xlen - 1, ylen - 1, false, focused->curry);
-  }else{
-    if(show_panel(fp)){
-      return -1;
-    }
   }
   // FIXME others!
   return 0;
