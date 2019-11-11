@@ -166,7 +166,7 @@ panelreel_arrange(const panelreel* pr, int direction){
     xlen = maxx;
     ylen = maxy;
     ylen = ylen > 4 ? 4 : ylen; // FIXME no, just for early testing
-    WINDOW* w = subwin(panel_window(pr->p), ylen, xlen, begy, begx);
+    WINDOW* w = newwin(ylen, xlen, begy, begx);
     if(w == NULL){
       return -1;
     }
@@ -185,8 +185,6 @@ panelreel_arrange(const panelreel* pr, int direction){
     }
   }
   // FIXME others!
-  update_panels();
-  doupdate();
   return 0;
 }
 
@@ -196,19 +194,19 @@ int panelreel_redraw(const panelreel* pr){
     return -1; // enforces specified dimensional minima
   }
   ret |= panelreel_arrange(pr, 0);
+  update_panels();
+  ret |= doupdate();
   return ret;
 }
 
-panelreel* create_panelreel(WINDOW* w, const panelreel_options* popts,
-                            int toff, int roff, int boff, int loff){
-  panelreel* pr;
-
+static bool
+validate_panelreel_opts(WINDOW* w, const panelreel_options* popts){
   if(w == NULL){
-    return NULL;
+    return false;
   }
   if(!popts->infinitescroll){
     if(popts->circular){
-      return NULL; // can't set circular without infinitescroll
+      return false; // can't set circular without infinitescroll
     }
   }
   const unsigned fullmask = BORDERMASK_LEFT |
@@ -216,50 +214,61 @@ panelreel* create_panelreel(WINDOW* w, const panelreel_options* popts,
                             BORDERMASK_TOP |
                             BORDERMASK_BOTTOM;
   if(popts->bordermask > fullmask){
-    return NULL;
+    return false;
   }
   if(popts->tabletmask > fullmask){
+    return false;
+  }
+  return true;
+}
+
+panelreel* create_panelreel(WINDOW* w, const panelreel_options* popts,
+                            int toff, int roff, int boff, int loff){
+  panelreel* pr;
+
+  if(!validate_panelreel_opts(w, popts)){
     return NULL;
   }
-  if( (pr = malloc(sizeof(*pr))) ){
-    pr->tablets = NULL;
-    pr->tabletcount = 0;
-    memcpy(&pr->popts, popts, sizeof(*popts));
-    int maxx, maxy;
-    getmaxyx(w, maxy, maxx);
-    --maxy;
-    --maxx;
-    int ylen, xlen;
-    ylen = maxy - boff - toff + 1;
+  if((pr = malloc(sizeof(*pr))) == NULL){
+    return NULL;
+  }
+  pr->tablets = NULL;
+  pr->tabletcount = 0;
+  memcpy(&pr->popts, popts, sizeof(*popts));
+  int maxx, maxy;
+  getmaxyx(w, maxy, maxx);
+  --maxy;
+  --maxx;
+  int ylen, xlen;
+  ylen = maxy - boff - toff + 1;
+  if(ylen < 0){
+    ylen = maxy - toff;
     if(ylen < 0){
-      ylen = maxy - toff;
-      if(ylen < 0){
-        ylen = 0; // but this translates to a full-screen window...FIXME
-      }
+      ylen = 0; // but this translates to a full-screen window...FIXME
     }
-    xlen = maxx - roff - loff + 1;
+  }
+  xlen = maxx - roff - loff + 1;
+  if(xlen < 0){
+    xlen = maxx - loff;
     if(xlen < 0){
-      xlen = maxx - loff;
-      if(xlen < 0){
-        xlen = 0; // FIXME see above...
-      }
+      xlen = 0; // FIXME see above...
     }
-    WINDOW* pw = subwin(w, ylen, xlen, toff, loff);
-    if(pw == NULL){
-      free(pr);
-      return NULL;
-    }
-    if((pr->p = new_panel(pw)) == NULL){
-      delwin(pw);
-      free(pr);
-      return NULL;
-    }
-    if(panelreel_redraw(pr)){
-      del_panel(pr->p);
-      delwin(pw);
-      free(pr);
-      return NULL;
-    }
+  }
+  WINDOW* pw = subwin(w, ylen, xlen, toff, loff);
+  if(pw == NULL){
+    free(pr);
+    return NULL;
+  }
+  if((pr->p = new_panel(pw)) == NULL){
+    delwin(pw);
+    free(pr);
+    return NULL;
+  }
+  if(panelreel_redraw(pr)){
+    del_panel(pr->p);
+    delwin(pw);
+    free(pr);
+    return NULL;
   }
   return pr;
 }
@@ -349,4 +358,18 @@ int destroy_panelreel(panelreel* preel){
 
 int panelreel_tabletcount(const panelreel* preel){
   return preel->tabletcount;
+}
+
+// FIXME leaves residue the first time we move (but not after...?)
+int panelreel_move(panelreel* preel, int x, int y){
+  int oldx, oldy;
+  getbegyx(panel_window(preel->p), oldy, oldx);
+  if(move_panel(preel->p, y, x) != OK){ // FIXME redraw where it was
+    move_panel(preel->p, oldy, oldx);
+    panelreel_redraw(preel);
+    return -1;
+  }
+  // FIXME move tablets
+  panelreel_redraw(preel);
+  return 0;
 }
