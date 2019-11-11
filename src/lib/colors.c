@@ -91,7 +91,7 @@ int prep_colors(void){
       return -1;
     }
   }
-  // linux console (unless TERM is linux-16color) is only 8/256. fbterm is
+  // linux console (unless TERM is linux-16color) is only 8/64. fbterm is
   // 256/32768. old rxvt has 88(?).
   if(COLORS != 16 && COLORS != 256){
     fprintf(stderr, "Warning: unexpected number of colors (%d)\n", COLORS);
