@@ -96,7 +96,9 @@ struct panelreel* panelreel_demo(WINDOW* w){
   do{
     pair = COLOR_RED;
     wattr_set(w, A_NORMAL, 0, &pair);
-    mvwprintw(w, 2, 2, "%d tablets", panelreel_tabletcount(pr));
+    int count = panelreel_tabletcount(pr);
+    mvwprintw(w, 2, 2, "%d tablet%s", count, count == 1 ? "" : "s");
+    wclrtoeol(w);
     pair = COLOR_BLUE;
     wattr_set(w, A_NORMAL, 0, &pair);
     key = mvwgetch(w, 3, 2);
