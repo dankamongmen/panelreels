@@ -123,6 +123,7 @@ struct panelreel* panelreel_demo(WINDOW* w){
     key = mvwgetch(w, 3, 2);
     clrtoeol();
     struct tabletctx* newtablet = NULL;
+    clrtoeol();
     switch(key){
       case 'a': newtablet = new_tabletctx(pr); break;
       case 'b': newtablet = new_tabletctx(pr); break;
@@ -133,7 +134,7 @@ struct panelreel* panelreel_demo(WINDOW* w){
       case 'l': ++x; if(panelreel_move(pr, x, y)){ --x; } break;
       case KEY_DC: del_active_tablet(pr); break;
       case 'q': break;
-      default: wprintw(w, "Unknown key: %c (%d)\n", key, key);
+      default: mvwprintw(w, 3, 2, "Unknown keycode (%d)\n", key);
     }
     if(newtablet){
       newtablet->next = tctxs;
