@@ -10,6 +10,7 @@ extern "C" {
 #define FADE_MILLISECONDS 1000
 
 int widecolor_demo(WINDOW* w);
+struct panelreel* panelreel_demo(WINDOW* w);
 
 #ifdef __cplusplus
 }

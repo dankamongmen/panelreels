@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD 11)
 
 include(GNUInstallDirs)
 find_package(PkgConfig REQUIRED)
+find_package(Threads REQUIRED)
 
 file(GLOB LIBSRCS CONFIGURE_DEPENDS src/lib/*.c)
 add_library(outcurses SHARED ${LIBSRCS})
@@ -48,7 +49,11 @@ target_compile_options(outcurses
 file(GLOB BINSRCS CONFIGURE_DEPENDS src/bin/*.c)
 add_executable(outcurses-demo ${BINSRCS})
 target_include_directories(outcurses-demo PRIVATE include)
-target_link_libraries(outcurses-demo outcurses)
+target_link_libraries(outcurses-demo
+  PRIVATE
+    outcurses
+    Threads::Threads
+)
 target_compile_definitions(outcurses-demo PRIVATE
   _DEFAULT_SOURCE _XOPEN_SOURCE=600
 )
