@@ -404,6 +404,11 @@ int del_tablet(struct panelreel* pr, struct tablet* t){
     del_panel(t->p);
     delwin(w);
   }
+  if(pr->tablets == t){
+    if((pr->tablets = t->next) == t){
+      pr->tablets = NULL;
+    }
+  }
   free(t);
   --pr->tabletcount;
   update_panels();
