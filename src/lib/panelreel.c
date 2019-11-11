@@ -339,8 +339,21 @@ int del_tablet(struct panelreel* pr, struct tablet* t){
   if(pr == NULL || t == NULL){
     return -1;
   }
-  // FIXME
+  if(t->prev){
+    t->prev->next = t->next;
+  }
+  if(t->next){
+    t->next->prev = t->prev;
+  }
+  if(t->p){
+    WINDOW* w = panel_window(t->p);
+    del_panel(t->p);
+    delwin(w);
+  }
+  free(t);
   --pr->tabletcount;
+  update_panels();
+  panelreel_redraw(pr);
   return 0;
 }
 
@@ -351,7 +364,7 @@ int destroy_panelreel(panelreel* preel){
     while(t){
       t->prev->next = NULL;
       tablet* tmp = t->next;
-      free(t);
+      del_tablet(preel, t);
       t = tmp;
     }
     free(preel);
