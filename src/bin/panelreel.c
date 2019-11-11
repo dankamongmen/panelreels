@@ -72,10 +72,10 @@ struct panelreel* panelreel_demo(WINDOW* w){
     .circular = true,
     .min_supported_cols = 8,
     .min_supported_rows = 5,
-    .borderpair = (COLORS * (COLOR_MAGENTA + 1)) + 1,
+    .borderpair = COLOR_MAGENTA,
     .borderattr = A_NORMAL,
     .tabletattr = A_NORMAL,
-    .tabletpair = (COLORS * (COLOR_GREEN + 1)) + 1,
+    .tabletpair = COLOR_GREEN,
     .focusedattr = A_NORMAL,
     .focusedpair = (COLORS * (COLOR_CYAN + 1)) + 1,
   };
