@@ -40,6 +40,24 @@ tabletdraw(PANEL* p, int begx, int begy, int maxx, int maxy, bool cliptop,
 static void*
 tablet_thread(void* vtabletctx){
   tabletctx* tctx = vtabletctx;
+  while(true){
+    struct timespec ts;
+    ts.tv_sec = random() % 3;
+    ts.tv_nsec = random() % 1000000000;
+    nanosleep(&ts, NULL);
+    int action = random() % 5;
+    if(action < 2){
+      if((tctx->lines -= (action + 1)) < 0){
+        tctx->lines = 0;
+      }
+      tablet_update(tctx->pr, tctx->t);
+    }else if(action > 2){
+      if((tctx->lines += (action - 2)) < 0){
+        tctx->lines = 0;
+      }
+      tablet_update(tctx->pr, tctx->t);
+    }
+  }
   return tctx;
 }
 
