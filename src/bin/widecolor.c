@@ -85,6 +85,30 @@ int widecolor_demo(WINDOW* w){
     L"Jag kan äta glas utan att skada mig",
     L"Jeg kan spise glas, det gør ikke ondt på mig",
     L"Æ ka æe glass uhen at det go mæ naue",
+    L"က္ယ္ဝန္‌တော္‌၊က္ယ္ဝန္‌မ မ္ယက္‌စားနုိင္‌သည္‌။ ၎က္ရောင္‌့ ထိခုိက္‌မ္ဟု မရ္ဟိပာ။ (9",
+    L"ကျွန်တော် ကျွန်မ မှန်စားနိုင်တယ်။ ၎င်းကြောင့် ထိခိုက်မှုမရှိပါ။ (",
+    L"Tôi có thể ăn thủy tinh mà không hại gì",
+    L"些 𣎏 世 咹 水 晶 𦓡 空 𣎏 害",
+    L"ខ្ញុំអាចញុំកញ្ចក់បាន ដោយគ្មានបញ្ហា",
+    L"ຂອ້ຍກິນແກ້ວໄດ້ໂດຍທີ່ມັນບໍ່ໄດ້ເຮັດໃຫ້ຂອ້ຍເຈັບ",
+    L"ฉันกินกระจกได้ แต่มันไม่ทำให้ฉันเจ็",
+    L"Би шил идэй чадна, надад хортой би",
+    L"ᠪᠢ ᠰᠢᠯᠢ ᠢᠳᠡᠶᠦ ᠴᠢᠳᠠᠨᠠ ᠂ ᠨᠠᠳᠤᠷ ᠬᠣᠤᠷᠠᠳᠠᠢ ᠪᠢᠰ",
+    L"﻿म काँच खान सक्छू र मलाई केहि नी हुन्‍न्",
+    L"ཤེལ་སྒོ་ཟ་ནས་ང་ན་གི་མ་རེད",
+    L"我能吞下玻璃而不伤身体",
+    L"我能吞下玻璃而不傷身體",
+    L"Góa ē-tàng chia̍h po-lê, mā bē tio̍h-siong",
+    L"私はガラスを食べられます。それは私を傷つけません",
+    L"나는 유리를 먹을 수 있어요. 그래도 아프지 않아",
+    L"Mi save kakae glas, hemi no save katem mi",
+    L"Hiki iaʻu ke ʻai i ke aniani; ʻaʻole nō lā au e ʻeha",
+    L"E koʻana e kai i te karahi, mea ʻā, ʻaʻe hauhau",
+    L"ᐊᓕᒍᖅ ᓂᕆᔭᕌᖓᒃᑯ ᓱᕋᙱᑦᑐᓐᓇᖅᑐ",
+    L"Naika məkmək kakshət labutay, pi weyk ukuk munk-sik nay",
+    L"Tsésǫʼ yishą́ągo bííníshghah dóó doo shił neezgai da",
+    L"mi kakne le nu citka le blaci .iku'i le se go'i na xrani m",
+    L"Ljœr ye caudran créneþ ý jor cẃran",
     L"Ik kin glês ite, it docht me net sear",
     L"Ik kan glas eten, het doet mĳ geen kwaad",
     L"Iech ken glaas èèse, mer 't deet miech jing pieng",
@@ -158,30 +182,6 @@ int widecolor_demo(WINDOW* w){
     L"Siña yo' chumocho krestat, ti ha na'lalamen yo'",
     L"Au rawa ni kana iloilo, ia au sega ni vakacacani kina",
     L"Aku isa mangan beling tanpa lara",
-    L"က္ယ္ဝန္‌တော္‌၊က္ယ္ဝန္‌မ မ္ယက္‌စားနုိင္‌သည္‌။ ၎က္ရောင္‌့ ထိခုိက္‌မ္ဟု မရ္ဟိပာ။ (9",
-    L"ကျွန်တော် ကျွန်မ မှန်စားနိုင်တယ်။ ၎င်းကြောင့် ထိခိုက်မှုမရှိပါ။ (9",
-    L"Tôi có thể ăn thủy tinh mà không hại gì",
-    L"些 𣎏 世 咹 水 晶 𦓡 空 𣎏 害",
-    L"ខ្ញុំអាចញុំកញ្ចក់បាន ដោយគ្មានបញ្ហា",
-    L"ຂອ້ຍກິນແກ້ວໄດ້ໂດຍທີ່ມັນບໍ່ໄດ້ເຮັດໃຫ້ຂອ້ຍເຈັບ",
-    L"ฉันกินกระจกได้ แต่มันไม่ทำให้ฉันเจ็",
-    L"Би шил идэй чадна, надад хортой би",
-    L"ᠪᠢ ᠰᠢᠯᠢ ᠢᠳᠡᠶᠦ ᠴᠢᠳᠠᠨᠠ ᠂ ᠨᠠᠳᠤᠷ ᠬᠣᠤᠷᠠᠳᠠᠢ ᠪᠢᠰ",
-    L"﻿म काँच खान सक्छू र मलाई केहि नी हुन्‍न्",
-    L"ཤེལ་སྒོ་ཟ་ནས་ང་ན་གི་མ་རེད",
-    L"我能吞下玻璃而不伤身体",
-    L"我能吞下玻璃而不傷身體",
-    L"Góa ē-tàng chia̍h po-lê, mā bē tio̍h-siong",
-    L"私はガラスを食べられます。それは私を傷つけません",
-    L"나는 유리를 먹을 수 있어요. 그래도 아프지 않아",
-    L"Mi save kakae glas, hemi no save katem mi",
-    L"Hiki iaʻu ke ʻai i ke aniani; ʻaʻole nō lā au e ʻeha",
-    L"E koʻana e kai i te karahi, mea ʻā, ʻaʻe hauhau",
-    L"ᐊᓕᒍᖅ ᓂᕆᔭᕌᖓᒃᑯ ᓱᕋᙱᑦᑐᓐᓇᖅᑐ",
-    L"Naika məkmək kakshət labutay, pi weyk ukuk munk-sik nay",
-    L"Tsésǫʼ yishą́ągo bííníshghah dóó doo shił neezgai da",
-    L"mi kakne le nu citka le blaci .iku'i le se go'i na xrani m",
-    L"Ljœr ye caudran créneþ ý jor cẃran",
     NULL
   };
   const wchar_t** s;
@@ -196,20 +196,21 @@ int widecolor_demo(WINDOW* w){
   mvwaddwstr(w, 0, 0, L"wide chars, multiple colors…");
   // FIXME would be nice to have this move through colors while waiting for
   // keypress...
-  int cpair = 16;
+  int cpair = 48 * COLORS; // green-red block transition on 256 colors
+  if(cpair >= COLOR_PAIRS){
+    cpair = 0;
+  }
   // FIXME show 6x6x6 color structure?
   for(s = strs ; *s ; ++s){
     cchar_t wch;
-    pair = 1;
-    setcchar(&wch, L" ", A_NORMAL, 0, &pair);
+    setcchar(&wch, L" ", A_NORMAL, 0, &cpair);
     wadd_wch(w, &wch);
     size_t idx;
     for(idx = 0 ; idx < wcslen(*s) ; ++idx){
-      pair = cpair++;
-      setcchar(&wch, &(*s)[idx], A_NORMAL, 0, &pair);
+      setcchar(&wch, &(*s)[idx], A_NORMAL, 0, &cpair);
       wadd_wch(w, &wch);
-      if(cpair == COLORS){
-        cpair = 16;
+      if(++cpair >= COLOR_PAIRS){
+        cpair = 0;
       }
     }
   }
