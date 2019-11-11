@@ -2,16 +2,18 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdatomic.h>
 #include "outcurses.h"
 
 // Tablets are the toplevel entitites within a panelreel. Each corresponds to
 // a single, distinct PANEL.
 typedef struct tablet {
-  PANEL* p;
-  void* curry;
+  PANEL* p;                    // visible panel, NULL when offscreen
   struct tablet* next;
   struct tablet* prev;
-  tabletcb cbfxn;
+  tabletcb cbfxn;              // application callback to draw tablet
+  void* curry;                 // application data provided to cbfxn
+  atomic_bool update_pending;  // new data since the tablet was last drawn?
 } tablet;
 
 // The visible screen can be reconstructed from three things:
@@ -343,13 +345,20 @@ int panelreel_tabletcount(const panelreel* preel){
   return preel->tabletcount;
 }
 
-// FIXME leaves residue the first time we move (but not after...?)
+int tablet_update(panelreel* pr, tablet* t){
+  // FIXME lock the panelreel, mark the tablet as updated, and signal a
+  // condvar. some thread (which?) will be waiting on said condvar, and will
+  // call back into the application for a redraw. we can use timeout() with
+  // a positive value, and then we wouldn't even need a distinct thread...
+  return 0;
+}
+
 int panelreel_move(panelreel* preel, int x, int y){
   int oldx, oldy;
   getbegyx(panel_window(preel->p), oldy, oldx);
   werase(panel_window(preel->p));
   update_panels();
-  if(move_panel(preel->p, y, x) != OK){ // FIXME redraw where it was
+  if(move_panel(preel->p, y, x) != OK){
     move_panel(preel->p, oldy, oldx);
     panelreel_redraw(preel);
     return -1;
