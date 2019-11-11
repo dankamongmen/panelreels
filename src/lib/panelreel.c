@@ -149,13 +149,11 @@ panelreel_arrange(const panelreel* pr, int direction){
     return 0; // if none are focused, none exist
   }
   PANEL* fp = focused->p;
+  int ll;
   if(fp == NULL){ // create a panel for the focused tablet
-    int maxx, maxy, begy, begx, xlen, ylen;
-    tablet_columns(pr, &begx, &begy, &maxx, &maxy);
-    xlen = maxx;
-    ylen = maxy;
-    ylen = ylen > 4 ? 4 : ylen; // FIXME no, just for early testing
-    WINDOW* w = newwin(ylen, xlen, begy, begx);
+    int lenx, leny, begy, begx;
+    tablet_columns(pr, &begx, &begy, &lenx, &leny);
+    WINDOW* w = newwin(leny, lenx, begy, begx);
     if(w == NULL){
       return -1;
     }
@@ -167,7 +165,12 @@ panelreel_arrange(const panelreel* pr, int direction){
     draw_borders(w, pr->popts.tabletmask, pr->popts.focusedattr,
                  pr->popts.focusedpair);
     // discount for inhibited borders FIXME
-    focused->cbfxn(fp, 1, 1, xlen - 1, ylen - 1, false, focused->curry);
+    ll = focused->cbfxn(fp, 1, 1, lenx - 1, leny - 1, false, focused->curry);
+    focused->update_pending = false;
+    if(ll < leny - 1){
+      wresize(w, ll + 2, lenx);
+    }
+    // FIXME move to correct location
   }
   // FIXME others!
   return 0;
@@ -304,6 +307,7 @@ tablet* add_tablet(panelreel* pr, tablet* after, tablet *before,
     }
     t->cbfxn = cbfxn;
     t->curry = opaque;
+    t->update_pending = true;
     t->p = NULL;
     ++pr->tabletcount;
     if(panelreel_redraw(pr)){
@@ -346,10 +350,7 @@ int panelreel_tabletcount(const panelreel* preel){
 }
 
 int tablet_update(panelreel* pr, tablet* t){
-  // FIXME lock the panelreel, mark the tablet as updated, and signal a
-  // condvar. some thread (which?) will be waiting on said condvar, and will
-  // call back into the application for a redraw. we can use timeout() with
-  // a positive value, and then we wouldn't even need a distinct thread...
+  t->update_pending = true;
   return 0;
 }
 
