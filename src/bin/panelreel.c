@@ -26,6 +26,7 @@ tabletdraw(PANEL* p, int begx, int begy, int maxx, int maxy, bool cliptop,
     }
     wmove(w, y, begx);
     cchar_t cch;
+    // FIXME use hex digit corresponding to number of lines
     setcchar(&cch, L"X", A_NORMAL, 0, &tctx->cpair);
     for(x = begx ; x < maxx ; ++x){
       wadd_wch(w, &cch);

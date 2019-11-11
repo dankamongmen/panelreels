@@ -178,6 +178,7 @@ panelreel_draw_tablet(const panelreel* pr, tablet* t, int frontiery,
     t->update_pending = true;
   }else{
     w = panel_window(fp);
+    move_panel(fp, begy, begx); // FIXME retval
   }
   if(t->update_pending){
     // discount for inhibited borders FIXME
