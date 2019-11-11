@@ -3,7 +3,7 @@
 #include <outcurses.h>
 #include "demo.h"
 
-static void
+static int
 tabletdraw(PANEL* p, int begx, int begy, int maxx, int maxy, bool cliptop,
            void* curry){
   int cpair = random() % (COLORS - 16) + 16;
@@ -17,6 +17,7 @@ tabletdraw(PANEL* p, int begx, int begy, int maxx, int maxy, bool cliptop,
       wadd_wch(w, &cch);
     }
   }
+  return maxy - begy;
 }
 
 static int
