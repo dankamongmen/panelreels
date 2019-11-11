@@ -188,8 +188,10 @@ panelreel_draw_tablet(const panelreel* pr, tablet* t, int frontiery,
     }
     bool cliphead = false; // direction < 0; // FIXME and...
     bool clipfoot = false; // direction > 0; // FIXME and...
-    draw_borders(w, pr->popts.tabletmask, pr->popts.focusedattr,
-                 pr->popts.focusedpair, cliphead, clipfoot);
+    draw_borders(w, pr->popts.tabletmask,
+                 direction == 0 ? pr->popts.focusedattr : pr->popts.tabletattr,
+                 direction == 0 ? pr->popts.focusedpair : pr->popts.tabletpair,
+                 cliphead, clipfoot);
     // FIXME move to correct location
   }
   return 0;
