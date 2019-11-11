@@ -30,8 +30,8 @@ target_include_directories(outcurses
 )
 target_link_libraries(outcurses
   INTERFACE
-    ${CURSES_LIBRARIES}
     ${PANEL_LIBRARIES}
+    ${CURSES_LIBRARIES}
 )
 # FIXME ideally this would come from FindCurses.cmake
 target_compile_definitions(outcurses PRIVATE
@@ -41,8 +41,8 @@ target_compile_options(outcurses
   PRIVATE
     -Wall -Wextra -W
   INTERFACE
-    ${CURSES_CFLAGS} ${CURSES_CFLAGS_OTHER}
     ${PANEL_CFLAGS} ${PANEL_CFLAGS_OTHER}
+    ${CURSES_CFLAGS} ${CURSES_CFLAGS_OTHER}
 )
 
 file(GLOB BINSRCS CONFIGURE_DEPENDS src/bin/*.c)
