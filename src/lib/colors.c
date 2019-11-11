@@ -87,25 +87,28 @@ int prep_colors(void){
       return -1;
     }
   }
-  // linux console (unless TERM is linux-16color) is only 8/256. fbterm is
+  // linux console (unless TERM is linux-16color) is only 8/64. fbterm is
   // 256/32768. old rxvt has 88(?).
   if(COLORS != 16 && COLORS != 256){
     fprintf(stderr, "Warning: unexpected number of colors (%d)\n", COLORS);
   }
   int bg;
+  int pair = 0;
   for(bg = -1 ; bg < COLORS - 1 ; ++bg){
     int i;
     for(i = 0 ; i < COLORS ; ++i){
-      int pair = i + (bg + 1) * COLORS;
       if(pair >= COLOR_PAIRS){
         break;
       }
-      if(pair != 0){
+      if(pair){
         if(init_extended_pair(pair, i, bg)){
-          fprintf(stderr, "Warning: couldn't initialize colorpair %d\n", i);
+          fprintf(stderr, "Warning: couldn't initialize colorpair %d/%d\n", pair, COLOR_PAIRS);
+          goto err;
         }
       }
+      ++pair;
     }
   }
+err:
   return 0;
 }
