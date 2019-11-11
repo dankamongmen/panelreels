@@ -29,23 +29,10 @@ typedef struct panelreel {
 } panelreel;
 
 // These ought be part of ncurses, probably
-
-// Repeat the cchar_t ch n times at the current location in w.
-static int
-whwline(WINDOW *w, const cchar_t* ch, int n){
-  while(n-- > 0){
-    int ret;
-    if((ret = wadd_wch(w, ch)) != OK){
-      return ret;
-    }
-  }
-  return OK;
-}
-
-static const cchar_t WACS_ULROUNDCORNER = { .attr = 0, .chars = L"╭", };
-static const cchar_t WACS_URROUNDCORNER = { .attr = 0, .chars = L"╮", };
-static const cchar_t WACS_LLROUNDCORNER = { .attr = 0, .chars = L"╰", };
-static const cchar_t WACS_LRROUNDCORNER = { .attr = 0, .chars = L"╯", };
+static const cchar_t WACS_R_ULCORNER = { .attr = 0, .chars = L"╭", };
+static const cchar_t WACS_R_URCORNER = { .attr = 0, .chars = L"╮", };
+static const cchar_t WACS_R_LLCORNER = { .attr = 0, .chars = L"╰", };
+static const cchar_t WACS_R_LRCORNER = { .attr = 0, .chars = L"╯", };
 
 // bchrs: 6-element array of wide border characters + attributes FIXME
 static int
@@ -62,15 +49,15 @@ draw_borders(WINDOW* w, unsigned nobordermask, attr_t attr, int pair){
   // lenx - begx + 1 is the number of columns we have, but drop 2 due to
   // corners. we thus want lenx - begx - 1 horizontal lines.
   if(!(nobordermask & BORDERMASK_TOP)){
-    ret |= mvwadd_wch(w, begy, begx, &WACS_ULROUNDCORNER);
-    ret |= whwline(w, WACS_HLINE, lenx - begx - 1);
-    ret |= wadd_wch(w, &WACS_URROUNDCORNER);
+    ret |= mvwadd_wch(w, begy, begx, &WACS_R_ULCORNER);
+    ret |= whline_set(w, WACS_HLINE, lenx - begx - 1);
+    ret |= mvwadd_wch(w, begy, begx + lenx, &WACS_R_URCORNER);
   }else{
     if(!(nobordermask & BORDERMASK_LEFT)){
-      ret |= mvwadd_wch(w, begy, begx, &WACS_ULROUNDCORNER);
+      ret |= mvwadd_wch(w, begy, begx, &WACS_R_ULCORNER);
     }
     if(!(nobordermask & BORDERMASK_RIGHT)){
-      ret |= mvwadd_wch(w, begy, lenx, &WACS_URROUNDCORNER);
+      ret |= mvwadd_wch(w, begy, lenx, &WACS_R_URCORNER);
     }
   }
   int y;
@@ -83,18 +70,18 @@ draw_borders(WINDOW* w, unsigned nobordermask, attr_t attr, int pair){
     }
   }
   if(!(nobordermask & BORDERMASK_BOTTOM)){
-    ret |= mvwadd_wch(w, leny, begx, &WACS_LLROUNDCORNER);
-    ret |= whwline(w, WACS_HLINE, lenx - begx - 1);
-    wadd_wch(w, &WACS_LRROUNDCORNER);
+    ret |= mvwadd_wch(w, leny, begx, &WACS_R_LLCORNER);
+    ret |= whline_set(w, WACS_HLINE, lenx - begx - 1);
+    mvwadd_wch(w, leny, begx + lenx, &WACS_R_LRCORNER); // always errors
   }else{
     if(!(nobordermask & BORDERMASK_LEFT)){
-      ret |= mvwadd_wch(w, leny, begx, &WACS_LLROUNDCORNER);
+      ret |= mvwadd_wch(w, leny, begx, &WACS_R_LLCORNER);
     }
     if(!(nobordermask & BORDERMASK_RIGHT)){
       // mvwadd_wch returns error if we print to the lowermost+rightmost
       // character cell. maybe we can make this go away with scrolling controls
       // at setup? until then, don't check for error here FIXME.
-      mvwadd_wch(w, leny, lenx, &WACS_LRROUNDCORNER);
+      mvwadd_wch(w, leny, lenx, &WACS_R_LRCORNER);
     }
   }
   return ret;
