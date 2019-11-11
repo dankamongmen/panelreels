@@ -114,8 +114,11 @@ struct panelreel* create_panelreel(WINDOW* w, const panelreel_options* popts,
 // the screen, or partially present at the bottom. In the former case, the top
 // is clipped (cliptop will be true), and output ought start from the end. In
 // the latter case, cliptop is false, and output ought start from the beginning.
-typedef void (*tabletcb)(PANEL* p, int begx, int begy, int maxx, int maxy,
-                         bool cliptop, void* curry);
+//
+// Returns the number of lines of output, which ought be less than or equal to
+// maxy - begy, and non-negative (negative values might be used in the future).
+typedef int (*tabletcb)(PANEL* p, int begx, int begy, int maxx, int maxy,
+                        bool cliptop, void* curry);
 
 // Add a new tablet to the provided panelreel, having the callback object
 // opaque. Neither, either, or both of after and before may be specified. If
@@ -136,6 +139,9 @@ int del_tablet(struct panelreel* pr, struct tablet* t);
 
 // Delete the active tablet. Returns -1 if there are no tablets.
 int del_active_tablet(struct panelreel* pr);
+
+// Move to the specified location within the containing WINDOW.
+int panelreel_move(struct panelreel* pr, int x, int y);
 
 // Redraw the panelreel in its entirety, for instance after
 // clearing the screen due to external corruption, or a SIGWINCH.

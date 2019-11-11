@@ -52,8 +52,14 @@ TEST(OutcursesPanelReel, FiniteCircleRejected) {
   ASSERT_EQ(0, stop_outcurses(true));
 }
 
-void panelcb(PANEL* p, int begx, int begy, int maxx, int maxy, bool cliptop,
-             void* curry){
+int panelcb(PANEL* p, int begx, int begy, int maxx, int maxy, bool cliptop,
+            void* curry){
+  EXPECT_NE(nullptr, p);
+  EXPECT_LT(begx, maxx);
+  EXPECT_LT(begy, maxy);
+  EXPECT_EQ(nullptr, curry);
+  EXPECT_FALSE(cliptop);
+  return 0;
 }
 
 TEST(OutcursesPanelReel, OnePanel) {
