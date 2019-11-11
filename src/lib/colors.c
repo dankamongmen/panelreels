@@ -72,10 +72,6 @@ int prep_colors(void){
     fprintf(stderr, "Couldn't start color support\n");
     return -1;
   }
-  if(COLOR_PAIRS < COLORS){
-    fprintf(stderr, "Error: fewer COLOR_PAIRS than COLORS\n");
-    return -1;
-  }
   // Use the default terminal colors for COLOR(-1), then defines COLOR_PAIR(0)
   // to be -1, -1 (default terminal colors). assume_default_colors(-1, -1)
   // encompasses use_default_colors().
