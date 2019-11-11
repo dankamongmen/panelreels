@@ -178,7 +178,23 @@ panelreel_draw_tablet(const panelreel* pr, tablet* t, int frontiery,
     t->update_pending = true;
   }else{
     w = panel_window(fp);
-    move_panel(fp, begy, begx); // FIXME retval
+    int trueby = getbegy(w);
+    int truey, truex;
+    getmaxyx(w, truey, truex);
+    int maxy = getmaxy(panel_window(pr->p)) + getbegy(panel_window(pr->p));
+    if(truey > maxy - begy){
+      if(wresize(w, maxy - begy, truex)){
+        return -1;
+      }
+      update_panels();
+      getmaxyx(w, truey, truex);
+    }
+    if(begy != trueby){
+      if(move_panel(fp, begy, begx)){
+        assert(false);
+        return -1;
+      }
+    }
   }
   if(t->update_pending){
     // discount for inhibited borders FIXME
