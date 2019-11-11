@@ -20,8 +20,26 @@ tabletdraw(PANEL* p, int begx, int begy, int maxx, int maxy, bool cliptop,
   return maxy - begy;
 }
 
-static int
-panelreel_demo(WINDOW* w, struct panelreel* pr){
+static struct panelreel*
+panelreel_demo(WINDOW* w){
+  panelreel_options popts = {
+    .infinitescroll = true,
+    .circular = true,
+    .min_supported_cols = 8,
+    .min_supported_rows = 5,
+    .borderpair = (COLORS * (COLOR_MAGENTA + 1)) + 1,
+    .borderattr = A_NORMAL,
+    .tabletattr = A_NORMAL,
+    .tabletpair = (COLORS * (COLOR_GREEN + 1)) + 1,
+    .focusedattr = A_NORMAL,
+    .focusedpair = (COLORS * (COLOR_CYAN + 1)) + 1,
+  };
+  int x = 4, y = 4;
+  struct panelreel* pr = create_panelreel(w, &popts, y, 0, 0, x);
+  if(pr == NULL){
+    fprintf(stderr, "Error creating panelreel\n");
+    return NULL;
+  }
   // Press a for a new panel above the current, c for a new one below the
   // current, and b for a new block at arbitrary placement. q quits.
   int pair = COLOR_CYAN;
@@ -41,12 +59,16 @@ panelreel_demo(WINDOW* w, struct panelreel* pr){
       case 'a': add_tablet(pr, NULL, NULL, tabletdraw, NULL); break;
       case 'b': add_tablet(pr, NULL, NULL, tabletdraw, NULL); break;
       case 'c': add_tablet(pr, NULL, NULL, tabletdraw, NULL); break;
+      case KEY_LEFT:
+      case 'h': --x; if(panelreel_move(pr, x, y)){ ++x; } break;
+      case KEY_RIGHT:
+      case 'l': ++x; if(panelreel_move(pr, x, y)){ --x; } break;
       case KEY_DC: del_active_tablet(pr); break;
       case 'q': break;
       default: wprintw(w, "Unknown key: %c (%d)\n", key, key);
     }
   }while(key != 'q');
-  return 0;
+  return pr;
 }
 
 static void
@@ -65,24 +87,10 @@ static int
 demo(WINDOW* w){
   print_intro(w);
   widecolor_demo(w);
-  panelreel_options popts = {
-    .infinitescroll = true,
-    .circular = true,
-    .min_supported_cols = 8,
-    .min_supported_rows = 5,
-    .borderpair = (COLORS * (COLOR_MAGENTA + 1)) + 1,
-    .borderattr = A_NORMAL,
-    .tabletattr = A_NORMAL,
-    .tabletpair = (COLORS * (COLOR_GREEN + 1)) + 1,
-    .focusedattr = A_NORMAL,
-    .focusedpair = (COLORS * (COLOR_CYAN + 1)) + 1,
-  };
-  struct panelreel* pr = create_panelreel(w, &popts, 4, 0, 0, 4);
-  if(pr == NULL){
-    fprintf(stderr, "Error creating panelreel\n");
+  struct panelreel* pr;
+  if((pr = panelreel_demo(w)) == NULL){
     return -1;
   }
-  panelreel_demo(w, pr);
   fadeout(w, FADE_MILLISECONDS);
   if(destroy_panelreel(pr)){
     fprintf(stderr, "Error destroying panelreel\n");
