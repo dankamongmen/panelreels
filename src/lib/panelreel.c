@@ -46,7 +46,8 @@ static const cchar_t WACS_R_LRCORNER = { .attr = 0, .chars = L"╯", };
 
 // bchrs: 6-element array of wide border characters + attributes FIXME
 static int
-draw_borders(WINDOW* w, unsigned nobordermask, attr_t attr, int pair){
+draw_borders(WINDOW* w, unsigned nobordermask, attr_t attr, int pair,
+             bool cliphead, bool clipfoot){
   wattr_set(w, attr, 0, &pair);
   int begx, begy, lenx, leny;
   int ret = OK;
@@ -55,18 +56,20 @@ draw_borders(WINDOW* w, unsigned nobordermask, attr_t attr, int pair){
   --lenx;
   begx = 0;
   begy = 0;
-  // lenx - begx + 1 is the number of columns we have, but drop 2 due to
-  // corners. we thus want lenx - begx - 1 horizontal lines.
-  if(!(nobordermask & BORDERMASK_TOP)){
-    ret |= mvwadd_wch(w, begy, begx, &WACS_R_ULCORNER);
-    ret |= whline_set(w, WACS_HLINE, lenx - begx - 1);
-    ret |= mvwadd_wch(w, begy, begx + lenx, &WACS_R_URCORNER);
-  }else{
-    if(!(nobordermask & BORDERMASK_LEFT)){
+  if(!cliphead){
+    // lenx - begx + 1 is the number of columns we have, but drop 2 due to
+    // corners. we thus want lenx - begx - 1 horizontal lines.
+    if(!(nobordermask & BORDERMASK_TOP)){
       ret |= mvwadd_wch(w, begy, begx, &WACS_R_ULCORNER);
-    }
-    if(!(nobordermask & BORDERMASK_RIGHT)){
-      ret |= mvwadd_wch(w, begy, lenx, &WACS_R_URCORNER);
+      ret |= whline_set(w, WACS_HLINE, lenx - begx - 1);
+      ret |= mvwadd_wch(w, begy, begx + lenx, &WACS_R_URCORNER);
+    }else{
+      if(!(nobordermask & BORDERMASK_LEFT)){
+        ret |= mvwadd_wch(w, begy, begx, &WACS_R_ULCORNER);
+      }
+      if(!(nobordermask & BORDERMASK_RIGHT)){
+        ret |= mvwadd_wch(w, begy, lenx, &WACS_R_URCORNER);
+      }
     }
   }
   int y;
@@ -78,19 +81,21 @@ draw_borders(WINDOW* w, unsigned nobordermask, attr_t attr, int pair){
       ret |= mvwadd_wch(w, y, lenx, WACS_VLINE);
     }
   }
-  if(!(nobordermask & BORDERMASK_BOTTOM)){
-    ret |= mvwadd_wch(w, leny, begx, &WACS_R_LLCORNER);
-    ret |= whline_set(w, WACS_HLINE, lenx - begx - 1);
-    mvwadd_wch(w, leny, begx + lenx, &WACS_R_LRCORNER); // always errors
-  }else{
-    if(!(nobordermask & BORDERMASK_LEFT)){
+  if(!clipfoot){
+    if(!(nobordermask & BORDERMASK_BOTTOM)){
       ret |= mvwadd_wch(w, leny, begx, &WACS_R_LLCORNER);
-    }
-    if(!(nobordermask & BORDERMASK_RIGHT)){
-      // mvwadd_wch returns error if we print to the lowermost+rightmost
-      // character cell. maybe we can make this go away with scrolling controls
-      // at setup? until then, don't check for error here FIXME.
-      mvwadd_wch(w, leny, lenx, &WACS_R_LRCORNER);
+      ret |= whline_set(w, WACS_HLINE, lenx - begx - 1);
+      mvwadd_wch(w, leny, begx + lenx, &WACS_R_LRCORNER); // always errors
+    }else{
+      if(!(nobordermask & BORDERMASK_LEFT)){
+        ret |= mvwadd_wch(w, leny, begx, &WACS_R_LLCORNER);
+      }
+      if(!(nobordermask & BORDERMASK_RIGHT)){
+        // mvwadd_wch returns error if we print to the lowermost+rightmost
+        // character cell. maybe we can make this go away with scrolling controls
+        // at setup? until then, don't check for error here FIXME.
+        mvwadd_wch(w, leny, lenx, &WACS_R_LRCORNER);
+      }
     }
   }
   return ret;
@@ -116,7 +121,7 @@ draw_panelreel_borders(const panelreel* pr){
     return 0; // no room
   }
   return draw_borders(w, pr->popts.bordermask, pr->popts.borderattr,
-                      pr->popts.borderpair);
+                      pr->popts.borderpair, false, false);
 }
 
 // Calculate the starting and ending coordinates available for occupation by
@@ -181,8 +186,10 @@ panelreel_draw_tablet(const panelreel* pr, tablet* t, int frontiery,
     if(ll < leny - 1){
       wresize(w, ll + 2, lenx);
     }
+    bool cliphead = false; // direction < 0; // FIXME and...
+    bool clipfoot = false; // direction > 0; // FIXME and...
     draw_borders(w, pr->popts.tabletmask, pr->popts.focusedattr,
-                 pr->popts.focusedpair);
+                 pr->popts.focusedpair, cliphead, clipfoot);
     // FIXME move to correct location
   }
   return 0;
