@@ -7,7 +7,7 @@ typedef struct tabletctx {
   pthread_t tid;
   struct panelreel* pr;
   struct tablet* t;
-  unsigned lines;
+  int lines;
   int cpair;
   struct tabletctx* next;
   pthread_mutex_t lock;
@@ -17,9 +17,13 @@ static int
 tabletdraw(PANEL* p, int begx, int begy, int maxx, int maxy, bool cliptop,
            void* vtabletctx){
   tabletctx* tctx = vtabletctx;
+  pthread_mutex_lock(&tctx->lock);
   int x, y;
   WINDOW* w = panel_window(p);
   for(y = begy ; y < maxy ; ++y){
+    if(y - begy >= tctx->lines){
+      break;
+    }
     wmove(w, y, begx);
     cchar_t cch;
     setcchar(&cch, L"X", A_NORMAL, 0, &tctx->cpair);
@@ -27,7 +31,8 @@ tabletdraw(PANEL* p, int begx, int begy, int maxx, int maxy, bool cliptop,
       wadd_wch(w, &cch);
     }
   }
-  return maxy - begy;
+  pthread_mutex_unlock(&tctx->lock);
+  return y - begy;
 }
 
 // Each tablet has an associated thread which will periodically send update

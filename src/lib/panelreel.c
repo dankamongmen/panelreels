@@ -138,22 +138,16 @@ tablet_columns(const panelreel* pr, int* begx, int* begy, int* lenx, int* leny){
   }
 }
 
-// Arrange the panels, starting with the focused window, wherever it may be.
-// Work in both directions until the screen is filled. If the screen is not
-// filled, move everything towards the top. Supply -1 if we're moving up, 0 if
-// this call is not in response to user movement, and 1 if we're moving down.
+// Draw and place the focused tablet, which mustn't be NULL.
 static int
-panelreel_arrange(const panelreel* pr, int direction){
-  tablet* focused = pr->tablets;
-  if(focused == NULL){
-    return 0; // if none are focused, none exist
-  }
+panelreel_draw_focused(const panelreel* pr, tablet* focused, int direction){
   PANEL* fp = focused->p;
+  int lenx, leny, begy, begx;
+  WINDOW* w;
   int ll;
+  tablet_columns(pr, &begx, &begy, &lenx, &leny);
   if(fp == NULL){ // create a panel for the focused tablet
-    int lenx, leny, begy, begx;
-    tablet_columns(pr, &begx, &begy, &lenx, &leny);
-    WINDOW* w = newwin(leny, lenx, begy, begx);
+    w = newwin(leny, lenx, begy, begx);
     if(w == NULL){
       return -1;
     }
@@ -162,17 +156,37 @@ panelreel_arrange(const panelreel* pr, int direction){
       delwin(w);
       return -1;
     }
-    draw_borders(w, pr->popts.tabletmask, pr->popts.focusedattr,
-                 pr->popts.focusedpair);
+  }else{
+    w = panel_window(fp);
+  }
+  if(focused->update_pending){
     // discount for inhibited borders FIXME
     ll = focused->cbfxn(fp, 1, 1, lenx - 1, leny - 1, false, focused->curry);
     focused->update_pending = false;
     if(ll < leny - 1){
       wresize(w, ll + 2, lenx);
     }
+    draw_borders(w, pr->popts.tabletmask, pr->popts.focusedattr,
+                 pr->popts.focusedpair);
     // FIXME move to correct location
   }
-  // FIXME others!
+  return 0;
+}
+
+// Arrange the panels, starting with the focused window, wherever it may be.
+// Work in both directions until the screen is filled. If the screen is not
+// filled, move everything towards the top. Supply -1 if we're moving up, 0 if
+// this call is not in response to user movement, and 1 if we're moving down.
+static int
+panelreel_arrange(const panelreel* pr, int direction){
+  int ret = 0;
+  tablet* focused = pr->tablets;
+  if(focused == NULL){
+    return 0; // if none are focused, none exist
+  }
+  ret |= panelreel_draw_focused(pr, focused, direction);
+  // FIXME work down to bottom
+  // FIXME work up to top
   return 0;
 }
 
@@ -350,6 +364,7 @@ int panelreel_tabletcount(const panelreel* preel){
 }
 
 int tablet_update(panelreel* pr, tablet* t){
+  (void)pr;
   t->update_pending = true;
   return 0;
 }
