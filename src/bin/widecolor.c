@@ -201,19 +201,29 @@ int widecolor_demo(WINDOW* w){
     cpair = 0;
   }
   // FIXME show 6x6x6 color structure?
-  for(s = strs ; *s ; ++s){
-    cchar_t wch;
-    setcchar(&wch, L" ", A_NORMAL, 0, &cpair);
-    wadd_wch(w, &wch);
-    size_t idx;
-    for(idx = 0 ; idx < wcslen(*s) ; ++idx){
-      setcchar(&wch, &(*s)[idx], A_NORMAL, 0, &cpair);
+  int y, x, maxy, maxx;
+  getmaxyx(w, maxy, maxx);
+  --maxy;
+  --maxx;
+  do{ // we fill up the entire screen, however large
+    for(s = strs ; *s ; ++s){
+      cchar_t wch;
+      setcchar(&wch, L" ", A_NORMAL, 0, &cpair);
       wadd_wch(w, &wch);
-      if(++cpair >= COLOR_PAIRS){
-        cpair = 0;
+      size_t idx;
+      for(idx = 0 ; idx < wcslen(*s) ; ++idx){
+        setcchar(&wch, &(*s)[idx], A_NORMAL, 0, &cpair);
+        wadd_wch(w, &wch);
+        getyx(w, y, x);
+        if(y >= maxy && x >= maxx){
+          break;
+        }
+        if(++cpair >= COLOR_PAIRS){
+          cpair = 0;
+        }
       }
     }
-  }
+  }while(y != maxy || x != maxx);
   fadein(w, count, palette, FADE_MILLISECONDS);
   free(palette);
   do{
