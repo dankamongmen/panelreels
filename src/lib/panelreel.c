@@ -166,7 +166,7 @@ panelreel_arrange(const panelreel* pr, int direction){
     xlen = maxx;
     ylen = maxy;
     ylen = ylen > 4 ? 4 : ylen; // FIXME no, just for early testing
-    WINDOW* w = subwin(panel_window(pr->p), ylen, xlen, begy, begx);
+    WINDOW* w = newwin(ylen, xlen, begy, begx);
     if(w == NULL){
       return -1;
     }
@@ -364,11 +364,14 @@ int panelreel_tabletcount(const panelreel* preel){
 int panelreel_move(panelreel* preel, int x, int y){
   int oldx, oldy;
   getbegyx(panel_window(preel->p), oldy, oldx);
+  werase(panel_window(preel->p));
+  update_panels();
   if(move_panel(preel->p, y, x) != OK){ // FIXME redraw where it was
     move_panel(preel->p, oldy, oldx);
     panelreel_redraw(preel);
     return -1;
   }
+  update_panels();
   panelreel_redraw(preel);
   return 0;
 }
