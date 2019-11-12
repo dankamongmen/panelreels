@@ -152,6 +152,12 @@ int panelreel_move(struct panelreel* pr, int x, int y);
 // clearing the screen due to external corruption, or a SIGWINCH.
 int panelreel_redraw(const struct panelreel* pr);
 
+// Change focus to the next tablet, if one exists
+int panelreel_next(struct panelreel* pr);
+
+// Change focus to the previous tablet, if one exists
+int panelreel_prev(struct panelreel* pr);
+
 // Destroy a panelreel allocated with create_panelreel(). Does not destroy the
 // underlying WINDOW. Returns non-zero on failure.
 int destroy_panelreel(struct panelreel* pr);
