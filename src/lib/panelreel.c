@@ -200,7 +200,7 @@ panelreel_draw_tablet(const panelreel* pr, tablet* t, int frontiery,
     // discount for inhibited borders FIXME
     ll = t->cbfxn(fp, 1, 1, lenx - 1, leny - 1, false, t->curry);
     t->update_pending = false;
-    if(ll < leny - 1){
+    if(ll != leny - 1){
       wresize(w, ll + 2, lenx);
     }
     bool cliphead = false; // direction < 0; // FIXME and...
@@ -520,12 +520,12 @@ int panelreel_next(panelreel* pr){
   if(pr->tablets){
     pr->tablets = pr->tablets->next;
   }
-  return 0;
+  return panelreel_redraw(pr);
 }
 
 int panelreel_prev(panelreel* pr){
   if(pr->tablets){
     pr->tablets = pr->tablets->prev;
   }
-  return 0;
+  return panelreel_redraw(pr);
 }
