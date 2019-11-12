@@ -476,7 +476,6 @@ move_reel_panel(PANEL* p, int deltax, int deltay){
   getbegyx(w, oldy, oldx);
   int x = oldx + deltax;
   int y = oldy + deltay;
-  // touchwin(stdscr);
   if(move_panel(p, y, x) != OK){
     return -1;
   }
