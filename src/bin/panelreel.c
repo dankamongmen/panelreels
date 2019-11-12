@@ -132,6 +132,10 @@ struct panelreel* panelreel_demo(WINDOW* w){
       case 'h': --x; if(panelreel_move(pr, x, y)){ ++x; } break;
       case KEY_RIGHT:
       case 'l': ++x; if(panelreel_move(pr, x, y)){ --x; } break;
+      case KEY_UP:
+      case 'k': panelreel_prev(pr); break;
+      case KEY_DOWN:
+      case 'j': panelreel_next(pr); break;
       case KEY_DC: del_active_tablet(pr); break;
       case 'q': break;
       default: mvwprintw(w, 3, 2, "Unknown keycode (%d)\n", key);
