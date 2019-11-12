@@ -337,7 +337,7 @@ panelreel* create_panelreel(WINDOW* w, const panelreel_options* popts,
       xlen = 0; // FIXME see above...
     }
   }
-  WINDOW* pw = subwin(w, ylen, xlen, toff, loff);
+  WINDOW* pw = newwin(ylen, xlen, toff, loff);
   if(pw == NULL){
     free(pr);
     return NULL;
@@ -468,15 +468,49 @@ int tablet_update(panelreel* pr, tablet* t){
   return 0;
 }
 
-int panelreel_move(panelreel* preel, int x, int y){
+// Move to some position relative to the current position
+static int
+move_reel_panel(PANEL* p, int deltax, int deltay){
+  WINDOW* w = panel_window(p);
   int oldx, oldy;
-  getbegyx(panel_window(preel->p), oldy, oldx);
-  werase(panel_window(preel->p));
-  update_panels();
-  if(move_panel(preel->p, y, x) != OK){
+  getbegyx(w, oldy, oldx);
+  int x = oldx + deltax;
+  int y = oldy + deltay;
+  // touchwin(stdscr);
+  if(move_panel(p, y, x) != OK){
+    return -1;
+  }
+  return 0;
+}
+
+int panelreel_move(panelreel* preel, int x, int y){
+  WINDOW* w = panel_window(preel->p);
+  int oldx, oldy;
+  getbegyx(w, oldy, oldx);
+  const int deltax = x - oldx;
+  const int deltay = y - oldy;
+  if(move_reel_panel(preel->p, deltax, deltay)){
     move_panel(preel->p, oldy, oldx);
     panelreel_redraw(preel);
     return -1;
+  }
+  if(preel->tablets){
+    tablet* t = preel->tablets;
+    do{
+      if(t->p == NULL){
+        break;
+      }
+      move_reel_panel(t->p, deltax, deltay);
+    }while((t = t->prev) != preel->tablets);
+    if(t != preel->tablets){ // don't repeat if we covered all tablets
+      for(t = preel->tablets->next ; t != preel->tablets ; t = t->next){
+        if(t->p == NULL){
+          break;
+        }
+        // FIXME can move some twice
+        move_reel_panel(t->p, deltax, deltay);
+      }
+    }
   }
   update_panels();
   panelreel_redraw(preel);
