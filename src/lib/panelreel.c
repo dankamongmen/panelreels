@@ -482,3 +482,17 @@ int panelreel_move(panelreel* preel, int x, int y){
   panelreel_redraw(preel);
   return 0;
 }
+
+int panelreel_next(panelreel* pr){
+  if(pr->tablets){
+    pr->tablets = pr->tablets->next;
+  }
+  return 0;
+}
+
+int panelreel_prev(panelreel* pr){
+  if(pr->tablets){
+    pr->tablets = pr->tablets->prev;
+  }
+  return 0;
+}
