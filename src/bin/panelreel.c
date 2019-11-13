@@ -97,6 +97,7 @@ new_tabletctx(struct panelreel* pr, unsigned *id){
 }
 
 struct panelreel* panelreel_demo(WINDOW* w){
+  int x = 4, y = 4;
   panelreel_options popts = {
     .infinitescroll = true,
     .circular = true,
@@ -108,10 +109,13 @@ struct panelreel* panelreel_demo(WINDOW* w){
     .tabletpair = COLOR_GREEN,
     .focusedattr = A_NORMAL,
     .focusedpair = (COLORS * (COLOR_CYAN + 1)) + 1,
+    .toff = y,
+    .loff = x,
+    .roff = 0,
+    .boff = 0,
   };
   tabletctx* tctxs = NULL;
-  int x = 4, y = 4;
-  struct panelreel* pr = create_panelreel(w, &popts, y, 0, 0, x);
+  struct panelreel* pr = create_panelreel(w, &popts);
   if(pr == NULL){
     fprintf(stderr, "Error creating panelreel\n");
     return NULL;
