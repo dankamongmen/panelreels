@@ -67,6 +67,9 @@ typedef struct panelreel_options {
   // will be enforced. may not be negative.
   int min_supported_cols;
   int min_supported_rows;
+  // offset the panelreel within the surrounding WINDOW (top right bottom left)
+  // at creation / resize. a panelreel_move() operation updates these.
+  int toff, roff, boff, loff;
   // is scrolling infinite (can one move down or up forever, or is an end
   // reached?). if true, 'circular' specifies how to handle the special case of
   // an incompletely-filled reel.
@@ -99,8 +102,7 @@ struct panelreel;
 // there might not be enough room for the specified offsets, in which case the
 // panelreel will be clipped on the bottom and right. A minimum number of rows
 // and columns can be enforced via popts.
-struct panelreel* create_panelreel(WINDOW* w, const panelreel_options* popts,
-                                   int toff, int roff, int boff, int loff);
+struct panelreel* create_panelreel(WINDOW* w, const panelreel_options* popts);
 
 // Tablet draw callback, provided a PANEL (from which a WINDOW may be derived),
 // the first column that may be used, the first row that may be used, the first

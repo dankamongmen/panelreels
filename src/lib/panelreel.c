@@ -345,8 +345,7 @@ validate_panelreel_opts(WINDOW* w, const panelreel_options* popts){
   return true;
 }
 
-panelreel* create_panelreel(WINDOW* w, const panelreel_options* popts,
-                            int toff, int roff, int boff, int loff){
+panelreel* create_panelreel(WINDOW* w, const panelreel_options* popts){
   panelreel* pr;
 
   if(!validate_panelreel_opts(w, popts)){
@@ -358,26 +357,27 @@ panelreel* create_panelreel(WINDOW* w, const panelreel_options* popts,
   pr->tablets = NULL;
   pr->tabletcount = 0;
   memcpy(&pr->popts, popts, sizeof(*popts));
-  int maxx, maxy;
+  int maxx, maxy, wx, wy;
+  getbegyx(w, wy, wx);
   getmaxyx(w, maxy, maxx);
   --maxy;
   --maxx;
   int ylen, xlen;
-  ylen = maxy - boff - toff + 1;
+  ylen = maxy - popts->boff - popts->toff + 1;
   if(ylen < 0){
-    ylen = maxy - toff;
+    ylen = maxy - popts->toff;
     if(ylen < 0){
       ylen = 0; // but this translates to a full-screen window...FIXME
     }
   }
-  xlen = maxx - roff - loff + 1;
+  xlen = maxx - popts->roff - popts->loff + 1;
   if(xlen < 0){
-    xlen = maxx - loff;
+    xlen = maxx - popts->loff;
     if(xlen < 0){
       xlen = 0; // FIXME see above...
     }
   }
-  WINDOW* pw = newwin(ylen, xlen, toff, loff);
+  WINDOW* pw = newwin(ylen, xlen, popts->toff + wy, popts->loff + wx);
   if(pw == NULL){
     free(pr);
     return NULL;
