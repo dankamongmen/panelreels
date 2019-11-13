@@ -21,6 +21,15 @@ init_system_colors(void){
   ret |= init_extended_color(COLOR_WHITE, RGB(204, 204, 204));
   if(ret){
     fprintf(stderr, "Error initializing system colors\n");
+  }else if(COLORS >= 16){
+    ret |= init_extended_color(8, RGB(118, 118, 118)); // bright black
+    ret |= init_extended_color(9, RGB(231, 72, 86)); // bright red
+    ret |= init_extended_color(10, RGB(22, 198, 12)); // bright green
+    ret |= init_extended_color(11, RGB(249, 241, 165)); // bright yellow
+    ret |= init_extended_color(12, RGB(59, 120, 255)); // bright blue
+    ret |= init_extended_color(13, RGB(180, 0, 158)); // bright magenta
+    ret |= init_extended_color(14, RGB(97, 214, 214)); // bright cyan
+    ret |= init_extended_color(15, RGB(242, 242, 242)); // bright white
   }
   return ret;
 }
@@ -38,10 +47,16 @@ init_8bit_colors(void){
   for(r = 0 ; r < 6 ; ++r){
     for(g = 0 ; g < 6 ; ++g){
       for(b = 0 ; b < 6 ; ++b){
-        if(init_extended_color(idx++, r * RGBSTEP, g * RGBSTEP, b * RGBSTEP)){
-          fprintf(stderr, "Error initializing color %d\n", idx - 1);
+        if(idx == 16){
+          if(init_extended_color(idx, MAXHUE, MAXHUE, MAXHUE)){
+            fprintf(stderr, "Error initializing color %d\n", idx);
+            return -1;
+          }
+        }else if(init_extended_color(idx, r * RGBSTEP, g * RGBSTEP, b * RGBSTEP)){
+          fprintf(stderr, "Error initializing color %d\n", idx);
           return -1;
         }
+        ++idx;
       }
     }
   }
@@ -82,7 +97,7 @@ int prep_colors(void){
     if(init_8bit_colors()){ // calls init_system_colors()
       return -1;
     }
-  }else if(COLORS >= 16){
+  }else if(COLORS >= 8){
     if(init_system_colors()){
       return -1;
     }
