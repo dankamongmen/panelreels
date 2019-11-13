@@ -10,6 +10,7 @@ typedef struct tabletctx {
   struct tablet* t;
   int lines;
   int cpair;
+  unsigned id;
   struct tabletctx* next;
   pthread_mutex_t lock;
 } tabletctx;
@@ -36,7 +37,7 @@ tabletdraw(PANEL* p, int begx, int begy, int maxx, int maxy, bool cliptop,
     }
     int cpair = COLOR_BRIGHTWHITE;
     wattr_set(w, A_NORMAL, 0, &cpair);
-    mvwprintw(w, begy, begx, "[%x/%x] ", begy, maxy);
+    mvwprintw(w, begy, begx, "[#%u %u/%u] ", tctx->id, begy, maxy);
   }
   pthread_mutex_unlock(&tctx->lock);
   assert(OK == err);
@@ -70,7 +71,7 @@ tablet_thread(void* vtabletctx){
 }
 
 static tabletctx*
-new_tabletctx(struct panelreel* pr){
+new_tabletctx(struct panelreel* pr, unsigned *id){
   tabletctx* tctx = malloc(sizeof(*tctx));
   if(tctx == NULL){
     return NULL;
@@ -79,6 +80,7 @@ new_tabletctx(struct panelreel* pr){
   tctx->pr = pr;
   tctx->lines = random() % 10; // FIXME a nice gaussian would be swell
   tctx->cpair = random() % COLORS;
+  tctx->id = ++*id;
   if((tctx->t = add_tablet(pr, NULL, NULL, tabletdraw, tctx)) == NULL){
     pthread_mutex_destroy(&tctx->lock);
     free(tctx);
@@ -119,6 +121,7 @@ struct panelreel* panelreel_demo(WINDOW* w){
   int key;
   mvwprintw(w, 1, 1, "a, b, c create tablets, q quits.");
   clrtoeol();
+  unsigned id = 0;
   do{
     pair = COLOR_RED;
     wattr_set(w, A_NORMAL, 0, &pair);
@@ -132,9 +135,9 @@ struct panelreel* panelreel_demo(WINDOW* w){
     struct tabletctx* newtablet = NULL;
     clrtoeol();
     switch(key){
-      case 'a': newtablet = new_tabletctx(pr); break;
-      case 'b': newtablet = new_tabletctx(pr); break;
-      case 'c': newtablet = new_tabletctx(pr); break;
+      case 'a': newtablet = new_tabletctx(pr, &id); break;
+      case 'b': newtablet = new_tabletctx(pr, &id); break;
+      case 'c': newtablet = new_tabletctx(pr, &id); break;
       case KEY_LEFT:
       case 'h': --x; if(panelreel_move(pr, x, y)){ ++x; } break;
       case KEY_RIGHT:
