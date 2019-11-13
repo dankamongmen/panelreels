@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <assert.h>
 #include <pthread.h>
 #include <outcurses.h>
 #include "demo.h"
@@ -16,6 +17,7 @@ typedef struct tabletctx {
 static int
 tabletdraw(PANEL* p, int begx, int begy, int maxx, int maxy, bool cliptop,
            void* vtabletctx){
+  int err = 0;
   tabletctx* tctx = vtabletctx;
   pthread_mutex_lock(&tctx->lock);
   int x, y;
@@ -24,16 +26,20 @@ tabletdraw(PANEL* p, int begx, int begy, int maxx, int maxy, bool cliptop,
     if(y - begy >= tctx->lines){
       break;
     }
-    wmove(w, y, begx);
+    err |= wmove(w, y, begx);
     cchar_t cch;
-    wchar_t cchbuf[3];
-    swprintf(cchbuf, sizeof(cchbuf) / sizeof(*cchbuf), L"%x", tctx->lines);
+    wchar_t cchbuf[2];
+    swprintf(cchbuf, sizeof(cchbuf) / sizeof(*cchbuf), L"%x", tctx->lines % 16);
     setcchar(&cch, cchbuf, A_NORMAL, 0, &tctx->cpair);
     for(x = begx ; x < maxx ; ++x){
-      wadd_wch(w, &cch);
+      err |= wadd_wch(w, &cch);
     }
+    int cpair = COLOR_BRIGHTWHITE;
+    wattr_set(w, A_NORMAL, 0, &cpair);
+    mvwprintw(w, begy, begx, "[%x/%x] ", begy, maxy);
   }
   pthread_mutex_unlock(&tctx->lock);
+  assert(OK == err);
   return y - begy;
 }
 
