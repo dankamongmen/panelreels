@@ -71,7 +71,7 @@ int widecolor_demo(WINDOW* w){
     L"Ic mæg glæs eotan ond hit ne hearmiað me",
     L"Ich canne glas eten and hit hirtiþ me nouȝt",
     L"I can eat glass and it doesn't hurt me",
-    L"[aɪ kæn iːt glɑːs ænd ɪt dɐz nɒt hɜːt miː] (Received Pronunciation",
+    L"aɪ kæn iːt glɑːs ænd ɪt dɐz nɒt hɜːt mi",
     L"⠊⠀⠉⠁⠝⠀⠑⠁⠞⠀⠛⠇⠁⠎⠎⠀⠁⠝⠙⠀⠊⠞⠀⠙⠕⠑⠎⠝⠞⠀⠓⠥⠗⠞⠀⠍",
     L"Mi kian niam glas han i neba hot mi",
     L"Ah can eat gless, it disnae hurt us",
@@ -99,7 +99,7 @@ int widecolor_demo(WINDOW* w){
     L"我能吞下玻璃而不伤身体",
     L"我能吞下玻璃而不傷身體",
     L"Góa ē-tàng chia̍h po-lê, mā bē tio̍h-siong",
-    L"私はガラスを食べられます。それは私を傷つけません",
+    /*L"私はガラスを食べられます。それは私を傷つけません",*/
     L"나는 유리를 먹을 수 있어요. 그래도 아프지 않아",
     L"Mi save kakae glas, hemi no save katem mi",
     L"Hiki iaʻu ke ʻai i ke aniani; ʻaʻole nō lā au e ʻeha",
