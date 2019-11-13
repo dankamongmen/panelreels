@@ -3,28 +3,29 @@
 #include <iostream>
 
 void fade_setup(WINDOW* w) {
-  wborder(w, 0, 0, 0, 0, 0, 0, 0, 0);
-  wmove(w, 1, 1);
+  EXPECT_EQ(OK, wborder(w, 0, 0, 0, 0, 0, 0, 0, 0));
+  EXPECT_EQ(OK, wmove(w, 1, 1));
   const auto PERLINE = 16;
   for(int i = 0 ; i < COLORS ; i += PERLINE){
-    wmove(w, i / PERLINE + 1, 1);
+    EXPECT_EQ(OK, wmove(w, i / PERLINE + 1, 1));
     for(int j = 0 ; j < PERLINE ; ++j){
       if(i + j >= COLORS){
         break;
       }
-      wattrset(w, COLOR_PAIR(i + j));
-      wprintw(w, "*");
-      wattrset(w, A_DIM | COLOR_PAIR(i + j));
-      wprintw(w, "*");
-      wattrset(w, A_BOLD | COLOR_PAIR(i + j));
-      wprintw(w, "*");
+      int cpair = i + j;
+      EXPECT_EQ(OK, wattr_set(w, A_NORMAL, 0, &cpair));
+      EXPECT_EQ(OK, wprintw(w, "*"));
+      EXPECT_EQ(OK, wattr_set(w, A_DIM, 0, &cpair));
+      EXPECT_EQ(OK, wprintw(w, "*"));
+      EXPECT_EQ(OK, wattr_set(w, A_BOLD, 0, &cpair));
+      EXPECT_EQ(OK, wprintw(w, "*"));
       if(j % PERLINE == PERLINE / 2){
-        wprintw(w, " ");
+        EXPECT_EQ(OK, wprintw(w, " "));
       }
 	  }
-    wprintw(w, " (%3d)", i);
+    EXPECT_EQ(OK, wprintw(w, " (%3d)", i));
   }
-  wrefresh(w);
+  EXPECT_EQ(OK, wrefresh(w));
 }
 
 TEST(OutcursesFade, FadeOut) {
