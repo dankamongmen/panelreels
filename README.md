@@ -3,6 +3,10 @@ by Nick Black <dankamongmen@gmail.com>
 
 [![Build Status](https://drone.dsscaw.com:4443/api/badges/dankamongmen/outcurses/status.svg)](https://drone.dsscaw.com:4443/dankamongmen/outcurses)
 
+<p align="center">
+<img width="640" height="366" src="doc/outcurses.png"/>
+</p>
+
 Outcurses is middleware atop NCURSES by Thomas Dickey et al, in the spirit of
 the Panels, Menu, and Forms extensions. Its capabilities include "panelreels",
 palette fades, and other miscellany.
