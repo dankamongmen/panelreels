@@ -25,14 +25,26 @@ set_target_properties(outcurses PROPERTIES
 #find_package(Curses 6.1 REQUIRED)
 pkg_check_modules(CURSES REQUIRED ncursesw>=6.1)
 pkg_check_modules(PANEL REQUIRED panelw>=6.1)
+find_path(AVUTIL_INCLUDE_DIR libavutil/avutil.h)
+pkg_check_modules(AVUTIL REQUIRED libavutil)
+pkg_check_modules(SWSCALE REQUIRED libswscale)
+pkg_check_modules(AVFILTER REQUIRED libavfilter)
 target_include_directories(outcurses
   PRIVATE
+    ${PANEL_INCLUDE_DIR}
     ${CURSES_INCLUDE_DIR}
+    ${AVUTIL_INCLUDE_DIR}
+    ${SWSCALE_INCLUDE_DIR}
+    ${AVFILTER_INCLUDE_DIR}
 )
 target_link_libraries(outcurses
   INTERFACE
     ${PANEL_LIBRARIES}
     ${CURSES_LIBRARIES}
+  PRIVATE
+    ${AVUTIL_LIBRARIES}
+    ${SWSCALE_LIBRARIES}
+    ${AVFILTER_LIBRARIES}
 )
 # FIXME ideally this would come from FindCurses.cmake
 target_compile_definitions(outcurses PRIVATE
