@@ -136,6 +136,7 @@ tablet_columns(const panelreel* pr, int* begx, int* begy, int* lenx, int* leny,
   // account for the panelreel borders
   if(direction <= 0 && !(pr->popts.bordermask & BORDERMASK_TOP)){
     ++*begy;
+    --*leny;
   }
   if(direction >= 0 && !(pr->popts.bordermask & BORDERMASK_BOTTOM)){
     --*leny;
@@ -148,12 +149,11 @@ tablet_columns(const panelreel* pr, int* begx, int* begy, int* lenx, int* leny,
   }
   // at this point, our coordinates describe the largest possible tablet for
   // this panelreel. this is the correct solution for the focused tablet.
-  if(direction == 0){
-    return;
+  if(direction >= 0){
+    *leny -= (frontiery - *begy);
+    *begy = frontiery;
   }else if(direction < 0){
     *leny = frontiery - *begy;
-  }else{
-    *begy = frontiery;
   }
 }
 
@@ -198,7 +198,7 @@ panelreel_draw_tablet(const panelreel* pr, tablet* t, int frontiery,
   }
   if(t->update_pending){
     // discount for inhibited borders FIXME
-    wresize(w, leny - 1, lenx);
+    wresize(w, leny + 1, lenx + 1);
     ll = t->cbfxn(fp, 1, 1, lenx - 1, leny - 1, false, t->curry);
     t->update_pending = false;
     if(ll != leny - 1){
@@ -222,7 +222,11 @@ panelreel_draw_tablet(const panelreel* pr, tablet* t, int frontiery,
 // this tablet ought be there.
 static int
 panelreel_draw_focused(const panelreel* pr, tablet* focused){
-  return panelreel_draw_tablet(pr, focused, 1 /*FIXME*/, 0);
+  unsigned focusline = getbegy(panel_window(pr->p)); // FIXME
+  if(!(pr->popts.bordermask & BORDERMASK_TOP)){
+    ++focusline;
+  }
+  return panelreel_draw_tablet(pr, focused, focusline, 0);
 }
 
 // Arrange the panels, starting with the focused window, wherever it may be.
@@ -252,14 +256,14 @@ panelreel_arrange(const panelreel* pr, int direction){
     }
     ret |= panelreel_draw_tablet(pr, working, frontiery, 1);
     window_coordinates(panel_window(working->p), &wbegy, &wbegx, &wleny, &wlenx);
-    wmaxy = wbegy + wleny - 1;
-    frontiery = wmaxy + 2;
+    wmaxy = wbegy + wleny;
+    frontiery = wmaxy + 1;
   }
   // FIXME keep going forward, hiding those no longer visible
   // move up above the focused tablet, filling up the reel to the top
   working = focused;
   window_coordinates(panel_window(working->p), &wbegy, &wbegx, &wleny, &wlenx);
-  frontiery = wbegy - 2;
+  frontiery = wbegy - 1;
   while(frontiery > pbegy + 1){
     if((working = working->prev) == focused){
       break;
@@ -356,20 +360,6 @@ panelreel* create_panelreel(WINDOW* w, const panelreel_options* popts,
   }
   return pr;
 }
-
-// Ought the specified tablet currently be (at least in part) visible? This is
-// independent of whether it is currently visible, and derived instead from the
-// prime source of truth regarding layout--the focused tablet, and its position.
-// Returns true if the tablet is visible, setting *vline to the first row
-// within the visible panelreel occupied by the tablet. Note that this might not
-// be where the tablet's first line would be, if the tablet is only partially
-// visible at the top of the reel. Tablets are never split across the top and
-// bottom; they are zero or more contiguous lines in a reel.
-/*static bool
-tablet_visible_p(const panelreel* pr, tablet* t){
-  // FIXME
-  return true;
-}*/
 
 tablet* add_tablet(panelreel* pr, tablet* after, tablet *before,
                    tabletcb cbfxn, void* opaque){
@@ -507,7 +497,6 @@ int panelreel_move(panelreel* preel, int x, int y){
         if(t->p == NULL){
           break;
         }
-        // FIXME can move some twice
         move_reel_panel(t->p, deltax, deltay);
       }
     }
