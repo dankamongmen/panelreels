@@ -208,6 +208,8 @@ bprefix(uintmax_t val, unsigned decimal, char *buf, int omitdec){
   return enmetric(val, decimal, buf, omitdec, 1024, 'i');
 }
 
+#define COLOR_BRIGHTWHITE 16
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

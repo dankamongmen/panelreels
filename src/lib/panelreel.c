@@ -198,6 +198,7 @@ panelreel_draw_tablet(const panelreel* pr, tablet* t, int frontiery,
   }
   if(t->update_pending){
     // discount for inhibited borders FIXME
+    wresize(w, leny - 1, lenx);
     ll = t->cbfxn(fp, 1, 1, lenx - 1, leny - 1, false, t->curry);
     t->update_pending = false;
     if(ll != leny - 1){
