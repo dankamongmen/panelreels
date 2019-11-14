@@ -351,6 +351,6 @@ Most of the multilingual text used in the demo comes from Frank da Cruz et al's
 [UTF-8 Sampler](http://kermitproject.org/utf8.html).
 
 Grandmaster Thomas E. Dickey is a true hacker, and his
-[https://invisible-island.net/ncurses/ncurses.faq.html](NCURSES FAQ) is not
-only a deeply authoritative  bit of technical exposition, but also
+[NCURSES FAQ](https://invisible-island.net/ncurses/ncurses.faq.html) is not
+only a deeply authoritative bit of technical exposition, but also
 overflowing with delicious snark.
