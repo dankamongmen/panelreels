@@ -7,9 +7,10 @@ by Nick Black <dankamongmen@gmail.com>
 <img width="640" height="366" src="doc/outcurses.png"/>
 </p>
 
-Outcurses is middleware atop the NCURSES of Thomas Dickey et al, in the spirit
-of that library's Panels, Menu, and Forms extensions. Its capabilities include
-"panelreels", palette fades, and other miscellany.
+Outcurses is middleware atop the [NCURSES](https://www.gnu.org/software/ncurses/ncurses.html)
+of Thomas Dickey et al, in the spirit of that library's Panels, Menu, and Forms
+extensions. Its capabilities include "panelreels", palette fades, and other
+miscellany.
 
 ## Building
 
