@@ -10,7 +10,7 @@ by Nick Black <dankamongmen@gmail.com>
 Outcurses is middleware atop the [NCURSES](https://www.gnu.org/software/ncurses/ncurses.html)
 of Thomas Dickey et al, in the spirit of that library's Panels, Menu, and Forms
 extensions. Its capabilities include "panelreels", palette fades, and other
-miscellany.
+miscellany…and I have a few exciting ideas.
 
 ## Building
 
