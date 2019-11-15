@@ -30,6 +30,8 @@ typedef struct panelreel {
   int tabletcount;         // could be derived, but we keep it o(1)
 } panelreel;
 
+// Returns the starting coordinates (relative to the screen) of the specified
+// window, and its length. End is (begx + lenx - 1, begy + leny - 1).
 static inline void
 window_coordinates(const WINDOW* w, int* begy, int* begx, int* leny, int* lenx){
   *begx = getbegx(w);
@@ -554,16 +556,33 @@ int panelreel_prev(panelreel* pr){
 int panelreel_validate(WINDOW* parent, panelreel* pr){
   PANEL* p = pr->p;
   WINDOW* w = panel_window(p);
+  // First, verify geometry relative to parent window and offset parameters
   int parentx, parenty, parentlenx, parentleny;
-  int x, y, lenx, leny;
-  getbegyx(w, y, x);
-  getmaxyx(w, leny, lenx);
+  int x, y, lenx, leny, parx, pary;
+  // begyx gives coordinates (relative to stdscr) of upper-left corner.
+  // maxyx gives *size*. max + beg - 1 is last addressable position.
+  // paryx gives coordinates relative to parent window (-1 if not subwin)
+  window_coordinates(w, &y, &x, &leny, &lenx);
   getbegyx(parent, parenty, parentx);
   getmaxyx(parent, parentleny, parentlenx);
-  // 2 2 76 39 1 1 78 41 (standard borders)
+  getparyx(w, pary, parx);
+  int maxx, maxy;
+  maxx = lenx + x - 1;
+  maxy = leny + y - 1;
   if(y != parenty + pr->popts.toff){
     return -1;
   }
+  assert(pary == -1);
+  assert(parx == -1);
+  /* we're not a subwin
+  assert(pary == pr->popts.toff);
+  if(pary != pr->popts.toff){
+    return -1;
+  }
+  assert(parx == pr->popts.loff);
+  if(parx != pr->popts.loff){
+    return -1;
+  }*/
   if(x != parentx + pr->popts.loff){
     return -1;
   }
@@ -572,6 +591,60 @@ int panelreel_validate(WINDOW* parent, panelreel* pr){
   }
   if(lenx != parentlenx - (pr->popts.loff + pr->popts.roff)){
     return -1;
+  }
+  // Verify tablet placing and coverage of the space. Assuming we have
+  // sufficient tablets, we ought cover [y, maxy], (y, maxy], or [y, maxy),
+  // less reel borders. We ought otherwise cover [y, ...). Tablets ought be
+  // spaced by the prescribed gap. Hidden tablets ought not have panels.
+  int tstart = y - 1;
+  int tend = maxy + 1;
+  if(pr->tablets){
+    tablet* t = pr->tablets;
+    PANEL* tp;
+    WINDOW* tw;
+    int tx, ty, lentx, lenty;
+    do{
+      tp = t->p;
+      if(tp == NULL){ // FIXME verify that no later ones have a PANEL
+        break;
+      }
+      tw = panel_window(tp);
+      assert(tw);
+      if(tw == NULL){ // panel should never lack a window
+        return -1;
+      }
+      window_coordinates(tw, &ty, &tx, &lenty, &lentx);
+      int maxty = ty + lenty - 1;
+      if(tstart == y - 1){
+        tstart = ty;
+      }else{
+        assert(ty == tend + 2);
+        if(ty != tend + 2){
+          return -1;
+        }
+      }
+      tend = maxty;
+    }while((t = t->prev) != pr->tablets);
+    if(t != pr->tablets){ // don't repeat if we covered all tablets
+      for(t = pr->tablets->next ; t != pr->tablets ; t = t->next){
+        tp = t->p;
+        if(tp == NULL){ // FIXME verify that no later ones have a PANEL
+          break;
+        }
+        tw = panel_window(tp);
+        if(tw == NULL){ // panel should never lack a window
+          assert(tw);
+          return -1;
+        }
+        window_coordinates(tw, &ty, &tx, &lenty, &lentx);
+        int maxty = ty + lenty - 1;
+        if(maxty != tstart - 2){
+          assert(maxty == tstart - 2);
+          return -1;
+        }
+        tstart = ty;
+      }
+    }
   }
   return 0;
 }
