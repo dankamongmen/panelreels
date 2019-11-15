@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <getopt.h>
 #include <locale.h>
 #include <outcurses.h>
 #include "demo.h"
@@ -16,9 +17,7 @@ print_intro(WINDOW *w){
 }
 
 static int
-demo(WINDOW* w){
-  print_intro(w);
-  widecolor_demo(w);
+prdemo(WINDOW* w){
   struct panelreel* pr;
   if((pr = panelreel_demo(w)) == NULL){
     return -1;
@@ -31,8 +30,19 @@ demo(WINDOW* w){
   return 0;
 }
 
-int main(void){
-  int ret = EXIT_FAILURE;
+static void
+usage(const char* basename, int status){
+  FILE* f = status == EXIT_SUCCESS ? stdout : stderr;
+  fprintf(f, "usage: %s [ -h | -w | -p ]\n", basename);
+  fprintf(f, " -p: only panelreel demo\n");
+  fprintf(f, " -w: only widechar demo\n");
+  fprintf(f, " -h: this message\n");
+  exit(status);
+}
+
+int main(int argc, char** argv){
+  bool only_panelreel = false;
+  bool only_widechar = false;
   WINDOW* w;
 
   if(!setlocale(LC_ALL, "")){
@@ -43,8 +53,38 @@ int main(void){
     fprintf(stderr, "Error initializing outcurses\n");
     return EXIT_FAILURE;
   }
-  if(demo(w) == 0){
-    ret = EXIT_SUCCESS;
+  int c;
+  while((c = getopt(argc, argv, "hpw")) != EOF){
+    switch(c){
+      case 'p':
+        if(only_widechar){
+          usage(*argv, EXIT_FAILURE);
+        }
+        only_panelreel = true;
+        break;
+      case 'w':
+        if(only_panelreel){
+          usage(*argv, EXIT_FAILURE);
+        }
+        only_widechar = true;
+        break;
+      case 'h':
+        usage(*argv, EXIT_SUCCESS);
+        break;
+      default:
+        usage(*argv, EXIT_FAILURE);
+        break;
+    }
+  }
+  int ret = EXIT_SUCCESS;
+  if(!only_panelreel && !only_widechar){
+    print_intro(w);
+  }
+  if(!only_panelreel){
+    ret |= widecolor_demo(w);
+  }
+  if(!only_widechar){
+    ret |= prdemo(w);
   }
   if(stop_outcurses(true)){
     fprintf(stderr, "Error initializing outcurses\n");
