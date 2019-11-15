@@ -160,6 +160,7 @@ TEST(OutcursesPanelReel, InitWithinSubwin) {
   p.infinitescroll = true;
   p.circular = true;
   ASSERT_NE(nullptr, init_outcurses(true));
+  EXPECT_EQ(0, clear());
   PANEL* base = make_targwin(stdscr);
   ASSERT_NE(nullptr, base);
   WINDOW* basew = panel_window(base);
