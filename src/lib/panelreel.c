@@ -431,7 +431,6 @@ tablet* add_tablet(panelreel* pr, tablet* after, tablet *before,
     t->update_pending = false;
     t->p = NULL;
     ++pr->tabletcount;
-fprintf(stderr, "ADDING TABLET %d\n", pr->tabletcount);
     if(panelreel_redraw(pr)){
       return NULL; // FIXME
     }

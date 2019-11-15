@@ -52,6 +52,22 @@ TEST(OutcursesPanelReel, FiniteCircleRejected) {
   ASSERT_EQ(0, stop_outcurses(true));
 }
 
+// We ought be able to invoke panelreel_next() and panelreel_prev() safely,
+// even if there are no tablets.
+TEST(OutcursesPanelReel, MovementWithoutTablets) {
+  if(getenv("TERM") == nullptr){
+    GTEST_SKIP();
+  }
+  panelreel_options p{};
+  p.infinitescroll = false;
+  ASSERT_NE(nullptr, init_outcurses(true));
+  struct panelreel* pr = create_panelreel(stdscr, &p);
+  ASSERT_NE(nullptr, pr);
+  EXPECT_EQ(0, panelreel_next(pr));
+  EXPECT_EQ(0, panelreel_prev(pr));
+  ASSERT_EQ(0, stop_outcurses(true));
+}
+
 int panelcb(PANEL* p, int begx, int begy, int maxx, int maxy, bool cliptop,
             void* curry){
   EXPECT_NE(nullptr, p);
@@ -59,10 +75,11 @@ int panelcb(PANEL* p, int begx, int begy, int maxx, int maxy, bool cliptop,
   EXPECT_LT(begy, maxy);
   EXPECT_EQ(nullptr, curry);
   EXPECT_FALSE(cliptop);
+  // FIXME verify geometry is as expected
   return 0;
 }
 
-TEST(OutcursesPanelReel, OnePanel) {
+TEST(OutcursesPanelReel, OneTablet) {
   if(getenv("TERM") == nullptr){
     GTEST_SKIP();
   }
@@ -73,7 +90,22 @@ TEST(OutcursesPanelReel, OnePanel) {
   ASSERT_NE(nullptr, pr);
   struct tablet* t = add_tablet(pr, nullptr, nullptr, panelcb, nullptr);
   ASSERT_NE(nullptr, t);
-  // FIXME remove it
+  EXPECT_EQ(0, del_tablet(pr, t));
+  ASSERT_EQ(0, stop_outcurses(true));
+}
+
+TEST(OutcursesPanelReel, DeleteActiveTablet) {
+  if(getenv("TERM") == nullptr){
+    GTEST_SKIP();
+  }
+  panelreel_options p{};
+  p.infinitescroll = false;
+  ASSERT_NE(nullptr, init_outcurses(true));
+  struct panelreel* pr = create_panelreel(stdscr, &p);
+  ASSERT_NE(nullptr, pr);
+  struct tablet* t = add_tablet(pr, nullptr, nullptr, panelcb, nullptr);
+  ASSERT_NE(nullptr, t);
+  EXPECT_EQ(0, del_active_tablet(pr));
   ASSERT_EQ(0, stop_outcurses(true));
 }
 
@@ -168,7 +200,7 @@ TEST(OutcursesPanelReel, InitWithinSubwin) {
   struct panelreel* pr = create_panelreel(basew, &p);
   ASSERT_NE(nullptr, pr);
   ASSERT_EQ(0, destroy_panelreel(pr));
-  sleep(3); // time to inspect
+  // FIXME inspect that fucker
   EXPECT_EQ(OK, del_panel(base));
   EXPECT_EQ(OK, delwin(basew));
   ASSERT_EQ(0, stop_outcurses(true));
