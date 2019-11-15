@@ -58,13 +58,13 @@ tablet_thread(void* vtabletctx){
     nanosleep(&ts, NULL);
     int action = random() % 5;
     if(action < 2){
-      if((tctx->lines -= (action + 1)) < 0){
-        tctx->lines = 0;
+      if((tctx->lines -= (action + 1)) < 1){
+        tctx->lines = 1;
       }
       tablet_update(tctx->pr, tctx->t);
     }else if(action > 2){
-      if((tctx->lines += (action - 2)) < 0){
-        tctx->lines = 0;
+      if((tctx->lines += (action - 2)) < 1){
+        tctx->lines = 1;
       }
       tablet_update(tctx->pr, tctx->t);
     }
@@ -160,6 +160,7 @@ struct panelreel* panelreel_demo(WINDOW* w){
       newtablet->next = tctxs;
       tctxs = newtablet;
     }
+    panelreel_validate(w, pr); // do what, if not assert()ing? FIXME
   }while(key != 'q');
   // FIXME join all threads
   return pr;
