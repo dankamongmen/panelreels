@@ -195,8 +195,26 @@ TEST_F(PanelReelTest, InitWithinSubwin) {
   p.roff = 1;
   p.toff = 1;
   p.boff = 1;
-  p.infinitescroll = true;
-  p.circular = true;
+  ASSERT_NE(nullptr, init_outcurses(true));
+  EXPECT_EQ(0, clear());
+  PANEL* base = make_targwin(stdscr);
+  ASSERT_NE(nullptr, base);
+  WINDOW* basew = panel_window(base);
+  ASSERT_NE(nullptr, basew);
+  struct panelreel* pr = create_panelreel(basew, &p);
+  ASSERT_NE(nullptr, pr);
+  EXPECT_EQ(0, panelreel_validate(basew, pr));
+  ASSERT_EQ(0, destroy_panelreel(pr));
+  EXPECT_EQ(OK, del_panel(base));
+  EXPECT_EQ(OK, delwin(basew));
+  ASSERT_EQ(0, stop_outcurses(true));
+}
+
+TEST_F(PanelReelTest, SubwinNoOffsetGeom) {
+  if(getenv("TERM") == nullptr){
+    GTEST_SKIP();
+  }
+  panelreel_options p{};
   ASSERT_NE(nullptr, init_outcurses(true));
   EXPECT_EQ(0, clear());
   PANEL* base = make_targwin(stdscr);

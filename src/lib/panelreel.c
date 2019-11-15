@@ -561,16 +561,16 @@ int panelreel_validate(WINDOW* parent, panelreel* pr){
   getbegyx(parent, parenty, parentx);
   getmaxyx(parent, parentleny, parentlenx);
   // 2 2 76 39 1 1 78 41 (standard borders)
-  if(y != parenty + 1){
+  if(y != parenty + pr->popts.toff){
     return -1;
   }
-  if(x != parentx + 1){
+  if(x != parentx + pr->popts.loff){
     return -1;
   }
-  if(leny != parentleny - 2){
+  if(leny != parentleny - (pr->popts.toff + pr->popts.boff)){
     return -1;
   }
-  if(lenx != parentlenx - 2){
+  if(lenx != parentlenx - (pr->popts.loff + pr->popts.roff)){
     return -1;
   }
   return 0;
