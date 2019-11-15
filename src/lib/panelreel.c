@@ -132,13 +132,10 @@ tablet_columns(const panelreel* pr, int* begx, int* begy, int* lenx, int* leny,
                int frontiery, int direction){
   WINDOW* w = panel_window(pr->p);
   window_coordinates(w, begy, begx, leny, lenx);
-fprintf(stderr, "MAIN WINDOW: %d/%d -> %d/%d\n", *begy, *begx, *leny, *lenx);
   if(frontiery < 1){ // FIXME account for borders
-fprintf(stderr, "FRONTIER DEAD UP TOP %d\n", frontiery);
     return -1;
   }
   if(frontiery >= *leny){
-fprintf(stderr, "FRONTIER DEAD DOWN BELOW %d %d\n", frontiery, *leny);
     return -1;
   }
   --*lenx;
@@ -193,7 +190,6 @@ panelreel_draw_tablet(const panelreel* pr, tablet* t, int frontiery,
     }
     return 0;
   }
-fprintf(stderr, "drawing FRONTIER %d %d/%d + %d/%d\n", frontiery, begy, begx, leny, lenx);
   if(fp == NULL){ // create a panel for the tablet
     w = newwin(leny + 1, lenx, begy, begx);
     if(w == NULL){
@@ -219,7 +215,6 @@ fprintf(stderr, "drawing FRONTIER %d %d/%d + %d/%d\n", frontiery, begy, begx, le
       getmaxyx(w, truey, truex);
     }
     if(begy != trueby){
-fprintf(stderr, "MOVING TO %d/%d\n", begy, begx);
       if(move_panel(fp, begy, begx)){
         assert(false);
         return -1;
@@ -228,7 +223,6 @@ fprintf(stderr, "MOVING TO %d/%d\n", begy, begx);
   }
   if(t->update_pending){
     // discount for inhibited borders FIXME
-fprintf(stderr, "resizing to %d/%d\n", leny, lenx + 1);
     wresize(w, leny, lenx + 1);
     int ll = t->cbfxn(fp, 1, 1, lenx - 1, leny, false, t->curry);
     t->update_pending = false;
@@ -553,4 +547,31 @@ int panelreel_prev(panelreel* pr){
     pr->tablets = pr->tablets->prev;
   }
   return panelreel_redraw(pr);
+}
+
+// Used for unit tests. Step through the panelreel and verify that everything
+// seems to be where it ought be, considering its parent WINDOW.
+int panelreel_validate(WINDOW* parent, panelreel* pr){
+  PANEL* p = pr->p;
+  WINDOW* w = panel_window(p);
+  int parentx, parenty, parentlenx, parentleny;
+  int x, y, lenx, leny;
+  getbegyx(w, y, x);
+  getmaxyx(w, leny, lenx);
+  getbegyx(parent, parenty, parentx);
+  getmaxyx(parent, parentleny, parentlenx);
+  // 2 2 76 39 1 1 78 41 (standard borders)
+  if(y != parenty + 1){
+    return -1;
+  }
+  if(x != parentx + 1){
+    return -1;
+  }
+  if(leny != parentleny - 2){
+    return -1;
+  }
+  if(lenx != parentlenx - 2){
+    return -1;
+  }
+  return 0;
 }

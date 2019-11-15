@@ -1,7 +1,13 @@
 #include "main.h"
 #include <iostream>
 
-TEST(OutcursesPanelReel, InitLinear) {
+class PanelReelTest : public :: testing::Test {
+  void TearDown() override {
+    endwin();
+  }
+};
+
+TEST_F(PanelReelTest, InitLinear) {
   if(getenv("TERM") == nullptr){
     GTEST_SKIP();
   }
@@ -12,7 +18,7 @@ TEST(OutcursesPanelReel, InitLinear) {
   ASSERT_EQ(0, stop_outcurses(true));
 }
 
-TEST(OutcursesPanelReel, InitLinearInfinite) {
+TEST_F(PanelReelTest, InitLinearInfinite) {
   if(getenv("TERM") == nullptr){
     GTEST_SKIP();
   }
@@ -24,7 +30,7 @@ TEST(OutcursesPanelReel, InitLinearInfinite) {
   ASSERT_EQ(0, stop_outcurses(true));
 }
 
-TEST(OutcursesPanelReel, InitCircular) {
+TEST_F(PanelReelTest, InitCircular) {
   if(getenv("TERM") == nullptr){
     GTEST_SKIP();
   }
@@ -39,7 +45,7 @@ TEST(OutcursesPanelReel, InitCircular) {
 }
 
 // circular is not allowed to be true when infinitescroll is false
-TEST(OutcursesPanelReel, FiniteCircleRejected) {
+TEST_F(PanelReelTest, FiniteCircleRejected) {
   if(getenv("TERM") == nullptr){
     GTEST_SKIP();
   }
@@ -54,7 +60,7 @@ TEST(OutcursesPanelReel, FiniteCircleRejected) {
 
 // We ought be able to invoke panelreel_next() and panelreel_prev() safely,
 // even if there are no tablets.
-TEST(OutcursesPanelReel, MovementWithoutTablets) {
+TEST_F(PanelReelTest, MovementWithoutTablets) {
   if(getenv("TERM") == nullptr){
     GTEST_SKIP();
   }
@@ -79,7 +85,7 @@ int panelcb(PANEL* p, int begx, int begy, int maxx, int maxy, bool cliptop,
   return 0;
 }
 
-TEST(OutcursesPanelReel, OneTablet) {
+TEST_F(PanelReelTest, OneTablet) {
   if(getenv("TERM") == nullptr){
     GTEST_SKIP();
   }
@@ -94,7 +100,7 @@ TEST(OutcursesPanelReel, OneTablet) {
   ASSERT_EQ(0, stop_outcurses(true));
 }
 
-TEST(OutcursesPanelReel, DeleteActiveTablet) {
+TEST_F(PanelReelTest, DeleteActiveTablet) {
   if(getenv("TERM") == nullptr){
     GTEST_SKIP();
   }
@@ -109,7 +115,7 @@ TEST(OutcursesPanelReel, DeleteActiveTablet) {
   ASSERT_EQ(0, stop_outcurses(true));
 }
 
-TEST(OutcursesPanelReel, NoBorder) {
+TEST_F(PanelReelTest, NoBorder) {
   if(getenv("TERM") == nullptr){
     GTEST_SKIP();
   }
@@ -122,7 +128,7 @@ TEST(OutcursesPanelReel, NoBorder) {
   ASSERT_EQ(0, stop_outcurses(true));
 }
 
-TEST(OutcursesPanelReel, BadBorderBitsRejected) {
+TEST_F(PanelReelTest, BadBorderBitsRejected) {
   if(getenv("TERM") == nullptr){
     GTEST_SKIP();
   }
@@ -134,7 +140,7 @@ TEST(OutcursesPanelReel, BadBorderBitsRejected) {
   ASSERT_EQ(0, stop_outcurses(true));
 }
 
-TEST(OutcursesPanelReel, NoTabletBorder) {
+TEST_F(PanelReelTest, NoTabletBorder) {
   if(getenv("TERM") == nullptr){
     GTEST_SKIP();
   }
@@ -147,7 +153,7 @@ TEST(OutcursesPanelReel, NoTabletBorder) {
   ASSERT_EQ(0, stop_outcurses(true));
 }
 
-TEST(OutcursesPanelReel, BadTabletBorderBitsRejected) {
+TEST_F(PanelReelTest, BadTabletBorderBitsRejected) {
   if(getenv("TERM") == nullptr){
     GTEST_SKIP();
   }
@@ -180,7 +186,7 @@ PANEL* make_targwin(WINDOW* w) {
   return p;
 }
 
-TEST(OutcursesPanelReel, InitWithinSubwin) {
+TEST_F(PanelReelTest, InitWithinSubwin) {
   if(getenv("TERM") == nullptr){
     GTEST_SKIP();
   }
@@ -199,8 +205,8 @@ TEST(OutcursesPanelReel, InitWithinSubwin) {
   ASSERT_NE(nullptr, basew);
   struct panelreel* pr = create_panelreel(basew, &p);
   ASSERT_NE(nullptr, pr);
+  EXPECT_EQ(0, panelreel_validate(basew, pr));
   ASSERT_EQ(0, destroy_panelreel(pr));
-  // FIXME inspect that fucker
   EXPECT_EQ(OK, del_panel(base));
   EXPECT_EQ(OK, delwin(basew));
   ASSERT_EQ(0, stop_outcurses(true));

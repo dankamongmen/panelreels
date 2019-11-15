@@ -21,8 +21,8 @@ tabletdraw(PANEL* p, int begx, int begy, int maxx, int maxy, bool cliptop,
   int err = 0;
   tabletctx* tctx = vtabletctx;
   pthread_mutex_lock(&tctx->lock);
-fprintf(stderr, "--> callback for %d, %d lines (%d/%d -> %d/%d)\n", tctx->id,
-    tctx->lines, begy, begx, maxy, maxx);
+//fprintf(stderr, "--> callback for %d, %d lines (%d/%d -> %d/%d)\n", tctx->id,
+//    tctx->lines, begy, begx, maxy, maxx);
   int x, y;
   WINDOW* w = panel_window(p);
   for(y = begy ; y < maxy ; ++y){

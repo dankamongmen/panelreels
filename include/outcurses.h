@@ -61,14 +61,22 @@ enum bordermaskbits {
 };
 
 typedef struct panelreel_options {
-  // require this many rows and columns (including borders) for the panelreel
-  // to be displayed. otherwise, a message will be displayed stating that a
-  // larger terminal is necessary, and input will be queued. if 0, no minima
-  // will be enforced. may not be negative.
+  // require this many rows and columns (including borders). otherwise, a
+  // message will be displayed stating that a larger terminal is necessary, and
+  // input will be queued. if 0, no minimum will be enforced. may not be
+  // negative. note that panelreel_create() does not return error if given a
+  // WINDOW smaller than these minima; it instead patiently waits for the
+  // screen to get bigger.
   int min_supported_cols;
   int min_supported_rows;
-  // offset the panelreel within the surrounding WINDOW (top right bottom left)
-  // at creation / resize. a panelreel_move() operation updates these.
+
+  // use no more than this many rows and columns (including borders). may not be
+  // less than the corresponding minimum. 0 means no maximum.
+  int max_supported_cols;
+  int max_supported_rows;
+
+  // desired offsets within the surrounding WINDOW (top right bottom left) upon
+  // creation / resize. a panelreel_move() operation updates these.
   int toff, roff, boff, loff;
   // is scrolling infinite (can one move down or up forever, or is an end
   // reached?). if true, 'circular' specifies how to handle the special case of
@@ -209,6 +217,9 @@ static inline const char *
 bprefix(uintmax_t val, unsigned decimal, char *buf, int omitdec){
   return enmetric(val, decimal, buf, omitdec, 1024, 'i');
 }
+
+// Verify the panelreel's layout and appearance. Intended for unit testing.
+int panelreel_validate(WINDOW* parent, struct panelreel* pr);
 
 #define COLOR_BRIGHTWHITE 16
 
