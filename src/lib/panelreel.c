@@ -75,7 +75,7 @@ draw_borders(WINDOW* w, unsigned nobordermask, attr_t attr, int pair,
     }
   }
   int y;
-  for(y = begy + 1 ; y < maxy ; ++y){
+  for(y = begy + !cliphead ; y < maxy + !!clipfoot ; ++y){
     if(!(nobordermask & BORDERMASK_LEFT)){
       ret |= mvwadd_wch(w, y, begx, WACS_VLINE);
     }
