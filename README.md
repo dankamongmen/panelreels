@@ -7,9 +7,10 @@ by Nick Black <dankamongmen@gmail.com>
 <img width="640" height="366" src="doc/outcurses.png"/>
 </p>
 
-Outcurses is middleware atop NCURSES by Thomas Dickey et al, in the spirit of
-the Panels, Menu, and Forms extensions. Its capabilities include "panelreels",
-palette fades, and other miscellany.
+Outcurses is middleware atop the [NCURSES](https://www.gnu.org/software/ncurses/ncurses.html)
+of Thomas Dickey et al, in the spirit of that library's Panels, Menu, and Forms
+extensions. Its capabilities include "panelreels", palette fades, and other
+miscellany…and I have a few exciting ideas.
 
 ## Building
 
@@ -348,3 +349,8 @@ I know this doesn't have anything to do with ncurses, but eh, it's output.
 
 Most of the multilingual text used in the demo comes from Frank da Cruz et al's
 [UTF-8 Sampler](http://kermitproject.org/utf8.html).
+
+Grandmaster Thomas E. Dickey is a true hacker, and his
+[NCURSES FAQ](https://invisible-island.net/ncurses/ncurses.faq.html) is not
+only a deeply authoritative bit of technical exposition, but also
+overflowing with delicious snark.
