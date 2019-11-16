@@ -18,29 +18,35 @@ typedef struct tabletctx {
 static int
 tabletdraw(PANEL* p, int begx, int begy, int maxx, int maxy, bool cliptop,
            void* vtabletctx){
-  int err = 0;
+  int err = OK;
   tabletctx* tctx = vtabletctx;
   pthread_mutex_lock(&tctx->lock);
-//fprintf(stderr, "--> callback for %d, %d lines (%d/%d -> %d/%d)\n", tctx->id,
-//    tctx->lines, begy, begx, maxy, maxx);
   int x, y;
   WINDOW* w = panel_window(p);
-  for(y = begy ; y < maxy ; ++y){
+  cchar_t cch;
+  wchar_t cchbuf[2];
+  swprintf(cchbuf, sizeof(cchbuf) / sizeof(*cchbuf), L"%x", tctx->lines % 16);
+  setcchar(&cch, cchbuf, A_NORMAL, 0, &tctx->cpair);
+  for(y = begy ; y <= maxy ; ++y){
     if(y - begy >= tctx->lines){
       break;
     }
     err |= wmove(w, y, begx);
-    cchar_t cch;
-    wchar_t cchbuf[2];
-    swprintf(cchbuf, sizeof(cchbuf) / sizeof(*cchbuf), L"%x", tctx->lines % 16);
-    setcchar(&cch, cchbuf, A_NORMAL, 0, &tctx->cpair);
-    for(x = begx ; x < maxx ; ++x){
-      err |= wadd_wch(w, &cch);
+    for(x = begx ; x <= maxx ; ++x){
+      // lower-right corner always returns an error unless scrollok() is used
+      /*err |= */wadd_wch(w, &cch);
     }
-    int cpair = COLOR_BRIGHTWHITE;
-    wattr_set(w, A_NORMAL, 0, &cpair);
-    mvwprintw(w, begy, begx, "[#%u %u/%u] ", tctx->id, begy, maxy);
   }
+  int cpair = COLOR_BRIGHTWHITE;
+  wattr_set(w, A_NORMAL, 0, &cpair);
+  setcchar(&cch, cchbuf, A_NORMAL, 0, &cpair);
+  if(cliptop){
+    err |= mvwprintw(w, maxy, begx, "[#%u %dll %u/%u] ", tctx->id, tctx->lines, begy, maxy);
+  }else{
+    err |= mvwprintw(w, begy, begx, "[#%u %dll %u/%u] ", tctx->id, tctx->lines, begy, maxy);
+  }
+fprintf(stderr, "  \\--> callback for %d, %d lines (%d/%d -> %d/%d) wrote: %d ret: %d\n", tctx->id,
+    tctx->lines, begy, begx, maxy, maxx, y - begy, err);
   pthread_mutex_unlock(&tctx->lock);
   assert(OK == err);
   return y - begy;
@@ -80,7 +86,7 @@ new_tabletctx(struct panelreel* pr, unsigned *id){
   }
   pthread_mutex_init(&tctx->lock, NULL);
   tctx->pr = pr;
-  tctx->lines = random() % 10; // FIXME a nice gaussian would be swell
+  tctx->lines = random() % 10 + 1; // FIXME a nice gaussian would be swell
   tctx->cpair = random() % COLORS;
   tctx->id = ++*id;
   if((tctx->t = add_tablet(pr, NULL, NULL, tabletdraw, tctx)) == NULL){
