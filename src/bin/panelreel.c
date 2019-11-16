@@ -1,5 +1,7 @@
+#include <errno.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <string.h>
 #include <pthread.h>
 #include <outcurses.h>
 #include "demo.h"
@@ -14,6 +16,21 @@ typedef struct tabletctx {
   struct tabletctx* next;
   pthread_mutex_t lock;
 } tabletctx;
+
+static void
+kill_tablet(tabletctx** tctx){
+  tabletctx* t = *tctx;
+  if(pthread_cancel(t->tid)){
+    fprintf(stderr, "Warning: error sending pthread_cancel (%s)\n", strerror(errno));
+  }
+  if(pthread_join(t->tid, NULL)){
+    fprintf(stderr, "Warning: error joining pthread (%s)\n", strerror(errno));
+  }
+  del_tablet(t->pr, t->t);
+  *tctx = t->next;
+  pthread_mutex_destroy(&t->lock);
+  free(t);
+}
 
 static int
 tabletdraw(PANEL* p, int begx, int begy, int maxx, int maxy, bool cliptop,
@@ -158,7 +175,7 @@ struct panelreel* panelreel_demo(WINDOW* w){
       case 'k': panelreel_prev(pr); break;
       case KEY_DOWN:
       case 'j': panelreel_next(pr); break;
-      case KEY_DC: del_active_tablet(pr); break;
+      case KEY_DC: kill_tablet(&tctxs); break;
       case 'q': break;
       default: mvwprintw(w, 3, 2, "Unknown keycode (%d)\n", key);
     }
@@ -168,6 +185,8 @@ struct panelreel* panelreel_demo(WINDOW* w){
     }
     panelreel_validate(w, pr); // do what, if not assert()ing? FIXME
   }while(key != 'q');
-  // FIXME join all threads
+  while(tctxs){
+    kill_tablet(&tctxs);
+  }
   return pr;
 }
