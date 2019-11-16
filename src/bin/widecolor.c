@@ -195,51 +195,56 @@ int widecolor_demo(WINDOW* w){
   int count = COLORS;
   outcurses_rgb* palette;
   int key;
+  const int steps[] = { 1, 16, COLORS, COLORS + 16, 0 };
 
   palette = malloc(sizeof(*palette) * count);
   retrieve_palette(count, palette, NULL, true);
-  do{
-    int y, x, maxy, maxx;
-    getmaxyx(w, maxy, maxx);
-    --maxy;
-    --maxx;
-    int pair = COLOR_WHITE + (COLORS * COLOR_WHITE);
-    wattr_set(w, A_BOLD, 0, &pair);
-    mvwprintw(w, 0, 0, "%dx%d ", maxx, maxy);
-    wattr_set(w, A_NORMAL, 0, &pair);
-    waddwstr(w, L"wide chars, multiple colors, resize awareness…");
-    // FIXME would be nice to have this move through colors while waiting for
-    // keypress...
-    int cpair = 48 * COLORS; // nice green-red block transition on 256 colors
-    if(cpair >= COLOR_PAIRS){
-      cpair = 0;
-    }
-    // FIXME show 6x6x6 color structure?
-    do{ // we fill up the entire screen, however large
-      for(s = strs ; *s ; ++s){
-        cchar_t wch;
-        setcchar(&wch, L" ", A_NORMAL, 0, &cpair);
-        wadd_wch(w, &wch);
-        size_t idx;
-        for(idx = 0 ; idx < wcslen(*s) ; ++idx){
-          setcchar(&wch, &(*s)[idx], A_NORMAL, 0, &cpair);
+  const int* step = steps;
+  while(*step){
+    do{
+      int y, x, maxy, maxx;
+      getmaxyx(w, maxy, maxx);
+      --maxy;
+      --maxx;
+      int pair = COLOR_WHITE + (COLORS * COLOR_WHITE);
+      wattr_set(w, A_BOLD, 0, &pair);
+      mvwprintw(w, 0, 0, "%dx%d ", maxx, maxy);
+      wattr_set(w, A_NORMAL, 0, &pair);
+      waddwstr(w, L"wide chars, multiple colors, resize awareness…");
+      // FIXME would be nice to have this move through colors while waiting for
+      // keypress...
+      int cpair = 48 * COLORS; // nice green-red block transition on 256 colors
+      if(cpair >= COLOR_PAIRS){
+        cpair = 0;
+      }
+      // FIXME show 6x6x6 color structure?
+      do{ // we fill up the entire screen, however large
+        for(s = strs ; *s ; ++s){
+          cchar_t wch;
+          setcchar(&wch, L" ", A_NORMAL, 0, &cpair);
           wadd_wch(w, &wch);
-          getyx(w, y, x);
-          if(y >= maxy && x >= maxx){
-            break;
-          }
-          if(++cpair >= COLOR_PAIRS){
-            cpair = 0;
+          size_t idx;
+          for(idx = 0 ; idx < wcslen(*s) ; ++idx){
+            setcchar(&wch, &(*s)[idx], A_NORMAL, 0, &cpair);
+            wadd_wch(w, &wch);
+            getyx(w, y, x);
+            if(y >= maxy && x >= maxx){
+              break;
+            }
+            if((cpair += *step) >= COLOR_PAIRS){
+              cpair = 0;
+            }
           }
         }
-      }
-    }while(y != maxy || x != maxx);
-    fadein(w, count, palette, FADE_MILLISECONDS);
-    do{
-      key = wgetch(w);
-    }while(key == ERR);
-    wclear(w);
-  }while(key == KEY_RESIZE);
+      }while(y != maxy || x != maxx);
+      fadein(w, count, palette, FADE_MILLISECONDS);
+      do{
+        key = wgetch(w);
+      }while(key == ERR);
+      wclear(w);
+    }while(key == KEY_RESIZE);
+    ++step;
+  }
   free(palette);
   return 0;
 }
