@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
-project(Outcurses VERSION 0.0.5
+project(Outcurses VERSION 0.0.6
   DESCRIPTION "High-level UI via ncurses"
   HOMEPAGE_URL "https://nick-black.com/dankwiki/index.php/Outcurses"
   LANGUAGES C CXX)

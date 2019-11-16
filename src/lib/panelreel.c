@@ -272,7 +272,7 @@ assert(direction >= 0); // FIXME don't yet support drawing up
         }
       }else{
 // fprintf(stderr, "RESIZING (-2) from %d to %d\n", leny, ll + 2);
-//         wresize(w, ll + 2, lenx);
+        wresize(w, ll + 2, lenx);
       }
     }
     update_panels();
