@@ -49,10 +49,6 @@ int main(int argc, char** argv){
     fprintf(stderr, "Coudln't set locale based on user preferences\n");
     return EXIT_FAILURE;
   }
-  if((w = init_outcurses(true)) == NULL){
-    fprintf(stderr, "Error initializing outcurses\n");
-    return EXIT_FAILURE;
-  }
   int c;
   while((c = getopt(argc, argv, "hpw")) != EOF){
     switch(c){
@@ -75,6 +71,10 @@ int main(int argc, char** argv){
         usage(*argv, EXIT_FAILURE);
         break;
     }
+  }
+  if((w = init_outcurses(true)) == NULL){
+    fprintf(stderr, "Error initializing outcurses\n");
+    return EXIT_FAILURE;
   }
   int ret = EXIT_SUCCESS;
   if(!only_panelreel && !only_widechar){

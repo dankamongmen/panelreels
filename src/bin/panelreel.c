@@ -62,8 +62,8 @@ tabletdraw(PANEL* p, int begx, int begy, int maxx, int maxy, bool cliptop,
   }else{
     err |= mvwprintw(w, begy, begx, "[#%u %dll %u/%u] ", tctx->id, tctx->lines, begy, maxy);
   }
-fprintf(stderr, "  \\--> callback for %d, %d lines (%d/%d -> %d/%d) wrote: %d ret: %d\n", tctx->id,
-    tctx->lines, begy, begx, maxy, maxx, y - begy, err);
+// fprintf(stderr, "  \\--> callback for %d, %d lines (%d/%d -> %d/%d) wrote: %d ret: %d\n", tctx->id,
+//    tctx->lines, begy, begx, maxy, maxx, y - begy, err);
   pthread_mutex_unlock(&tctx->lock);
   assert(OK == err);
   return y - begy;
