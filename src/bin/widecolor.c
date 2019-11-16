@@ -196,10 +196,12 @@ int widecolor_demo(WINDOW* w){
   outcurses_rgb* palette;
   int key;
   const int steps[] = { 1, 16, COLORS, COLORS + 16, 0 };
+  const int starts[] = { 0, 48 * COLORS, 48 * COLORS, 48 * COLORS, 0 };
 
   palette = malloc(sizeof(*palette) * count);
   retrieve_palette(count, palette, NULL, true);
   const int* step = steps;
+  const int* start = starts;
   while(*step){
     do{
       int y, x, maxy, maxx;
@@ -213,7 +215,7 @@ int widecolor_demo(WINDOW* w){
       waddwstr(w, L"wide chars, multiple colors, resize awareness…");
       // FIXME would be nice to have this move through colors while waiting for
       // keypress...
-      int cpair = 48 * COLORS; // nice green-red block transition on 256 colors
+      int cpair = *start;
       if(cpair >= COLOR_PAIRS){
         cpair = 0;
       }
@@ -244,6 +246,7 @@ int widecolor_demo(WINDOW* w){
       wclear(w);
     }while(key == KEY_RESIZE);
     ++step;
+    ++start;
   }
   free(palette);
   return 0;
