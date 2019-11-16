@@ -212,7 +212,7 @@ fprintf(stderr, "DRAWING %p at frontier %d (dir %d) with %d\n", t, frontiery, di
       delwin(w);
       return -1;
     }
-    t->update_pending = true;
+    atomic_store(&t->update_pending, true);
   }else{
     w = panel_window(fp);
     int trueby = getbegy(w);
@@ -261,7 +261,7 @@ fprintf(stderr, "calling! lenx/leny: %d/%d cbx/cby: %d/%d cbmaxx/cbmaxy: %d/%d d
     lenx, leny, cbx, cby, cbmaxx, cbmaxy, direction);
     // FIXME if cbmaxy < cby don't call, but that shouldn't happen?
     int ll = t->cbfxn(fp, cbx, cby, cbmaxx, cbmaxy, cbdir, t->curry);
-    t->update_pending = false;
+    atomic_store(&t->update_pending, false);
     if(ll != leny){
       if(ll == cbmaxy){
 fprintf(stderr, "RESIZING (-1) from %d to %d\n", leny, ll + 1);
@@ -451,7 +451,7 @@ fprintf(stderr, "--------->NEW TABLET %p\n", t);
     }
     t->cbfxn = cbfxn;
     t->curry = opaque;
-    t->update_pending = false;
+    atomic_init(&t->update_pending, false);
     t->p = NULL;
     ++pr->tabletcount;
     if(panelreel_redraw(pr)){
@@ -513,7 +513,7 @@ int panelreel_tabletcount(const panelreel* preel){
 
 int tablet_update(panelreel* pr, tablet* t){
   (void)pr;
-  t->update_pending = true;
+  atomic_store(&t->update_pending, true);
   return 0;
 }
 
