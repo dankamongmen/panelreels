@@ -9,8 +9,13 @@ print_intro(WINDOW *w){
   int key, pair;
 
   pair = COLOR_GREEN;
+  wattr_set(w, A_STANDOUT, 0, &pair);
+  mvwprintw(w, 1, 1, "Press any key to run the Outcurses %s demo...\n",
+            outcurses_version());
+  pair = COLOR_GREEN;
   wattr_set(w, A_NORMAL, 0, &pair);
-  mvwprintw(w, 1, 1, "About to run the Outcurses demo. Press any key to continue...\n");
+  mvwprintw(w, 2, 2, "Colors: %d Pairs: %d Maxx: %d Maxy: %d\n",
+            COLORS, COLOR_PAIRS, getmaxx(w), getmaxy(w));
   do{
     key = wgetch(w);
   }while(key == ERR);

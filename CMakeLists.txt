@@ -6,13 +6,19 @@ project(Outcurses VERSION 0.0.7
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 11)
 
+configure_file(tools/version.h.in include/version.h)
+
 include(GNUInstallDirs)
 find_package(PkgConfig REQUIRED)
 find_package(Threads REQUIRED)
 
 file(GLOB LIBSRCS CONFIGURE_DEPENDS src/lib/*.c)
 add_library(outcurses SHARED ${LIBSRCS})
-target_include_directories(outcurses PRIVATE include)
+target_include_directories(outcurses
+  PRIVATE
+    include
+    "${PROJECT_BINARY_DIR}/include"
+)
 set_target_properties(outcurses PROPERTIES
   PUBLIC_HEADER "include/outcurses.h"
   VERSION ${PROJECT_VERSION}

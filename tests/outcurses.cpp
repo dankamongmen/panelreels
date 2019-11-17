@@ -20,3 +20,8 @@ TEST(Outcurses, InitWithoutNcurses){
   ASSERT_NE(nullptr, outcurses_init(false));
   ASSERT_EQ(0, outcurses_stop(false));
 }
+
+TEST(Outcurses, VersionString){
+  auto ver = outcurses_version();
+  ASSERT_NE(nullptr, ver);
+}

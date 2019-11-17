@@ -1,0 +1,3 @@
+#define Outcurses_VERSION_MAJOR "@Outcurses_VERSION_MAJOR@"
+#define Outcurses_VERSION_MINOR "@Outcurses_VERSION_MINOR@"
+#define Outcurses_VERSION_PATCH "@Outcurses_VERSION_PATCH@"

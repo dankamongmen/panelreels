@@ -9,6 +9,9 @@
 extern "C" {
 #endif
 
+// Receive a pointer to a version string of the form MAJOR.MINOR.PATCH.
+const char* outcurses_version(void);
+
 // Initialize the library. Will initialize ncurses suitably for fullscreen mode
 // unless initcurses is false. You are recommended to call outcurses_init prior
 // to interacting with ncurses, and to set initcurses to true.
