@@ -225,10 +225,11 @@ assert(direction >= 0); // FIXME don't yet support drawing up
     int truey, truex;
     getmaxyx(w, truey, truex);
 // fprintf(stderr, "TRUEY: %d BEGY: %d LENY: %d\n", truey, begy, leny);
-    if(truey > leny){
+    if(truey != leny){
       if(wresize(w, leny, truex)){
         return -1;
       }
+      atomic_store(&t->update_pending, true);
       update_panels();
       getmaxyx(w, truey, truex);
     }
@@ -532,7 +533,7 @@ int panelreel_touch(panelreel* pr, tablet* t){
 
 // Move to some position relative to the current position
 static int
-move_reel_panel(PANEL* p, int deltax, int deltay){
+move_tablet(PANEL* p, int deltax, int deltay){
   WINDOW* w = panel_window(p);
   int oldx, oldy;
   getbegyx(w, oldy, oldx);
@@ -550,7 +551,7 @@ int panelreel_move(panelreel* preel, int x, int y){
   getbegyx(w, oldy, oldx);
   const int deltax = x - oldx;
   const int deltay = y - oldy;
-  if(move_reel_panel(preel->p, deltax, deltay)){
+  if(move_tablet(preel->p, deltax, deltay)){
     move_panel(preel->p, oldy, oldx);
     panelreel_redraw(preel);
     return -1;
@@ -561,14 +562,14 @@ int panelreel_move(panelreel* preel, int x, int y){
       if(t->p == NULL){
         break;
       }
-      move_reel_panel(t->p, deltax, deltay);
+      move_tablet(t->p, deltax, deltay);
     }while((t = t->prev) != preel->tablets);
     if(t != preel->tablets){ // don't repeat if we covered all tablets
       for(t = preel->tablets->next ; t != preel->tablets ; t = t->next){
         if(t->p == NULL){
           break;
         }
-        move_reel_panel(t->p, deltax, deltay);
+        move_tablet(t->p, deltax, deltay);
       }
     }
   }
