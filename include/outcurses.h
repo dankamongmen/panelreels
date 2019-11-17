@@ -109,8 +109,11 @@ struct panelreel;
 // failure. w must be a valid WINDOW*, to which offsets are relative. Note that
 // there might not be enough room for the specified offsets, in which case the
 // panelreel will be clipped on the bottom and right. A minimum number of rows
-// and columns can be enforced via popts.
-struct panelreel* panelreel_create(WINDOW* w, const panelreel_options* popts);
+// and columns can be enforced via popts. efd, if non-negative, is an eventfd
+// that ought be written to whenever panelreel_touch() updates a tablet (this
+// is useful in the case of nonblocking input).
+struct panelreel* panelreel_create(WINDOW* w, const panelreel_options* popts,
+                                   int efd);
 
 // Tablet draw callback, provided a PANEL (from which a WINDOW may be derived),
 // the first column that may be used, the first row that may be used, the first
