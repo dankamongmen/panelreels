@@ -12,10 +12,10 @@ TEST_F(PanelReelTest, InitLinear) {
     GTEST_SKIP();
   }
   panelreel_options p = { };
-  ASSERT_NE(nullptr, init_outcurses(true));
+  ASSERT_NE(nullptr, outcurses_init(true));
   struct panelreel* pr = panelreel_create(stdscr, &p);
   ASSERT_NE(nullptr, pr);
-  ASSERT_EQ(0, stop_outcurses(true));
+  ASSERT_EQ(0, outcurses_stop(true));
 }
 
 TEST_F(PanelReelTest, InitLinearInfinite) {
@@ -24,10 +24,10 @@ TEST_F(PanelReelTest, InitLinearInfinite) {
   }
   panelreel_options p{};
   p.infinitescroll = true;
-  ASSERT_NE(nullptr, init_outcurses(true));
+  ASSERT_NE(nullptr, outcurses_init(true));
   struct panelreel* pr = panelreel_create(stdscr, &p);
   ASSERT_NE(nullptr, pr);
-  ASSERT_EQ(0, stop_outcurses(true));
+  ASSERT_EQ(0, outcurses_stop(true));
 }
 
 TEST_F(PanelReelTest, InitCircular) {
@@ -37,11 +37,11 @@ TEST_F(PanelReelTest, InitCircular) {
   panelreel_options p{};
   p.infinitescroll = true;
   p.circular = true;
-  ASSERT_NE(nullptr, init_outcurses(true));
+  ASSERT_NE(nullptr, outcurses_init(true));
   struct panelreel* pr = panelreel_create(stdscr, &p);
   ASSERT_NE(nullptr, pr);
   ASSERT_EQ(0, panelreel_destroy(pr));
-  ASSERT_EQ(0, stop_outcurses(true));
+  ASSERT_EQ(0, outcurses_stop(true));
 }
 
 // circular is not allowed to be true when infinitescroll is false
@@ -52,10 +52,10 @@ TEST_F(PanelReelTest, FiniteCircleRejected) {
   panelreel_options p{};
   p.infinitescroll = false;
   p.circular = true;
-  ASSERT_NE(nullptr, init_outcurses(true));
+  ASSERT_NE(nullptr, outcurses_init(true));
   struct panelreel* pr = panelreel_create(stdscr, &p);
   ASSERT_EQ(nullptr, pr);
-  ASSERT_EQ(0, stop_outcurses(true));
+  ASSERT_EQ(0, outcurses_stop(true));
 }
 
 // We ought be able to invoke panelreel_next() and panelreel_prev() safely,
@@ -66,12 +66,12 @@ TEST_F(PanelReelTest, MovementWithoutTablets) {
   }
   panelreel_options p{};
   p.infinitescroll = false;
-  ASSERT_NE(nullptr, init_outcurses(true));
+  ASSERT_NE(nullptr, outcurses_init(true));
   struct panelreel* pr = panelreel_create(stdscr, &p);
   ASSERT_NE(nullptr, pr);
   EXPECT_EQ(0, panelreel_next(pr));
   EXPECT_EQ(0, panelreel_prev(pr));
-  ASSERT_EQ(0, stop_outcurses(true));
+  ASSERT_EQ(0, outcurses_stop(true));
 }
 
 int panelcb(PANEL* p, int begx, int begy, int maxx, int maxy, bool cliptop,
@@ -91,13 +91,13 @@ TEST_F(PanelReelTest, OneTablet) {
   }
   panelreel_options p{};
   p.infinitescroll = false;
-  ASSERT_NE(nullptr, init_outcurses(true));
+  ASSERT_NE(nullptr, outcurses_init(true));
   struct panelreel* pr = panelreel_create(stdscr, &p);
   ASSERT_NE(nullptr, pr);
   struct tablet* t = panelreel_add(pr, nullptr, nullptr, panelcb, nullptr);
   ASSERT_NE(nullptr, t);
   EXPECT_EQ(0, panelreel_del(pr, t));
-  ASSERT_EQ(0, stop_outcurses(true));
+  ASSERT_EQ(0, outcurses_stop(true));
 }
 
 TEST_F(PanelReelTest, DeleteActiveTablet) {
@@ -106,13 +106,13 @@ TEST_F(PanelReelTest, DeleteActiveTablet) {
   }
   panelreel_options p{};
   p.infinitescroll = false;
-  ASSERT_NE(nullptr, init_outcurses(true));
+  ASSERT_NE(nullptr, outcurses_init(true));
   struct panelreel* pr = panelreel_create(stdscr, &p);
   ASSERT_NE(nullptr, pr);
   struct tablet* t = panelreel_add(pr, nullptr, nullptr, panelcb, nullptr);
   ASSERT_NE(nullptr, t);
   EXPECT_EQ(0, panelreel_del_active(pr));
-  ASSERT_EQ(0, stop_outcurses(true));
+  ASSERT_EQ(0, outcurses_stop(true));
 }
 
 TEST_F(PanelReelTest, NoBorder) {
@@ -122,10 +122,10 @@ TEST_F(PanelReelTest, NoBorder) {
   panelreel_options p{};
   p.bordermask = BORDERMASK_LEFT | BORDERMASK_RIGHT |
                   BORDERMASK_TOP | BORDERMASK_BOTTOM;
-  ASSERT_NE(nullptr, init_outcurses(true));
+  ASSERT_NE(nullptr, outcurses_init(true));
   struct panelreel* pr = panelreel_create(stdscr, &p);
   ASSERT_NE(nullptr, pr);
-  ASSERT_EQ(0, stop_outcurses(true));
+  ASSERT_EQ(0, outcurses_stop(true));
 }
 
 TEST_F(PanelReelTest, BadBorderBitsRejected) {
@@ -134,10 +134,10 @@ TEST_F(PanelReelTest, BadBorderBitsRejected) {
   }
   panelreel_options p{};
   p.bordermask = BORDERMASK_LEFT * 2;
-  ASSERT_NE(nullptr, init_outcurses(true));
+  ASSERT_NE(nullptr, outcurses_init(true));
   struct panelreel* pr = panelreel_create(stdscr, &p);
   ASSERT_EQ(nullptr, pr);
-  ASSERT_EQ(0, stop_outcurses(true));
+  ASSERT_EQ(0, outcurses_stop(true));
 }
 
 TEST_F(PanelReelTest, NoTabletBorder) {
@@ -147,10 +147,10 @@ TEST_F(PanelReelTest, NoTabletBorder) {
   panelreel_options p{};
   p.tabletmask = BORDERMASK_LEFT | BORDERMASK_RIGHT |
                   BORDERMASK_TOP | BORDERMASK_BOTTOM;
-  ASSERT_NE(nullptr, init_outcurses(true));
+  ASSERT_NE(nullptr, outcurses_init(true));
   struct panelreel* pr = panelreel_create(stdscr, &p);
   ASSERT_NE(nullptr, pr);
-  ASSERT_EQ(0, stop_outcurses(true));
+  ASSERT_EQ(0, outcurses_stop(true));
 }
 
 TEST_F(PanelReelTest, BadTabletBorderBitsRejected) {
@@ -159,10 +159,10 @@ TEST_F(PanelReelTest, BadTabletBorderBitsRejected) {
   }
   panelreel_options p{};
   p.tabletmask = BORDERMASK_LEFT * 2;
-  ASSERT_NE(nullptr, init_outcurses(true));
+  ASSERT_NE(nullptr, outcurses_init(true));
   struct panelreel* pr = panelreel_create(stdscr, &p);
   ASSERT_EQ(nullptr, pr);
-  ASSERT_EQ(0, stop_outcurses(true));
+  ASSERT_EQ(0, outcurses_stop(true));
 }
 
 // Make a target window occupying all but a containing perimeter of the
@@ -195,7 +195,7 @@ TEST_F(PanelReelTest, InitWithinSubwin) {
   p.roff = 1;
   p.toff = 1;
   p.boff = 1;
-  ASSERT_NE(nullptr, init_outcurses(true));
+  ASSERT_NE(nullptr, outcurses_init(true));
   EXPECT_EQ(0, clear());
   PANEL* base = make_targwin(stdscr);
   ASSERT_NE(nullptr, base);
@@ -207,7 +207,7 @@ TEST_F(PanelReelTest, InitWithinSubwin) {
   ASSERT_EQ(0, panelreel_destroy(pr));
   EXPECT_EQ(OK, del_panel(base));
   EXPECT_EQ(OK, delwin(basew));
-  ASSERT_EQ(0, stop_outcurses(true));
+  ASSERT_EQ(0, outcurses_stop(true));
 }
 
 TEST_F(PanelReelTest, SubwinNoOffsetGeom) {
@@ -215,7 +215,7 @@ TEST_F(PanelReelTest, SubwinNoOffsetGeom) {
     GTEST_SKIP();
   }
   panelreel_options p{};
-  ASSERT_NE(nullptr, init_outcurses(true));
+  ASSERT_NE(nullptr, outcurses_init(true));
   EXPECT_EQ(0, clear());
   PANEL* base = make_targwin(stdscr);
   ASSERT_NE(nullptr, base);
@@ -227,5 +227,5 @@ TEST_F(PanelReelTest, SubwinNoOffsetGeom) {
   ASSERT_EQ(0, panelreel_destroy(pr));
   EXPECT_EQ(OK, del_panel(base));
   EXPECT_EQ(OK, delwin(basew));
-  ASSERT_EQ(0, stop_outcurses(true));
+  ASSERT_EQ(0, outcurses_stop(true));
 }

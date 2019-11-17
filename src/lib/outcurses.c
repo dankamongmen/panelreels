@@ -1,7 +1,7 @@
 #include "outcurses.h"
 #include "colors.h"
 
-WINDOW* init_outcurses(bool initcurses){
+WINDOW* outcurses_init(bool initcurses){
   WINDOW* scr;
 
   if(initcurses){
@@ -60,7 +60,7 @@ error:
   return NULL;
 }
 
-int stop_outcurses(bool stopcurses){
+int outcurses_stop(bool stopcurses){
   int ret = 0;
   if(stopcurses){
     if(endwin() != OK){

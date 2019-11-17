@@ -23,12 +23,12 @@ miscellany…and I have a few exciting ideas.
 
 ## Getting started
 
-`init_outcurses()` must be called before calling most functions in outcurses.
+`outcurses_init()` must be called before calling most functions in outcurses.
 If you have not initialized ncurses yourself, pass `true`, and
-`init_outcurses()` will do so. Otherwise, pass `false` and ncurses proper will
+`outcurses_init()` will do so. Otherwise, pass `false` and ncurses proper will
 be left unmolested.
 
-When you're done, call `stop_outcurses()` with `true` to have it tear down
+When you're done, call `outcurses_stop()` with `true` to have it tear down
 itself and ncurses. If you intend to close down ncurses yourself, pass `false`.
 
 ## Threads and signals
@@ -57,13 +57,13 @@ Active panelreels ought be redrawn with `panelreel_redraw()`.
 
 ## Outcurses and colors
 
-If told to initialize ncurses (by providing `true` to `init_outcurses`),
+If told to initialize ncurses (by providing `true` to `outcurses_init`),
 outcurses will initialize up to 256 colors and colorpairs. The first 16 colors
 will maintain their ANSI definitions. The colors between 16 and 231, inclusive,
 will be assigned an RGB 6x6x6 color cube, while the final 24 colors get a
 linear greyscale ramp (not including black or white). Each color, along with
 a neutral background, will be assigned to the corresponding colorpair. You may
-freely redefine the palette following `init_outcurses`.
+freely redefine the palette following `outcurses_init`.
 
 ## Panelreels
 The panelreel is a UI abstraction supported by outcurses in which

@@ -7,8 +7,8 @@ TEST(Outcurses, Init){
   if(getenv("TERM") == nullptr){
     GTEST_SKIP();
   }
-  ASSERT_NE(nullptr, init_outcurses(true));
-  ASSERT_EQ(0, stop_outcurses(true));
+  ASSERT_NE(nullptr, outcurses_init(true));
+  ASSERT_EQ(0, outcurses_stop(true));
 }
 
 // Ensure that colors are defined and work.
@@ -17,6 +17,6 @@ TEST(Outcurses, InitWithoutNcurses){
     GTEST_SKIP();
   }
   ASSERT_NE(nullptr, initscr());
-  ASSERT_NE(nullptr, init_outcurses(false));
-  ASSERT_EQ(0, stop_outcurses(false));
+  ASSERT_NE(nullptr, outcurses_init(false));
+  ASSERT_EQ(0, outcurses_stop(false));
 }

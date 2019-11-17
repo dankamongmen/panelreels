@@ -10,13 +10,13 @@ extern "C" {
 #endif
 
 // Initialize the library. Will initialize ncurses suitably for fullscreen mode
-// unless initcurses is false. You are recommended to call init_outcurses prior
+// unless initcurses is false. You are recommended to call outcurses_init prior
 // to interacting with ncurses, and to set initcurses to true.
-WINDOW* init_outcurses(bool initcurses);
+WINDOW* outcurses_init(bool initcurses);
 
 // Stop the library. If stopcurses is true, endwin() will be called, (ideally)
 // restoring the screen and cleaning up ncurses.
-int stop_outcurses(bool stopcurses);
+int outcurses_stop(bool stopcurses);
 
 // A set of RGB color components
 typedef struct outcurses_rgb {

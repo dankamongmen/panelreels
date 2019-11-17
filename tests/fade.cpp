@@ -32,25 +32,25 @@ TEST(OutcursesFade, FadeOut) {
   if(getenv("TERM") == nullptr){
 	  GTEST_SKIP();
   }
-  ASSERT_NE(nullptr, init_outcurses(true));
+  ASSERT_NE(nullptr, outcurses_init(true));
   fade_setup(stdscr);
   struct timespec ts = {.tv_sec = 0, .tv_nsec = 500000000, };
   nanosleep(&ts, NULL);
   ASSERT_EQ(0, fadeout(stdscr, 1000));
-  ASSERT_EQ(0, stop_outcurses(true));
+  ASSERT_EQ(0, outcurses_stop(true));
 }
 
 TEST(OutcursesFade, FadeIn) {
   if(getenv("TERM") == nullptr){
 	  GTEST_SKIP();
   }
-  ASSERT_NE(nullptr, init_outcurses(true));
+  ASSERT_NE(nullptr, outcurses_init(true));
   outcurses_rgb* palette = new outcurses_rgb[COLORS];
   retrieve_palette(COLORS, palette, nullptr, true);
   fade_setup(stdscr);
   ASSERT_EQ(0, fadein(stdscr, COLORS, palette, 1000));
   struct timespec ts = {.tv_sec = 0, .tv_nsec = 500000000, };
   nanosleep(&ts, NULL);
-  ASSERT_EQ(0, stop_outcurses(true));
+  ASSERT_EQ(0, outcurses_stop(true));
   delete[] palette;
 }

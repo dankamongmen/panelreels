@@ -72,7 +72,7 @@ int main(int argc, char** argv){
         break;
     }
   }
-  if((w = init_outcurses(true)) == NULL){
+  if((w = outcurses_init(true)) == NULL){
     fprintf(stderr, "Error initializing outcurses\n");
     return EXIT_FAILURE;
   }
@@ -86,7 +86,7 @@ int main(int argc, char** argv){
   if(!only_widechar){
     ret |= prdemo(w);
   }
-  if(stop_outcurses(true)){
+  if(outcurses_stop(true)){
     fprintf(stderr, "Error initializing outcurses\n");
     return EXIT_FAILURE;
   }
