@@ -464,10 +464,10 @@ tablet* panelreel_add(panelreel* pr, tablet* after, tablet *before,
 }
 
 int del_active_tablet(struct panelreel* pr){
-  return del_tablet(pr, pr->tablets);
+  return panelreel_del(pr, pr->tablets);
 }
 
-int del_tablet(struct panelreel* pr, struct tablet* t){
+int panelreel_del(struct panelreel* pr, struct tablet* t){
   if(pr == NULL || t == NULL){
     return -1;
   }
@@ -501,7 +501,7 @@ int panelreel_destroy(panelreel* preel){
     while(t){
       t->prev->next = NULL;
       tablet* tmp = t->next;
-      del_tablet(preel, t);
+      panelreel_del(preel, t);
       t = tmp;
     }
     free(preel);

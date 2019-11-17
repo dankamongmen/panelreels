@@ -96,7 +96,7 @@ TEST_F(PanelReelTest, OneTablet) {
   ASSERT_NE(nullptr, pr);
   struct tablet* t = panelreel_add(pr, nullptr, nullptr, panelcb, nullptr);
   ASSERT_NE(nullptr, t);
-  EXPECT_EQ(0, del_tablet(pr, t));
+  EXPECT_EQ(0, panelreel_del(pr, t));
   ASSERT_EQ(0, stop_outcurses(true));
 }
 

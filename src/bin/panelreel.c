@@ -26,7 +26,7 @@ kill_tablet(tabletctx** tctx){
   if(pthread_join(t->tid, NULL)){
     fprintf(stderr, "Warning: error joining pthread (%s)\n", strerror(errno));
   }
-  del_tablet(t->pr, t->t);
+  panelreel_del(t->pr, t->t);
   *tctx = t->next;
   pthread_mutex_destroy(&t->lock);
   free(t);

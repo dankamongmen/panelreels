@@ -150,7 +150,7 @@ int tablet_update(struct panelreel* pr, struct tablet* t);
 
 // Delete the tablet specified by t from the panelreel specified by pr. Returns
 // -1 if the tablet cannot be found.
-int del_tablet(struct panelreel* pr, struct tablet* t);
+int panelreel_del(struct panelreel* pr, struct tablet* t);
 
 // Delete the active tablet. Returns -1 if there are no tablets.
 int del_active_tablet(struct panelreel* pr);
