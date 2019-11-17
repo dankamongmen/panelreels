@@ -116,8 +116,8 @@ struct panelreel* panelreel_create(WINDOW* w, const panelreel_options* popts);
 // the first column that may be used, the first row that may be used, the first
 // column that may not be used, the first row that may not be used, and a bool
 // indicating whether output ought be clipped at the top (true) or bottom
-// (false). The curry provided to add_tablet() will also be provided. Rows and
-// columns are zero-indexed, and both are relative to the PANEL's WINDOW.
+// (false). The curry provided to panelreel_add() will also be provided. Rows
+// and columns are zero-indexed, and both are relative to the PANEL's WINDOW.
 //
 // Regarding clipping: it is possible that the tablet is only partially
 // displayed on the screen. If so, it is either partially present on the top of
@@ -137,8 +137,8 @@ typedef int (*tabletcb)(PANEL* p, int begx, int begy, int maxx, int maxy,
 // specified tablet. If both are specifid, the tablet will be added to the
 // resulting location, assuming it is valid (after->next == before->prev); if
 // it is not valid, or there is any other error, NULL will be returned.
-struct tablet* add_tablet(struct panelreel* pr, struct tablet* after,
-                          struct tablet *before, tabletcb cb, void* opaque);
+struct tablet* panelreel_add(struct panelreel* pr, struct tablet* after,
+                             struct tablet *before, tabletcb cb, void* opaque);
 
 // Return the number of tablets.
 int panelreel_tabletcount(const struct panelreel* pr);

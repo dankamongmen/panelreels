@@ -94,7 +94,7 @@ TEST_F(PanelReelTest, OneTablet) {
   ASSERT_NE(nullptr, init_outcurses(true));
   struct panelreel* pr = panelreel_create(stdscr, &p);
   ASSERT_NE(nullptr, pr);
-  struct tablet* t = add_tablet(pr, nullptr, nullptr, panelcb, nullptr);
+  struct tablet* t = panelreel_add(pr, nullptr, nullptr, panelcb, nullptr);
   ASSERT_NE(nullptr, t);
   EXPECT_EQ(0, del_tablet(pr, t));
   ASSERT_EQ(0, stop_outcurses(true));
@@ -109,7 +109,7 @@ TEST_F(PanelReelTest, DeleteActiveTablet) {
   ASSERT_NE(nullptr, init_outcurses(true));
   struct panelreel* pr = panelreel_create(stdscr, &p);
   ASSERT_NE(nullptr, pr);
-  struct tablet* t = add_tablet(pr, nullptr, nullptr, panelcb, nullptr);
+  struct tablet* t = panelreel_add(pr, nullptr, nullptr, panelcb, nullptr);
   ASSERT_NE(nullptr, t);
   EXPECT_EQ(0, del_active_tablet(pr));
   ASSERT_EQ(0, stop_outcurses(true));

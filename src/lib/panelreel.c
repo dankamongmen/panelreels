@@ -421,8 +421,8 @@ panelreel* panelreel_create(WINDOW* w, const panelreel_options* popts){
   return pr;
 }
 
-tablet* add_tablet(panelreel* pr, tablet* after, tablet *before,
-                   tabletcb cbfxn, void* opaque){
+tablet* panelreel_add(panelreel* pr, tablet* after, tablet *before,
+                      tabletcb cbfxn, void* opaque){
   tablet* t;
   if(after && before){
     if(after->prev != before || before->next != after){

@@ -106,7 +106,7 @@ new_tabletctx(struct panelreel* pr, unsigned *id){
   tctx->lines = random() % 10 + 1; // FIXME a nice gaussian would be swell
   tctx->cpair = random() % COLORS;
   tctx->id = ++*id;
-  if((tctx->t = add_tablet(pr, NULL, NULL, tabletdraw, tctx)) == NULL){
+  if((tctx->t = panelreel_add(pr, NULL, NULL, tabletdraw, tctx)) == NULL){
     pthread_mutex_destroy(&tctx->lock);
     free(tctx);
     return NULL;
