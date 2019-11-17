@@ -147,8 +147,9 @@ handle_input(WINDOW* w, struct panelreel* pr, int efd, int y, int x){
       }
       if(fds[1].revents & POLLIN){
         uint64_t val;
-        read(efd, &val, sizeof(val));
-        if(key < 0){
+        if(read(efd, &val, sizeof(val)) != sizeof(val)){
+          fprintf(stderr, "Error reading from eventfd %d (%s)\n", efd, strerror(errno));
+        }else if(key < 0){
           panelreel_redraw(pr);
         }
       }
