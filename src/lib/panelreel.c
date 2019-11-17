@@ -33,7 +33,6 @@ typedef struct panelreel {
   // These values could all be derived at any time, but keeping them computed
   // makes other things easier, or saves us time (at the cost of complexity).
   int tabletcount;         // could be derived, but we keep it o(1)
-  tablet* bottomtab;       // tablet currently at the bottom, can be NULL
 } panelreel;
 
 // Returns the starting coordinates (relative to the screen) of the specified
