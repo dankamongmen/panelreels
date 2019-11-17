@@ -146,7 +146,7 @@ int panelreel_tabletcount(const struct panelreel* pr);
 // Indicate that the specified tablet has been updated in a way that would
 // change its display. This will trigger some non-negative number of callbacks
 // (though not in the caller's context).
-int tablet_update(struct panelreel* pr, struct tablet* t);
+int panelreel_touch(struct panelreel* pr, struct tablet* t);
 
 // Delete the tablet specified by t from the panelreel specified by pr. Returns
 // -1 if the tablet cannot be found.

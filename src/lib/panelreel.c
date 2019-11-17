@@ -513,7 +513,7 @@ int panelreel_tabletcount(const panelreel* preel){
   return preel->tabletcount;
 }
 
-int tablet_update(panelreel* pr, tablet* t){
+int panelreel_touch(panelreel* pr, tablet* t){
   (void)pr;
   atomic_store(&t->update_pending, true);
   return 0;

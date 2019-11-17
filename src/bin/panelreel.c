@@ -84,12 +84,12 @@ tablet_thread(void* vtabletctx){
       if((tctx->lines -= (action + 1)) < 1){
         tctx->lines = 1;
       }
-      tablet_update(tctx->pr, tctx->t);
+      panelreel_touch(tctx->pr, tctx->t);
     }else if(action > 2){
       if((tctx->lines += (action - 2)) < 1){
         tctx->lines = 1;
       }
-      tablet_update(tctx->pr, tctx->t);
+      panelreel_touch(tctx->pr, tctx->t);
     }
   }
   return tctx;
