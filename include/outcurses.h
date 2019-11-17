@@ -110,7 +110,7 @@ struct panelreel;
 // there might not be enough room for the specified offsets, in which case the
 // panelreel will be clipped on the bottom and right. A minimum number of rows
 // and columns can be enforced via popts.
-struct panelreel* create_panelreel(WINDOW* w, const panelreel_options* popts);
+struct panelreel* panelreel_create(WINDOW* w, const panelreel_options* popts);
 
 // Tablet draw callback, provided a PANEL (from which a WINDOW may be derived),
 // the first column that may be used, the first row that may be used, the first
@@ -168,7 +168,7 @@ int panelreel_next(struct panelreel* pr);
 // Change focus to the previous tablet, if one exists
 int panelreel_prev(struct panelreel* pr);
 
-// Destroy a panelreel allocated with create_panelreel(). Does not destroy the
+// Destroy a panelreel allocated with panelreel_create(). Does not destroy the
 // underlying WINDOW. Returns non-zero on failure.
 int destroy_panelreel(struct panelreel* pr);
 

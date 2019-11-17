@@ -22,12 +22,15 @@ typedef struct tablet {
 //  * the list of tablets (available from the focused tablet)
 typedef struct panelreel {
   PANEL* p;                // PANEL this panelreel occupies, under tablets
-  panelreel_options popts; // copied in create_panelreel()
+  panelreel_options popts; // copied in panelreel_create()
   // doubly-linked list, a circular one when infinity scrolling is in effect.
   // points at the focused tablet (when at least one tablet exists, one must be
   // focused), which might be anywhere on the screen (but is always visible).
   tablet* tablets;
+  // These values could all be derived at any time, but keeping them computed
+  // makes other things easier, or saves us time (at the cost of complexity).
   int tabletcount;         // could be derived, but we keep it o(1)
+  tablet* bottomtab;       // tablet currently at the bottom, can be NULL
 } panelreel;
 
 // Returns the starting coordinates (relative to the screen) of the specified
@@ -367,7 +370,7 @@ validate_panelreel_opts(WINDOW* w, const panelreel_options* popts){
   return true;
 }
 
-panelreel* create_panelreel(WINDOW* w, const panelreel_options* popts){
+panelreel* panelreel_create(WINDOW* w, const panelreel_options* popts){
   panelreel* pr;
 
   if(!validate_panelreel_opts(w, popts)){

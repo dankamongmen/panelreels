@@ -138,7 +138,7 @@ struct panelreel* panelreel_demo(WINDOW* w){
     .boff = 0,
   };
   tabletctx* tctxs = NULL;
-  struct panelreel* pr = create_panelreel(w, &popts);
+  struct panelreel* pr = panelreel_create(w, &popts);
   if(pr == NULL){
     fprintf(stderr, "Error creating panelreel\n");
     return NULL;
