@@ -1,6 +1,7 @@
 outcurses (0.0.6-1) unstable; urgency=medium
 
   * New upstream version
+  * Install outcurses-demo to /usr/bin
 
  -- Nick Black <dankamongmen@gmail.com>  Sat, 16 Nov 2019 17:52:02 -0500
 
