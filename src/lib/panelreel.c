@@ -223,13 +223,12 @@ assert(direction >= 0); // FIXME don't yet support drawing up
     int trueby = getbegy(w);
     int truey, truex;
     getmaxyx(w, truey, truex);
-// fprintf(stderr, "TRUEY: %d BEGY: %d LENY: %d\n", truey, begy, leny);
     if(truey != leny){
+// fprintf(stderr, "RESIZE TRUEY: %d BEGY: %d LENY: %d\n", truey, begy, leny);
       if(wresize(w, leny, truex)){
         return -1;
       }
       atomic_store(&t->update_pending, true);
-      update_panels();
       getmaxyx(w, truey, truex);
     }
     if(begy != trueby){
@@ -281,7 +280,6 @@ assert(direction >= 0); // FIXME don't yet support drawing up
         wresize(w, ll + 2, lenx);
       }
     }
-    update_panels();
     draw_borders(w, pr->popts.tabletmask,
                  direction == 0 ? pr->popts.focusedattr : pr->popts.tabletattr,
                  direction == 0 ? pr->popts.focusedpair : pr->popts.tabletpair,
