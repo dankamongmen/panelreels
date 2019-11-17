@@ -23,4 +23,4 @@ Multi-Arch: same
 Depends:${shlibs:Depends}, ${misc:Depends}
 Description: Shared libraries for outcurses console UI
  Outcurses provides higher-level UI elements atop the venerable
- NCURSES library, including palette feeds and panel wheels.
+ NCURSES library, including palette feeds and panelreels.
