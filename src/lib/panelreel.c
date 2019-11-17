@@ -494,7 +494,7 @@ int del_tablet(struct panelreel* pr, struct tablet* t){
   return 0;
 }
 
-int destroy_panelreel(panelreel* preel){
+int panelreel_destroy(panelreel* preel){
   int ret = 0;
   if(preel){
     tablet* t = preel->tablets;

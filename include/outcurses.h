@@ -170,7 +170,7 @@ int panelreel_prev(struct panelreel* pr);
 
 // Destroy a panelreel allocated with panelreel_create(). Does not destroy the
 // underlying WINDOW. Returns non-zero on failure.
-int destroy_panelreel(struct panelreel* pr);
+int panelreel_destroy(struct panelreel* pr);
 
 #define PREFIXSTRLEN 7  // Does not include a '\0' (xxx.xxU)
 #define IPREFIXSTRLEN 8 //  Does not include a '\0' (xxxx.xxU)

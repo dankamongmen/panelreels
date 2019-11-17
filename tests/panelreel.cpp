@@ -40,7 +40,7 @@ TEST_F(PanelReelTest, InitCircular) {
   ASSERT_NE(nullptr, init_outcurses(true));
   struct panelreel* pr = panelreel_create(stdscr, &p);
   ASSERT_NE(nullptr, pr);
-  ASSERT_EQ(0, destroy_panelreel(pr));
+  ASSERT_EQ(0, panelreel_destroy(pr));
   ASSERT_EQ(0, stop_outcurses(true));
 }
 
@@ -204,7 +204,7 @@ TEST_F(PanelReelTest, InitWithinSubwin) {
   struct panelreel* pr = panelreel_create(basew, &p);
   ASSERT_NE(nullptr, pr);
   EXPECT_EQ(0, panelreel_validate(basew, pr));
-  ASSERT_EQ(0, destroy_panelreel(pr));
+  ASSERT_EQ(0, panelreel_destroy(pr));
   EXPECT_EQ(OK, del_panel(base));
   EXPECT_EQ(OK, delwin(basew));
   ASSERT_EQ(0, stop_outcurses(true));
@@ -224,7 +224,7 @@ TEST_F(PanelReelTest, SubwinNoOffsetGeom) {
   struct panelreel* pr = panelreel_create(basew, &p);
   ASSERT_NE(nullptr, pr);
   EXPECT_EQ(0, panelreel_validate(basew, pr));
-  ASSERT_EQ(0, destroy_panelreel(pr));
+  ASSERT_EQ(0, panelreel_destroy(pr));
   EXPECT_EQ(OK, del_panel(base));
   EXPECT_EQ(OK, delwin(basew));
   ASSERT_EQ(0, stop_outcurses(true));
