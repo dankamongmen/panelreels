@@ -220,6 +220,7 @@ int widecolor_demo(WINDOW* w){
         cpair = 0;
       }
       // FIXME show 6x6x6 color structure?
+      getyx(w, y, x);
       do{ // we fill up the entire screen, however large
         for(s = strs ; *s ; ++s){
           cchar_t wch;
