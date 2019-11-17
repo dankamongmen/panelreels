@@ -1,4 +1,6 @@
+#include <errno.h>
 #include <panel.h>
+#include <unistd.h>
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -26,6 +28,7 @@ typedef struct panelreel {
   // doubly-linked list, a circular one when infinity scrolling is in effect.
   // points at the focused tablet (when at least one tablet exists, one must be
   // focused), which might be anywhere on the screen (but is always visible).
+  int efd;                 // eventfd, signaled in panelreel_touch() if >= 0
   tablet* tablets;
   // These values could all be derived at any time, but keeping them computed
   // makes other things easier, or saves us time (at the cost of complexity).
@@ -370,7 +373,7 @@ validate_panelreel_opts(WINDOW* w, const panelreel_options* popts){
   return true;
 }
 
-panelreel* panelreel_create(WINDOW* w, const panelreel_options* popts){
+panelreel* panelreel_create(WINDOW* w, const panelreel_options* popts, int efd){
   panelreel* pr;
 
   if(!validate_panelreel_opts(w, popts)){
@@ -379,6 +382,7 @@ panelreel* panelreel_create(WINDOW* w, const panelreel_options* popts){
   if((pr = malloc(sizeof(*pr))) == NULL){
     return NULL;
   }
+  pr->efd = efd;
   pr->tablets = NULL;
   pr->tabletcount = 0;
   memcpy(&pr->popts, popts, sizeof(*popts));
@@ -514,9 +518,16 @@ int panelreel_tabletcount(const panelreel* preel){
 }
 
 int panelreel_touch(panelreel* pr, tablet* t){
-  (void)pr;
+  int ret = 0;
   atomic_store(&t->update_pending, true);
-  return 0;
+  if(pr->efd >= 0){
+    uint64_t val = 1;
+    if(write(pr->efd, &val, sizeof(val)) != sizeof(val)){
+      fprintf(stderr, "Error writing to eventfd %d (%s)\n", pr->efd, strerror(errno));
+      ret = -1;
+    }
+  }
+  return ret;
 }
 
 // Move to some position relative to the current position
