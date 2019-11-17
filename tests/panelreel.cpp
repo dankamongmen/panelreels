@@ -210,6 +210,31 @@ TEST_F(PanelReelTest, InitWithinSubwin) {
   ASSERT_EQ(0, outcurses_stop(true));
 }
 
+TEST_F(PanelReelTest, SubwinNoPanelreelBorders) {
+  if(getenv("TERM") == nullptr){
+    GTEST_SKIP();
+  }
+  panelreel_options p{};
+  p.loff = 1;
+  p.roff = 1;
+  p.toff = 1;
+  p.boff = 1;
+  p.bordermask = BORDERMASK_LEFT | BORDERMASK_RIGHT |
+                  BORDERMASK_TOP | BORDERMASK_BOTTOM;
+  ASSERT_NE(nullptr, outcurses_init(true));
+  EXPECT_EQ(0, clear());
+  PANEL* base = make_targwin(stdscr);
+  ASSERT_NE(nullptr, base);
+  WINDOW* basew = panel_window(base);
+  ASSERT_NE(nullptr, basew);
+  struct panelreel* pr = panelreel_create(basew, &p, -1);
+  ASSERT_NE(nullptr, pr);
+  EXPECT_EQ(0, panelreel_validate(basew, pr));
+  ASSERT_EQ(0, panelreel_destroy(pr));
+  EXPECT_EQ(OK, del_panel(base));
+  EXPECT_EQ(OK, delwin(basew));
+  ASSERT_EQ(0, outcurses_stop(true));
+}
 TEST_F(PanelReelTest, SubwinNoOffsetGeom) {
   if(getenv("TERM") == nullptr){
     GTEST_SKIP();
