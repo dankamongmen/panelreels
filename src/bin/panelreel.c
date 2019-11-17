@@ -119,6 +119,12 @@ new_tabletctx(struct panelreel* pr, unsigned *id){
   return tctx;
 }
 
+static int
+handle_input(WINDOW* w, int y, int x){
+  int key = mvwgetch(w, y, x);
+  return key;
+}
+
 struct panelreel* panelreel_demo(WINDOW* w){
   int x = 4, y = 4;
   panelreel_options popts = {
@@ -138,7 +144,7 @@ struct panelreel* panelreel_demo(WINDOW* w){
     .boff = 0,
   };
   tabletctx* tctxs = NULL;
-  struct panelreel* pr = panelreel_create(w, &popts);
+  struct panelreel* pr = panelreel_create(w, &popts, -1);
   if(pr == NULL){
     fprintf(stderr, "Error creating panelreel\n");
     return NULL;
@@ -159,10 +165,9 @@ struct panelreel* panelreel_demo(WINDOW* w){
     wclrtoeol(w);
     pair = COLOR_BLUE;
     wattr_set(w, A_NORMAL, 0, &pair);
-    key = mvwgetch(w, 3, 2);
+    key = handle_input(w, 3, 2);
     clrtoeol();
     struct tabletctx* newtablet = NULL;
-    clrtoeol();
     switch(key){
       case 'a': newtablet = new_tabletctx(pr, &id); break;
       case 'b': newtablet = new_tabletctx(pr, &id); break;
