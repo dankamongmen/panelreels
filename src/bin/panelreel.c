@@ -130,6 +130,7 @@ handle_input(WINDOW* w, struct panelreel* pr, int efd, int y, int x){
   };
   int key = -1;
   int pret;
+  wrefresh(w);
   do{
     pret = poll(fds, sizeof(fds) / sizeof(*fds), -1);
     if(pret < 0){
