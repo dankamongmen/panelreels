@@ -47,28 +47,32 @@ tabletdraw(PANEL* p, int begx, int begy, int maxx, int maxy, bool cliptop,
   WINDOW* w = panel_window(p);
   cchar_t cch;
   wchar_t cchbuf[2];
-  swprintf(cchbuf, sizeof(cchbuf) / sizeof(*cchbuf), L"%x", tctx->lines % 16);
-  setcchar(&cch, cchbuf, A_NORMAL, 0, &tctx->cpair);
+  int cpair = tctx->cpair;
   for(y = begy ; y <= maxy ; ++y){
     if(y - begy >= tctx->lines){
       break;
     }
     err |= wmove(w, y, begx);
+    swprintf(cchbuf, sizeof(cchbuf) / sizeof(*cchbuf), L"%x", y % 16);
+    setcchar(&cch, cchbuf, A_NORMAL, 0, &cpair);
     for(x = begx ; x <= maxx ; ++x){
       // lower-right corner always returns an error unless scrollok() is used
       wadd_wch(w, &cch);
     }
+    ++cpair;
   }
-  int cpair = COLOR_BRIGHTWHITE;
+  cpair = COLOR_BRIGHTWHITE;
   wattr_set(w, A_NORMAL, 0, &cpair);
   setcchar(&cch, cchbuf, A_NORMAL, 0, &cpair);
   if(cliptop){
-    err |= mvwprintw(w, maxy, begx, "[#%u %dll %u/%u] ", tctx->id, tctx->lines, begy, maxy);
+    err |= mvwprintw(w, maxy, begx, "[#%u %d line%s %u/%u] ", tctx->id, tctx->lines,
+                     tctx->lines == 1 ? "" : "s", begy, maxy);
   }else{
-    err |= mvwprintw(w, begy, begx, "[#%u %dll %u/%u] ", tctx->id, tctx->lines, begy, maxy);
+    err |= mvwprintw(w, begy, begx, "[#%u %d line%s %u/%u] ", tctx->id, tctx->lines,
+                     tctx->lines == 1 ? "" : "s", begy, maxy);
   }
-// fprintf(stderr, "  \\--> callback for %d, %d lines (%d/%d -> %d/%d) wrote: %d ret: %d\n", tctx->id,
-//     tctx->lines, begy, begx, maxy, maxx, y - begy, err);
+//fprintf(stderr, "  \\--> callback for %d, %d lines (%d/%d -> %d/%d) wrote: %d ret: %d\n", tctx->id,
+//    tctx->lines, begy, begx, maxy, maxx, y - begy, err);
   pthread_mutex_unlock(&tctx->lock);
   assert(OK == err);
   return y - begy;

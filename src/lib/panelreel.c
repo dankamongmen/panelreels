@@ -174,7 +174,6 @@ tablet_columns(const panelreel* pr, int* begx, int* begy, int* lenx, int* leny,
   }else if(direction < 0){
     *leny = frontiery - *begy;
   }
-// fprintf(stderr, "tabletplacement: base %d/%d len %d/%d\n", *begx, *begy, *lenx, *leny);
   return 0;
 }
 
@@ -190,11 +189,11 @@ tablet_columns(const panelreel* pr, int* begx, int* begy, int* lenx, int* leny,
 static int
 panelreel_draw_tablet(const panelreel* pr, tablet* t, int frontiery,
                       int direction){
-assert(direction >= 0); // FIXME don't yet support drawing up
   int lenx, leny, begy, begx;
   WINDOW* w;
   PANEL* fp = t->p;
   if(tablet_columns(pr, &begx, &begy, &lenx, &leny, frontiery, direction)){
+//fprintf(stderr, "no room: %p:%p base %d/%d len %d/%d\n", t, fp, begx, begy, lenx, leny);
 // fprintf(stderr, "FRONTIER DONE!!!!!!\n");
     if(fp){
 // fprintf(stderr, "HIDING %p at frontier %d (dir %d) with %d\n", t, frontiery, direction, leny);
@@ -206,6 +205,8 @@ assert(direction >= 0); // FIXME don't yet support drawing up
     }
     return 0;
   }
+assert(direction >= 0); // FIXME don't yet support drawing up except to hide
+//fprintf(stderr, "tplacement: %p:%p base %d/%d len %d/%d\n", t, fp, begx, begy, lenx, leny);
 // fprintf(stderr, "DRAWING %p at frontier %d (dir %d) with %d\n", t, frontiery, direction, leny);
   if(fp == NULL){ // create a panel for the tablet
     w = newwin(leny + 1, lenx, begy, begx);
@@ -319,16 +320,15 @@ panelreel_arrange(const panelreel* pr){
   }
   // FIXME keep going forward, hiding those no longer visible
   // move up above the focused tablet, filling up the reel to the top
-  working = focused;
-  window_coordinates(panel_window(working->p), &wbegy, &wbegx, &wleny, &wlenx);
-  frontiery = wbegy - 1;
-  while(frontiery > pbegy + 1){
-    if((working = working->prev) == focused){
-      break;
-    }
-    ret |= panelreel_draw_tablet(pr, working, frontiery, -1);
-    if(working->p){
-      window_coordinates(panel_window(working->p), &wbegy, &wbegx, &wleny, &wlenx);
+  tablet* upworking = focused;
+  while(upworking->prev != working){
+    window_coordinates(panel_window(upworking->p), &wbegy, &wbegx, &wleny, &wlenx);
+//fprintf(stderr, "MOVING ON UP: %d %d\n", frontiery, wbegy - 2);
+    frontiery = wbegy - 2;
+    upworking = upworking->prev;
+    ret |= panelreel_draw_tablet(pr, upworking, frontiery, -1);
+    if(upworking->p){
+      window_coordinates(panel_window(upworking->p), &wbegy, &wbegx, &wleny, &wlenx);
       frontiery = wbegy - 2;
     }
   }
@@ -662,7 +662,7 @@ int panelreel_validate(WINDOW* parent, panelreel* pr){
       if(tstart == y - 1){
         tstart = ty;
         tend = maxty;
-// fprintf(stderr, "START %p TEND: %d TSTART: %d\n", t, tend, tstart);
+//fprintf(stderr, "START %p TEND: %d TSTART: %d\n", t, tend, tstart);
       }else{
         if(tx != ltarg || maxtx != rtarg){
           assert(ltarg == tx);
@@ -670,30 +670,29 @@ int panelreel_validate(WINDOW* parent, panelreel* pr){
         }
         if(maxty < tstart){
           if(maxty != tstart - 2){
-// fprintf(stderr, "BAD %p TSTART: %d TY: %d MAXTY: %d\n", t, tstart, ty, maxty);
+//fprintf(stderr, "BAD %p TSTART: %d TY: %d MAXTY: %d\n", t, tstart, ty, maxty);
             assert(maxty == tstart - 2);
             return -1;
           }
           tstart = ty;
-// fprintf(stderr, "GOOD %p TSTART: %d TY: %d MAXTY: %d\n", t, tstart, ty, maxty);
+//fprintf(stderr, "GOOD %p TSTART: %d TY: %d MAXTY: %d\n", t, tstart, ty, maxty);
         }else{
           if(ty > tend + 2){ // came back around, catch it below
             allvisible = true;
             break;
           }
-          if(ty != tend + 2){
-// fprintf(stderr, "BAD %p TEND: %d TY: %d MAXTY: %d\n", t, tend, ty, maxty);
-            assert(ty == tend + 2);
-            return -1;
+          if(maxty >= tend){
+//fprintf(stderr, "GOOD %p TEND: %d TY: %d MAXTY: %d\n", t, tend, ty, maxty);
+            tend = maxty;
+          }else{
+//fprintf(stderr, "BADSKIP %p TEND: %d TY: %d MAXTY: %d\n", t, tend, ty, maxty);
           }
-// fprintf(stderr, "GOOD %p TEND: %d TY: %d MAXTY: %d\n", t, tend, ty, maxty);
-          tend = maxty;
         }
       }
     }while((t = t->prev) != pr->tablets);
     if(t != pr->tablets){ // don't repeat if we covered all tablets
       // work our way down from the focus (not including the focus)
-// fprintf(stderr, "EASTBOUND &  DOWN T: %p TABS: %p\n", t, pr->tablets);
+//fprintf(stderr, "EASTBOUND & DOWN TEND: %d T: %p TABS: %p\n", tend, t, pr->tablets);
       for(t = pr->tablets->next ; t != pr->tablets ; t = t->next){
         tp = t->p;
         if(tp == NULL){ // FIXME verify that no later ones have a PANEL
@@ -711,19 +710,18 @@ int panelreel_validate(WINDOW* parent, panelreel* pr){
           assert(ltarg == tx);
           assert(rtarg == maxtx);
         }
-        if(ty != tend + 2){
-// fprintf(stderr, "BAD %p TEND: %d TY: %d MAXTY: %d\n", t, tend, ty, maxty);
-          assert(ty == tend + 2);
-          return -1;
+        if(maxty >= tend){
+//fprintf(stderr, "GOOD %p TEND: %d TY: %d MAXTY: %d LENTY: %d\n", t, tend, ty, maxty, lenty);
+          tend = maxty;
+        }else{
+//fprintf(stderr, "BADSKIP %p TEND: %d TY: %d MAXTY: %d LENTY: %d\n", t, tend, ty, maxty, lenty);
         }
-// fprintf(stderr, "GOOD %p TEND: %d TY: %d MAXTY: %d\n", t, tend, ty, maxty);
-        tend = maxty;
       }
     }else{
       allvisible = true;
     }
     const int btarg = maxy - !(pr->popts.bordermask & BORDERMASK_BOTTOM);
-// fprintf(stderr, "ALL: %d TSTART: %d TEND: %d BTARG: %d\n", allvisible, tstart, tend, btarg);
+//fprintf(stderr, "ALL: %d TSTART: %d TEND: %d BTARG: %d\n", allvisible, tstart, tend, btarg);
     // Coverage ought always begin at the top
     if(tstart != y + !(pr->popts.bordermask & BORDERMASK_TOP)){
       assert(tstart == y + !(pr->popts.bordermask & BORDERMASK_TOP));
