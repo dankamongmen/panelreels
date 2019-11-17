@@ -111,7 +111,7 @@ TEST_F(PanelReelTest, DeleteActiveTablet) {
   ASSERT_NE(nullptr, pr);
   struct tablet* t = panelreel_add(pr, nullptr, nullptr, panelcb, nullptr);
   ASSERT_NE(nullptr, t);
-  EXPECT_EQ(0, del_active_tablet(pr));
+  EXPECT_EQ(0, panelreel_del_active(pr));
   ASSERT_EQ(0, stop_outcurses(true));
 }
 

@@ -463,7 +463,7 @@ tablet* panelreel_add(panelreel* pr, tablet* after, tablet *before,
   return t;
 }
 
-int del_active_tablet(struct panelreel* pr){
+int panelreel_del_active(struct panelreel* pr){
   return panelreel_del(pr, pr->tablets);
 }
 

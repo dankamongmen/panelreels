@@ -153,7 +153,7 @@ int tablet_update(struct panelreel* pr, struct tablet* t);
 int panelreel_del(struct panelreel* pr, struct tablet* t);
 
 // Delete the active tablet. Returns -1 if there are no tablets.
-int del_active_tablet(struct panelreel* pr);
+int panelreel_del_active(struct panelreel* pr);
 
 // Move to the specified location within the containing WINDOW.
 int panelreel_move(struct panelreel* pr, int x, int y);
