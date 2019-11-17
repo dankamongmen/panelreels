@@ -23,16 +23,18 @@ typedef struct tabletctx {
 static void
 kill_tablet(tabletctx** tctx){
   tabletctx* t = *tctx;
-  if(pthread_cancel(t->tid)){
-    fprintf(stderr, "Warning: error sending pthread_cancel (%s)\n", strerror(errno));
+  if(t){
+    if(pthread_cancel(t->tid)){
+      fprintf(stderr, "Warning: error sending pthread_cancel (%s)\n", strerror(errno));
+    }
+    if(pthread_join(t->tid, NULL)){
+      fprintf(stderr, "Warning: error joining pthread (%s)\n", strerror(errno));
+    }
+    panelreel_del(t->pr, t->t);
+    *tctx = t->next;
+    pthread_mutex_destroy(&t->lock);
+    free(t);
   }
-  if(pthread_join(t->tid, NULL)){
-    fprintf(stderr, "Warning: error joining pthread (%s)\n", strerror(errno));
-  }
-  panelreel_del(t->pr, t->t);
-  *tctx = t->next;
-  pthread_mutex_destroy(&t->lock);
-  free(t);
 }
 
 static int
@@ -54,7 +56,7 @@ tabletdraw(PANEL* p, int begx, int begy, int maxx, int maxy, bool cliptop,
     err |= wmove(w, y, begx);
     for(x = begx ; x <= maxx ; ++x){
       // lower-right corner always returns an error unless scrollok() is used
-      /*err |= */wadd_wch(w, &cch);
+      wadd_wch(w, &cch);
     }
   }
   int cpair = COLOR_BRIGHTWHITE;
