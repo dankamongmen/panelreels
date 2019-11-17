@@ -1,9 +1,12 @@
 #include <errno.h>
+#include <unistd.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
 #include <pthread.h>
+#include <sys/poll.h>
 #include <outcurses.h>
+#include <sys/eventfd.h>
 #include "demo.h"
 
 typedef struct tabletctx {
@@ -120,8 +123,30 @@ new_tabletctx(struct panelreel* pr, unsigned *id){
 }
 
 static int
-handle_input(WINDOW* w, int y, int x){
-  int key = mvwgetch(w, y, x);
+handle_input(WINDOW* w, struct panelreel* pr, int efd, int y, int x){
+  struct pollfd fds[2] = {
+    { .fd = STDIN_FILENO, .events = POLLIN, .revents = 0, },
+    { .fd = efd,          .events = POLLIN, .revents = 0, },
+  };
+  int key = -1;
+  int pret;
+  do{
+    pret = poll(fds, sizeof(fds) / sizeof(*fds), -1);
+    if(pret < 0){
+      fprintf(stderr, "Error polling on stdin/eventfd (%s)\n", strerror(errno));
+    }else{
+      if(fds[0].revents & POLLIN){
+        key = mvwgetch(w, y, x);
+      }
+      if(fds[1].revents & POLLIN){
+        uint64_t val;
+        read(efd, &val, sizeof(val));
+        if(key < 0){
+          panelreel_redraw(pr);
+        }
+      }
+    }
+  }while(key < 0);
   return key;
 }
 
@@ -143,10 +168,16 @@ struct panelreel* panelreel_demo(WINDOW* w){
     .roff = 0,
     .boff = 0,
   };
+  int efd = eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK);
+  if(efd < 0){
+    fprintf(stderr, "Error creating eventfd (%s)\n", strerror(errno));
+    return NULL;
+  }
   tabletctx* tctxs = NULL;
-  struct panelreel* pr = panelreel_create(w, &popts, -1);
+  struct panelreel* pr = panelreel_create(w, &popts, efd);
   if(pr == NULL){
     fprintf(stderr, "Error creating panelreel\n");
+    close(efd);
     return NULL;
   }
   // Press a for a new panel above the current, c for a new one below the
@@ -165,7 +196,7 @@ struct panelreel* panelreel_demo(WINDOW* w){
     wclrtoeol(w);
     pair = COLOR_BLUE;
     wattr_set(w, A_NORMAL, 0, &pair);
-    key = handle_input(w, 3, 2);
+    key = handle_input(w, pr, efd, 3, 2);
     clrtoeol();
     struct tabletctx* newtablet = NULL;
     switch(key){
@@ -193,5 +224,6 @@ struct panelreel* panelreel_demo(WINDOW* w){
   while(tctxs){
     kill_tablet(&tctxs);
   }
+  close(efd);
   return pr;
 }
