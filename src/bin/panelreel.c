@@ -64,12 +64,14 @@ tabletdraw(PANEL* p, int begx, int begy, int maxx, int maxy, bool cliptop,
   cpair = COLOR_BRIGHTWHITE;
   wattr_set(w, A_NORMAL, 0, &cpair);
   setcchar(&cch, cchbuf, A_NORMAL, 0, &cpair);
-  if(cliptop){
-    err |= mvwprintw(w, maxy, begx, "[#%u %d line%s %u/%u] ", tctx->id, tctx->lines,
-                     tctx->lines == 1 ? "" : "s", begy, maxy);
-  }else{
-    err |= mvwprintw(w, begy, begx, "[#%u %d line%s %u/%u] ", tctx->id, tctx->lines,
-                     tctx->lines == 1 ? "" : "s", begy, maxy);
+  if(y != begy){
+    if(cliptop){
+      err |= mvwprintw(w, maxy, begx, "[#%u %d line%s %u/%u] ", tctx->id, tctx->lines,
+                      tctx->lines == 1 ? "" : "s", begy, maxy);
+    }else{
+      err |= mvwprintw(w, begy, begx, "[#%u %d line%s %u/%u] ", tctx->id, tctx->lines,
+                      tctx->lines == 1 ? "" : "s", begy, maxy);
+    }
   }
 //fprintf(stderr, "  \\--> callback for %d, %d lines (%d/%d -> %d/%d) wrote: %d ret: %d\n", tctx->id,
 //    tctx->lines, begy, begx, maxy, maxx, y - begy, err);
@@ -159,7 +161,7 @@ handle_input(WINDOW* w, struct panelreel* pr, int efd, int y, int x){
 }
 
 static struct panelreel*
-panelreel_demo_core(WINDOW* w, tabletctx** tctxs){
+panelreel_demo_core(WINDOW* w, int efd, tabletctx** tctxs){
   int x = 4, y = 4;
   panelreel_options popts = {
     .infinitescroll = true,
@@ -177,15 +179,9 @@ panelreel_demo_core(WINDOW* w, tabletctx** tctxs){
     .roff = 0,
     .boff = 0,
   };
-  int efd = eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK);
-  if(efd < 0){
-    fprintf(stderr, "Error creating eventfd (%s)\n", strerror(errno));
-    return NULL;
-  }
   struct panelreel* pr = panelreel_create(w, &popts, efd);
   if(pr == NULL){
     fprintf(stderr, "Error creating panelreel\n");
-    close(efd);
     return NULL;
   }
   // Press a for a new panel above the current, c for a new one below the
@@ -229,14 +225,19 @@ panelreel_demo_core(WINDOW* w, tabletctx** tctxs){
     }
     panelreel_validate(w, pr); // do what, if not assert()ing? FIXME
   }while(key != 'q');
-  close(efd);
   return pr;
 }
 
 int panelreel_demo(WINDOW* w){
   tabletctx* tctxs = NULL;
+  int efd = eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK);
+  if(efd < 0){
+    fprintf(stderr, "Error creating eventfd (%s)\n", strerror(errno));
+    return -1;
+  }
   struct panelreel* pr;
-  if((pr = panelreel_demo_core(w, &tctxs)) == NULL){
+  if((pr = panelreel_demo_core(w, efd, &tctxs)) == NULL){
+    close(efd);
     return -1;
   }
   fadeout(w, FADE_MILLISECONDS);
@@ -247,5 +248,6 @@ int panelreel_demo(WINDOW* w){
     fprintf(stderr, "Error destroying panelreel\n");
     return -1;
   }
+  close(efd);
   return 0;
 }
