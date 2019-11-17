@@ -158,7 +158,8 @@ handle_input(WINDOW* w, struct panelreel* pr, int efd, int y, int x){
   return key;
 }
 
-struct panelreel* panelreel_demo(WINDOW* w){
+static struct panelreel*
+panelreel_demo_core(WINDOW* w, tabletctx** tctxs){
   int x = 4, y = 4;
   panelreel_options popts = {
     .infinitescroll = true,
@@ -181,7 +182,6 @@ struct panelreel* panelreel_demo(WINDOW* w){
     fprintf(stderr, "Error creating eventfd (%s)\n", strerror(errno));
     return NULL;
   }
-  tabletctx* tctxs = NULL;
   struct panelreel* pr = panelreel_create(w, &popts, efd);
   if(pr == NULL){
     fprintf(stderr, "Error creating panelreel\n");
@@ -219,19 +219,33 @@ struct panelreel* panelreel_demo(WINDOW* w){
       case 'k': panelreel_prev(pr); break;
       case KEY_DOWN:
       case 'j': panelreel_next(pr); break;
-      case KEY_DC: kill_tablet(&tctxs); break;
+      case KEY_DC: kill_tablet(tctxs); break;
       case 'q': break;
       default: mvwprintw(w, 3, 2, "Unknown keycode (%d)\n", key);
     }
     if(newtablet){
-      newtablet->next = tctxs;
-      tctxs = newtablet;
+      newtablet->next = *tctxs;
+      *tctxs = newtablet;
     }
     panelreel_validate(w, pr); // do what, if not assert()ing? FIXME
   }while(key != 'q');
+  close(efd);
+  return pr;
+}
+
+int panelreel_demo(WINDOW* w){
+  tabletctx* tctxs = NULL;
+  struct panelreel* pr;
+  if((pr = panelreel_demo_core(w, &tctxs)) == NULL){
+    return -1;
+  }
+  fadeout(w, FADE_MILLISECONDS);
   while(tctxs){
     kill_tablet(&tctxs);
   }
-  close(efd);
-  return pr;
+  if(panelreel_destroy(pr)){
+    fprintf(stderr, "Error destroying panelreel\n");
+    return -1;
+  }
+  return 0;
 }

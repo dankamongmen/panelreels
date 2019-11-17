@@ -21,20 +21,6 @@ print_intro(WINDOW *w){
   }while(key == ERR);
 }
 
-static int
-prdemo(WINDOW* w){
-  struct panelreel* pr;
-  if((pr = panelreel_demo(w)) == NULL){
-    return -1;
-  }
-  fadeout(w, FADE_MILLISECONDS);
-  if(panelreel_destroy(pr)){
-    fprintf(stderr, "Error destroying panelreel\n");
-    return -1;
-  }
-  return 0;
-}
-
 static void
 usage(const char* basename, int status){
   FILE* f = status == EXIT_SUCCESS ? stdout : stderr;
@@ -89,7 +75,7 @@ int main(int argc, char** argv){
     ret |= widecolor_demo(w);
   }
   if(!only_widechar){
-    ret |= prdemo(w);
+    ret |= panelreel_demo(w);
   }
   if(outcurses_stop(true)){
     fprintf(stderr, "Error initializing outcurses\n");
