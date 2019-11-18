@@ -159,7 +159,7 @@ handle_input(WINDOW* w, struct panelreel* pr, int efd, int y, int x){
 }
 
 static struct panelreel*
-panelreel_demo_core(WINDOW* w, tabletctx** tctxs){
+panelreel_demo_core(WINDOW* w, int efd, tabletctx** tctxs){
   int x = 4, y = 4;
   panelreel_options popts = {
     .infinitescroll = true,
@@ -177,15 +177,9 @@ panelreel_demo_core(WINDOW* w, tabletctx** tctxs){
     .roff = 0,
     .boff = 0,
   };
-  int efd = eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK);
-  if(efd < 0){
-    fprintf(stderr, "Error creating eventfd (%s)\n", strerror(errno));
-    return NULL;
-  }
   struct panelreel* pr = panelreel_create(w, &popts, efd);
   if(pr == NULL){
     fprintf(stderr, "Error creating panelreel\n");
-    close(efd);
     return NULL;
   }
   // Press a for a new panel above the current, c for a new one below the
@@ -229,20 +223,26 @@ panelreel_demo_core(WINDOW* w, tabletctx** tctxs){
     }
     panelreel_validate(w, pr); // do what, if not assert()ing? FIXME
   }while(key != 'q');
-  close(efd);
   return pr;
 }
 
 int panelreel_demo(WINDOW* w){
   tabletctx* tctxs = NULL;
   struct panelreel* pr;
-  if((pr = panelreel_demo_core(w, &tctxs)) == NULL){
+  int efd = eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK);
+  if(efd < 0){
+    fprintf(stderr, "Error creating eventfd (%s)\n", strerror(errno));
+    return -1;
+  }
+  if((pr = panelreel_demo_core(w, efd, &tctxs)) == NULL){
+    close(efd);
     return -1;
   }
   fadeout(w, FADE_MILLISECONDS);
   while(tctxs){
     kill_tablet(&tctxs);
   }
+  close(efd);
   if(panelreel_destroy(pr)){
     fprintf(stderr, "Error destroying panelreel\n");
     return -1;
