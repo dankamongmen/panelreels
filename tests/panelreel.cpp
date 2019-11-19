@@ -2,15 +2,18 @@
 #include <iostream>
 
 class PanelReelTest : public :: testing::Test {
+  void SetUp() override {
+    if(getenv("TERM") == nullptr){
+      GTEST_SKIP();
+    }
+  }
+
   void TearDown() override {
     endwin();
   }
 };
 
 TEST_F(PanelReelTest, InitLinear) {
-  if(getenv("TERM") == nullptr){
-    GTEST_SKIP();
-  }
   panelreel_options p = { };
   ASSERT_NE(nullptr, outcurses_init(true));
   struct panelreel* pr = panelreel_create(stdscr, &p, -1);
@@ -19,9 +22,6 @@ TEST_F(PanelReelTest, InitLinear) {
 }
 
 TEST_F(PanelReelTest, InitLinearInfinite) {
-  if(getenv("TERM") == nullptr){
-    GTEST_SKIP();
-  }
   panelreel_options p{};
   p.infinitescroll = true;
   ASSERT_NE(nullptr, outcurses_init(true));
@@ -31,9 +31,6 @@ TEST_F(PanelReelTest, InitLinearInfinite) {
 }
 
 TEST_F(PanelReelTest, InitCircular) {
-  if(getenv("TERM") == nullptr){
-    GTEST_SKIP();
-  }
   panelreel_options p{};
   p.infinitescroll = true;
   p.circular = true;
@@ -46,9 +43,6 @@ TEST_F(PanelReelTest, InitCircular) {
 
 // circular is not allowed to be true when infinitescroll is false
 TEST_F(PanelReelTest, FiniteCircleRejected) {
-  if(getenv("TERM") == nullptr){
-    GTEST_SKIP();
-  }
   panelreel_options p{};
   p.infinitescroll = false;
   p.circular = true;
@@ -61,9 +55,6 @@ TEST_F(PanelReelTest, FiniteCircleRejected) {
 // We ought be able to invoke panelreel_next() and panelreel_prev() safely,
 // even if there are no tablets.
 TEST_F(PanelReelTest, MovementWithoutTablets) {
-  if(getenv("TERM") == nullptr){
-    GTEST_SKIP();
-  }
   panelreel_options p{};
   p.infinitescroll = false;
   ASSERT_NE(nullptr, outcurses_init(true));
@@ -86,9 +77,6 @@ int panelcb(PANEL* p, int begx, int begy, int maxx, int maxy, bool cliptop,
 }
 
 TEST_F(PanelReelTest, OneTablet) {
-  if(getenv("TERM") == nullptr){
-    GTEST_SKIP();
-  }
   panelreel_options p{};
   p.infinitescroll = false;
   ASSERT_NE(nullptr, outcurses_init(true));
@@ -101,9 +89,6 @@ TEST_F(PanelReelTest, OneTablet) {
 }
 
 TEST_F(PanelReelTest, DeleteActiveTablet) {
-  if(getenv("TERM") == nullptr){
-    GTEST_SKIP();
-  }
   panelreel_options p{};
   p.infinitescroll = false;
   ASSERT_NE(nullptr, outcurses_init(true));
@@ -116,9 +101,6 @@ TEST_F(PanelReelTest, DeleteActiveTablet) {
 }
 
 TEST_F(PanelReelTest, NoBorder) {
-  if(getenv("TERM") == nullptr){
-    GTEST_SKIP();
-  }
   panelreel_options p{};
   p.bordermask = BORDERMASK_LEFT | BORDERMASK_RIGHT |
                   BORDERMASK_TOP | BORDERMASK_BOTTOM;
@@ -129,9 +111,6 @@ TEST_F(PanelReelTest, NoBorder) {
 }
 
 TEST_F(PanelReelTest, BadBorderBitsRejected) {
-  if(getenv("TERM") == nullptr){
-    GTEST_SKIP();
-  }
   panelreel_options p{};
   p.bordermask = BORDERMASK_LEFT * 2;
   ASSERT_NE(nullptr, outcurses_init(true));
@@ -141,9 +120,6 @@ TEST_F(PanelReelTest, BadBorderBitsRejected) {
 }
 
 TEST_F(PanelReelTest, NoTabletBorder) {
-  if(getenv("TERM") == nullptr){
-    GTEST_SKIP();
-  }
   panelreel_options p{};
   p.tabletmask = BORDERMASK_LEFT | BORDERMASK_RIGHT |
                   BORDERMASK_TOP | BORDERMASK_BOTTOM;
@@ -154,9 +130,6 @@ TEST_F(PanelReelTest, NoTabletBorder) {
 }
 
 TEST_F(PanelReelTest, BadTabletBorderBitsRejected) {
-  if(getenv("TERM") == nullptr){
-    GTEST_SKIP();
-  }
   panelreel_options p{};
   p.tabletmask = BORDERMASK_LEFT * 2;
   ASSERT_NE(nullptr, outcurses_init(true));
@@ -187,9 +160,6 @@ PANEL* make_targwin(WINDOW* w) {
 }
 
 TEST_F(PanelReelTest, InitWithinSubwin) {
-  if(getenv("TERM") == nullptr){
-    GTEST_SKIP();
-  }
   panelreel_options p{};
   p.loff = 1;
   p.roff = 1;
@@ -211,9 +181,6 @@ TEST_F(PanelReelTest, InitWithinSubwin) {
 }
 
 TEST_F(PanelReelTest, SubwinNoPanelreelBorders) {
-  if(getenv("TERM") == nullptr){
-    GTEST_SKIP();
-  }
   panelreel_options p{};
   p.loff = 1;
   p.roff = 1;
@@ -236,9 +203,6 @@ TEST_F(PanelReelTest, SubwinNoPanelreelBorders) {
   ASSERT_EQ(0, outcurses_stop(true));
 }
 TEST_F(PanelReelTest, SubwinNoOffsetGeom) {
-  if(getenv("TERM") == nullptr){
-    GTEST_SKIP();
-  }
   panelreel_options p{};
   ASSERT_NE(nullptr, outcurses_init(true));
   EXPECT_EQ(0, clear());
