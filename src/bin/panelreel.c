@@ -37,60 +37,103 @@ kill_tablet(tabletctx** tctx){
   }
 }
 
+// We need write in reverse order (since only the bottom will be seen, if we're
+// partially off-screen), but also leave unused space at the end (since
+// wresize() only keeps the top and left on a shrink).
 static int
-tabletdraw(PANEL* p, int begx, int begy, int maxx, int maxy, bool cliptop,
-           void* vtabletctx){
-  int err = OK;
-  tabletctx* tctx = vtabletctx;
-  pthread_mutex_lock(&tctx->lock);
-  int x, y;
-  WINDOW* w = panel_window(p);
-  cchar_t cch;
+tabletup(WINDOW* w, int begx, int begy, int maxx, int maxy,
+         tabletctx* tctx, int cpair){
   wchar_t cchbuf[2];
-  int cpair = tctx->cpair;
+  cchar_t cch;
+  int y, idx;
+  idx = tctx->lines;
+  if(maxy - begy > tctx->lines){
+    maxy -= (maxy - begy - tctx->lines);
+  }
+  for(y = maxy ; y >= begy ; --y){
+    wmove(w, y, begx);
+    swprintf(cchbuf, sizeof(cchbuf) / sizeof(*cchbuf), L"%x", idx % 16);
+    setcchar(&cch, cchbuf, A_NORMAL, 0, &cpair);
+    int x;
+    for(x = begx ; x <= maxx ; ++x){
+      // lower-right corner always returns an error unless scrollok() is used
+      wadd_wch(w, &cch);
+    }
+    ++cpair;
+    if(--idx == 0){
+      break;
+    }
+  }
+  return tctx->lines - idx;
+}
+
+static int
+tabletdown(WINDOW*w, int begx, int begy, int maxx, int maxy,
+           tabletctx* tctx, int cpair){
+  wchar_t cchbuf[2];
+  cchar_t cch;
+  int y;
   for(y = begy ; y <= maxy ; ++y){
     if(y - begy >= tctx->lines){
       break;
     }
-    err |= wmove(w, y, begx);
+    wmove(w, y, begx);
     swprintf(cchbuf, sizeof(cchbuf) / sizeof(*cchbuf), L"%x", y % 16);
     setcchar(&cch, cchbuf, A_NORMAL, 0, &cpair);
+    int x;
     for(x = begx ; x <= maxx ; ++x){
       // lower-right corner always returns an error unless scrollok() is used
       wadd_wch(w, &cch);
     }
     ++cpair;
   }
+  return y - begy;
+}
+
+static int
+tabletdraw(PANEL* p, int begx, int begy, int maxx, int maxy, bool cliptop,
+           void* vtabletctx){
+  int err = OK;
+  tabletctx* tctx = vtabletctx;
+  pthread_mutex_lock(&tctx->lock);
+  WINDOW* w = panel_window(p);
+  int cpair = tctx->cpair;
+  int ll;
+  if(cliptop){
+    ll = tabletup(w, begx, begy, maxx, maxy, tctx, cpair);
+  }else{
+    ll = tabletdown(w, begx, begy, maxx, maxy, tctx, cpair);
+  }
   cpair = COLOR_BRIGHTWHITE;
   wattr_set(w, A_NORMAL, 0, &cpair);
-  setcchar(&cch, cchbuf, A_NORMAL, 0, &cpair);
-  if(y != begy){
-    if(cliptop){
-      err |= mvwprintw(w, maxy, begx, "[#%u %d line%s %u/%u] ", tctx->id, tctx->lines,
-                      tctx->lines == 1 ? "" : "s", begy, maxy);
-    }else{
-      err |= mvwprintw(w, begy, begx, "[#%u %d line%s %u/%u] ", tctx->id, tctx->lines,
-                      tctx->lines == 1 ? "" : "s", begy, maxy);
-    }
+  if(ll){
+    err |= mvwprintw(w,
+                     begy + cliptop, begx,
+                     "[#%u %d line%s %u/%u] ",
+                     tctx->id, tctx->lines, tctx->lines == 1 ? "" : "s",
+                     begy, maxy);
   }
-//fprintf(stderr, "  \\--> callback for %d, %d lines (%d/%d -> %d/%d) wrote: %d ret: %d\n", tctx->id,
-//    tctx->lines, begy, begx, maxy, maxx, y - begy, err);
+fprintf(stderr, "  \\--> callback for %d, %d lines (%d/%d -> %d/%d) dir: %s wrote: %d ret: %d\n", tctx->id,
+    tctx->lines, begy, begx, maxy, maxx,
+    cliptop ? "up" : "down", ll, err);
   pthread_mutex_unlock(&tctx->lock);
   assert(OK == err);
-  return y - begy;
+  return ll;
 }
 
 // Each tablet has an associated thread which will periodically send update
 // events for its tablet.
 static void*
 tablet_thread(void* vtabletctx){
+  static int MINSECONDS = 0;
   tabletctx* tctx = vtabletctx;
   while(true){
     struct timespec ts;
-    ts.tv_sec = random() % 3;
+    ts.tv_sec = random() % 3 + MINSECONDS;
     ts.tv_nsec = random() % 1000000000;
     nanosleep(&ts, NULL);
     int action = random() % 5;
+    pthread_mutex_lock(&tctx->lock);
     if(action < 2){
       if((tctx->lines -= (action + 1)) < 1){
         tctx->lines = 1;
@@ -102,6 +145,7 @@ tablet_thread(void* vtabletctx){
       }
       panelreel_touch(tctx->pr, tctx->t);
     }
+    pthread_mutex_unlock(&tctx->lock);
   }
   return tctx;
 }
@@ -204,6 +248,7 @@ panelreel_demo_core(WINDOW* w, int efd, tabletctx** tctxs){
     clrtoeol();
     struct tabletctx* newtablet = NULL;
     switch(key){
+      case 'p': sleep(60); exit(EXIT_FAILURE); break;
       case 'a': newtablet = new_tabletctx(pr, &id); break;
       case 'b': newtablet = new_tabletctx(pr, &id); break;
       case 'c': newtablet = new_tabletctx(pr, &id); break;
@@ -223,7 +268,7 @@ panelreel_demo_core(WINDOW* w, int efd, tabletctx** tctxs){
       newtablet->next = *tctxs;
       *tctxs = newtablet;
     }
-    panelreel_validate(w, pr); // do what, if not assert()ing? FIXME
+    //panelreel_validate(w, pr); // do what, if not assert()ing? FIXME
   }while(key != 'q');
   return pr;
 }
