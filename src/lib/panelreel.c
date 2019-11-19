@@ -134,7 +134,9 @@ draw_panelreel_borders(const panelreel* pr){
 
 // Calculate the starting and ending coordinates available for occupation by
 // the tablet, relative to the panelreel's WINDOW. Returns non-zero if the
-// tablet cannot be made visible as specified.
+// tablet cannot be made visible as specified. If this is the focused tablet
+// (direction == 0), it can take the entire reel -- frontiery is only a
+// suggestion in this case -- so give it the full breadth.
 static int
 tablet_columns(const panelreel* pr, int* begx, int* begy, int* lenx, int* leny,
                int frontiery, int direction){
@@ -144,12 +146,14 @@ tablet_columns(const panelreel* pr, int* begx, int* begy, int* lenx, int* leny,
   int begindraw = *begy + !(pr->popts.bordermask & BORDERMASK_TOP);
   // FIXME i think this fails to account for an absent panelreel bottom?
   int enddraw = maxy - !(pr->popts.bordermask & BORDERMASK_TOP);
-  if(frontiery < begindraw){
-    return -1;
-  }
-  if(frontiery > enddraw){
-// fprintf(stderr, "FRONTIER: %d ENDDRAW: %d\n", frontiery, enddraw);
-    return -1;
+  if(direction){
+    if(frontiery < begindraw){
+      return -1;
+    }
+    if(frontiery > enddraw){
+  // fprintf(stderr, "FRONTIER: %d ENDDRAW: %d\n", frontiery, enddraw);
+      return -1;
+    }
   }
   // account for the panelreel borders
   if(direction <= 0 && !(pr->popts.bordermask & BORDERMASK_TOP)){
@@ -167,12 +171,13 @@ tablet_columns(const panelreel* pr, int* begx, int* begy, int* lenx, int* leny,
     --*lenx;
   }
   // at this point, our coordinates describe the largest possible tablet for
-  // this panelreel. this is the correct solution for the focused tablet.
-  if(direction >= 0){
+  // this panelreel. this is the correct solution for the focused tablet. other
+  // tablets can only grow in one of two directions, so tighten them up.
+  if(direction > 0){
     *leny -= (frontiery - *begy);
     *begy = frontiery;
   }else if(direction < 0){
-    *leny = frontiery - *begy;
+    *leny = frontiery - *begy + 1;
   }
   return 0;
 }
@@ -180,7 +185,8 @@ tablet_columns(const panelreel* pr, int* begx, int* begy, int* lenx, int* leny,
 // Draw the specified tablet, if possible. A direction less than 0 means we're
 // laying out towards the top. Greater than zero means towards the bottom. 0
 // means this is the focused tablet, always the first one to be drawn.
-// frontiery is the line on which we're placing the tablet. For direction
+// frontiery is the line on which we're placing the tablet (in the case of the
+// focused window, this is only an ideal, subject to change). For direction
 // greater than or equal to 0, it's the top line of the tablet. For direction
 // less than 0, it's the bottom line. Gives the tablet all possible space to
 // work with (i.e. up to the edge we're approaching, or the entire panel for
@@ -205,9 +211,8 @@ panelreel_draw_tablet(const panelreel* pr, tablet* t, int frontiery,
     }
     return 0;
   }
-assert(direction >= 0); // FIXME don't yet support drawing up except to hide
-//fprintf(stderr, "tplacement: %p:%p base %d/%d len %d/%d\n", t, fp, begx, begy, lenx, leny);
-//fprintf(stderr, "DRAWING %p at frontier %d (dir %d) with %d\n", t, frontiery, direction, leny);
+// fprintf(stderr, "tplacement: %p:%p base %d/%d len %d/%d\n", t, fp, begx, begy, lenx, leny);
+// fprintf(stderr, "DRAWING %p at frontier %d (dir %d) with %d\n", t, frontiery, direction, leny);
   if(fp == NULL){ // create a panel for the tablet
     w = newwin(leny + 1, lenx, begy, begx);
     if(w == NULL){
@@ -260,20 +265,43 @@ assert(direction >= 0); // FIXME don't yet support drawing up except to hide
   bool cbdir = direction < 0 ? true : false;
 // fprintf(stderr, "calling! lenx/leny: %d/%d cbx/cby: %d/%d cbmaxx/cbmaxy: %d/%d dir: %d\n",
 //    lenx, leny, cbx, cby, cbmaxx, cbmaxy, direction);
-  // FIXME if cbmaxy < cby don't call, but that shouldn't happen?
   int ll = t->cbfxn(fp, cbx, cby, cbmaxx, cbmaxy, cbdir, t->curry);
+// fprintf(stderr, "RETURNRETURNRETURN %d (%d, %d)\n", ll, leny, cbmaxy);
   if(ll != leny){
-    if(ll == cbmaxy){
-// fprintf(stderr, "RESIZING (-1) from %d to %d\n", leny, ll + 1);
-      wresize(w, ll + 1, lenx);
+    if(ll == cbmaxy){ // only has one border visible (partially off-screen)
+      ++ll; // account for that border
+      wresize(w, ll, lenx);
       if(direction < 0){
         cliphead = true;
+        move_panel(fp, begy + leny - ll, begx);
+// fprintf(stderr, "MOVEDOWN CLIPPED RESIZED (-1) from %d to %d\n", leny, ll);
       }else{
         clipfoot = true;
+// fprintf(stderr, "RESIZED (-1) from %d to %d\n", leny, ll);
       }
-    }else{
-// fprintf(stderr, "RESIZING (-2) from %d to %d\n", leny, ll + 2);
-      wresize(w, ll + 2, lenx);
+    }else{ // both borders are visible
+      ll += 2; // account for both borders
+// fprintf(stderr, "RESIZING (-2) from %d to %d\n", leny, ll);
+      wresize(w, ll, lenx);
+      if(direction < 0){
+// fprintf(stderr, "MOVEDOWN UNCLIPPED (skip %d)\n", leny - ll);
+        if(move_panel(fp, begy + leny - ll, begx)){
+          return -1;
+        }
+      }
+    }
+    // The focused tablet will have been resized properly above, but it might
+    // be out of position (the focused tablet ought move as little as possible). 
+    // Move it back to the frontier, or the nearest line above if it has grown.
+    if(direction == 0){
+      if(leny - frontiery + 1 < ll){
+//fprintf(stderr, "frontieryIZING ADJ %d %d %d %d NEW %d\n", cbmaxy, leny,
+//         frontiery, ll, frontiery - ll + 1);
+        frontiery = leny - ll + 5; // FIXME where do these extra 4 come from? :/
+      }
+      if(move_panel(fp, frontiery, begx)){
+        return -1;
+      }
     }
   }
   draw_borders(w, pr->popts.tabletmask,
@@ -295,9 +323,15 @@ panelreel_arrange(const panelreel* pr){
   }
   int pbegy, pbegx, plenx, pleny; // panelreel window coordinates
   window_coordinates(panel_window(pr->p), &pbegy, &pbegx, &pleny, &plenx);
-  // FIXME preserve focusline across calls. for now, place focus at top
-  const unsigned focusline = pbegy + !(pr->popts.bordermask & BORDERMASK_TOP);
-  ret |= panelreel_draw_tablet(pr, focused, focusline, 0);
+  int fulcrum;
+  if(focused->p == NULL){
+    // FIXME fulcrum needs be bottom line if we're moving down to new window
+    fulcrum = pbegy + !(pr->popts.bordermask & BORDERMASK_TOP);
+  }else{ // focused was already present. want to stay where we are, if possible
+    fulcrum = getbegy(panel_window(focused->p));
+  }
+//fprintf(stderr, "PR dims: %d/%d + %d/%d fulcrum: %d\n", pbegy, pbegx, pleny, plenx, fulcrum);
+  ret |= panelreel_draw_tablet(pr, focused, fulcrum, 0);
   int wmaxy, wbegy, wbegx, wlenx, wleny; // working tablet window coordinates
   tablet* working = focused;
   int frontiery;
@@ -306,6 +340,7 @@ panelreel_arrange(const panelreel* pr){
     window_coordinates(panel_window(working->p), &wbegy, &wbegx, &wleny, &wlenx);
     wmaxy = wbegy + wleny - 1;
     frontiery = wmaxy + 2;
+//fprintf(stderr, "EASTBOUND AND DOWN: %d %d\n", frontiery, wmaxy + 2);
     working = working->next;
     ret |= panelreel_draw_tablet(pr, working, frontiery, 1);
     if(working->p == NULL){ // FIXME might be more to hide
@@ -315,18 +350,23 @@ panelreel_arrange(const panelreel* pr){
   // FIXME keep going forward, hiding those no longer visible
   // move up above the focused tablet, filling up the reel to the top
   tablet* upworking = focused;
-  while(upworking->prev != working){
+  while(upworking->prev != working || working->p == NULL){
     window_coordinates(panel_window(upworking->p), &wbegy, &wbegx, &wleny, &wlenx);
-//fprintf(stderr, "MOVING ON UP: %d %d\n", frontiery, wbegy - 2);
+//fprintf(stderr, "MOVIN' ON UP: %d %d\n", frontiery, wbegy - 2);
     frontiery = wbegy - 2;
     upworking = upworking->prev;
     ret |= panelreel_draw_tablet(pr, upworking, frontiery, -1);
     if(upworking->p){
       window_coordinates(panel_window(upworking->p), &wbegy, &wbegx, &wleny, &wlenx);
+//fprintf(stderr, "new up coords: %d/%d + %d/%d, %d\n", wbegy, wbegx, wleny, wlenx, frontiery);
       frontiery = wbegy - 2;
+    }
+    if(upworking == working){
+      working = working->prev;
     }
   }
   // FIXME keep going backwards, hiding those no longer visible
+  // FIXME move them up to plug any holes up top?
 // fprintf(stderr, "DONE ARRANGING\n");
   return 0;
 }
@@ -572,6 +612,8 @@ int panelreel_move(panelreel* preel, int x, int y){
 int panelreel_next(panelreel* pr){
   if(pr->tablets){
     pr->tablets = pr->tablets->next;
+// fprintf(stderr, "---------------> moved to next, %p to %p <----------\n",
+//        pr->tablets->prev, pr->tablets);
   }
   return panelreel_redraw(pr);
 }
@@ -579,6 +621,8 @@ int panelreel_next(panelreel* pr){
 int panelreel_prev(panelreel* pr){
   if(pr->tablets){
     pr->tablets = pr->tablets->prev;
+// fprintf(stderr, "----------------> moved to prev, %p to %p <----------\n",
+//        pr->tablets->next, pr->tablets);
   }
   return panelreel_redraw(pr);
 }

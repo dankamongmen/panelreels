@@ -35,7 +35,7 @@ init_system_colors(void){
 }
 
 static int
-init_8bit_colors(void){
+init_truecolors(void){
   // Prepare our palette. Use the system palette for the first 16 colors, then
   // build a 6x6x6 RGB color cube, and finally a greyscale ramp.
   if(init_system_colors()){
@@ -94,18 +94,13 @@ int prep_colors(void){
     fprintf(stderr, "Warning: couldn't assume default colors\n");
   }
   if(COLORS >= 256){
-    if(init_8bit_colors()){ // calls init_system_colors()
+    if(init_truecolors()){ // calls init_system_colors()
       return -1;
     }
   }else if(COLORS >= 8){
     if(init_system_colors()){
       return -1;
     }
-  }
-  // linux console (unless TERM is linux-16color) is only 8/64. fbterm is
-  // 256/32768. old rxvt has 88(?).
-  if(COLORS != 16 && COLORS != 256){
-    fprintf(stderr, "Warning: unexpected number of colors (%d)\n", COLORS);
   }
   int bg;
   int pair = 0;
