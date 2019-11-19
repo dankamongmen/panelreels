@@ -199,7 +199,7 @@ int widecolor_demo(WINDOW* w){
   const int starts[] = { 0, 48 * COLORS, 48 * COLORS, 48 * COLORS, };
 
   palette = malloc(sizeof(*palette) * count);
-  retrieve_palette(count, palette, NULL, true);
+  retrieve_palette(count, palette, NULL, false);
   size_t i;
   for(i = 0 ; i < sizeof(steps) / sizeof(*steps) ; ++i){
     const int start = starts[i];
@@ -238,10 +238,13 @@ int widecolor_demo(WINDOW* w){
       }while(y != maxy || x != maxx);
       int pair = 0; // use default for summary in case something else fucks up
       wattr_set(w, A_BOLD, 0, &pair);
-      mvwprintw(w, 2, 2, "%dx%d (%d/%d) ", maxx, maxy, i, sizeof(steps) / sizeof(*steps));
+      mvwprintw(w, 2, 2, " %dx%d (%d/%d) ", maxx, maxy, i, sizeof(steps) / sizeof(*steps));
       // wattr_set(w, A_NORMAL, 0, &pair);
-      waddwstr(w, L"wide chars, multiple colors, resize awareness");//…");
-      fadein(w, count, palette, FADE_MILLISECONDS);
+      waddwstr(w, L"wide chars, multiple colors, resize awareness ");//…");
+      wstandend(w);
+      if(i){
+        fadein(w, count, palette, FADE_MILLISECONDS);
+      }
       do{
         key = wgetch(w);
       }while(key == ERR);
