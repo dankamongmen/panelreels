@@ -64,12 +64,14 @@ tabletdraw(PANEL* p, int begx, int begy, int maxx, int maxy, bool cliptop,
   cpair = COLOR_BRIGHTWHITE;
   wattr_set(w, A_NORMAL, 0, &cpair);
   setcchar(&cch, cchbuf, A_NORMAL, 0, &cpair);
-  if(cliptop){
-    err |= mvwprintw(w, maxy, begx, "[#%u %d line%s %u/%u] ", tctx->id, tctx->lines,
-                     tctx->lines == 1 ? "" : "s", begy, maxy);
-  }else{
-    err |= mvwprintw(w, begy, begx, "[#%u %d line%s %u/%u] ", tctx->id, tctx->lines,
-                     tctx->lines == 1 ? "" : "s", begy, maxy);
+  if(y != begy){
+    if(cliptop){
+      err |= mvwprintw(w, maxy, begx, "[#%u %d line%s %u/%u] ", tctx->id, tctx->lines,
+                      tctx->lines == 1 ? "" : "s", begy, maxy);
+    }else{
+      err |= mvwprintw(w, begy, begx, "[#%u %d line%s %u/%u] ", tctx->id, tctx->lines,
+                      tctx->lines == 1 ? "" : "s", begy, maxy);
+    }
   }
 //fprintf(stderr, "  \\--> callback for %d, %d lines (%d/%d -> %d/%d) wrote: %d ret: %d\n", tctx->id,
 //    tctx->lines, begy, begx, maxy, maxx, y - begy, err);
@@ -228,12 +230,12 @@ panelreel_demo_core(WINDOW* w, int efd, tabletctx** tctxs){
 
 int panelreel_demo(WINDOW* w){
   tabletctx* tctxs = NULL;
-  struct panelreel* pr;
   int efd = eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK);
   if(efd < 0){
     fprintf(stderr, "Error creating eventfd (%s)\n", strerror(errno));
     return -1;
   }
+  struct panelreel* pr;
   if((pr = panelreel_demo_core(w, efd, &tctxs)) == NULL){
     close(efd);
     return -1;
@@ -247,5 +249,6 @@ int panelreel_demo(WINDOW* w){
     fprintf(stderr, "Error destroying panelreel\n");
     return -1;
   }
+  close(efd);
   return 0;
 }

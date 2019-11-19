@@ -142,11 +142,12 @@ tablet_columns(const panelreel* pr, int* begx, int* begy, int* lenx, int* leny,
   window_coordinates(w, begy, begx, leny, lenx);
   int maxy = *leny + *begy - 1;
   int begindraw = *begy + !(pr->popts.bordermask & BORDERMASK_TOP);
+  // FIXME i think this fails to account for an absent panelreel bottom?
   int enddraw = maxy - !(pr->popts.bordermask & BORDERMASK_TOP);
   if(frontiery < begindraw){
     return -1;
   }
-  if(frontiery >= enddraw){
+  if(frontiery > enddraw){
 // fprintf(stderr, "FRONTIER: %d ENDDRAW: %d\n", frontiery, enddraw);
     return -1;
   }
@@ -206,7 +207,7 @@ panelreel_draw_tablet(const panelreel* pr, tablet* t, int frontiery,
   }
 assert(direction >= 0); // FIXME don't yet support drawing up except to hide
 //fprintf(stderr, "tplacement: %p:%p base %d/%d len %d/%d\n", t, fp, begx, begy, lenx, leny);
-// fprintf(stderr, "DRAWING %p at frontier %d (dir %d) with %d\n", t, frontiery, direction, leny);
+//fprintf(stderr, "DRAWING %p at frontier %d (dir %d) with %d\n", t, frontiery, direction, leny);
   if(fp == NULL){ // create a panel for the tablet
     w = newwin(leny + 1, lenx, begy, begx);
     if(w == NULL){
@@ -231,7 +232,6 @@ assert(direction >= 0); // FIXME don't yet support drawing up except to hide
     }
     if(begy != trueby){
       if(move_panel(fp, begy, begx)){
-        assert(false);
         return -1;
       }
     }
