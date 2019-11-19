@@ -15,7 +15,6 @@ typedef struct tablet {
   struct tablet* prev;
   tabletcb cbfxn;              // application callback to draw tablet
   void* curry;                 // application data provided to cbfxn
-  atomic_bool update_pending;  // new data since the tablet was last drawn?
 } tablet;
 
 // The visible screen can be reconstructed from three things:
@@ -219,7 +218,6 @@ assert(direction >= 0); // FIXME don't yet support drawing up except to hide
       delwin(w);
       return -1;
     }
-    atomic_store(&t->update_pending, true);
   }else{
     w = panel_window(fp);
     int trueby = getbegy(w);
@@ -230,7 +228,6 @@ assert(direction >= 0); // FIXME don't yet support drawing up except to hide
       if(wresize(w, leny, truex)){
         return -1;
       }
-      atomic_store(&t->update_pending, true);
       getmaxyx(w, truey, truex);
     }
     if(begy != trueby){
@@ -239,53 +236,50 @@ assert(direction >= 0); // FIXME don't yet support drawing up except to hide
       }
     }
   }
-  if(t->update_pending){
-    wresize(w, leny, lenx);
-    bool cliphead = false;
-    bool clipfoot = false;
-    // We pass the coordinates in which the callback may freely write. That's
-    // the full width (minus tablet borders), and the full range of open space
-    // in the direction we're moving.
-    // Coordinates within the tablet window where the callback function may
-    // freely write. This is everywhere in the tablet save tabletborders.
-    int cby = 0, cbx = 0, cbmaxy = leny, cbmaxx = lenx;
-    // If we're drawing up, we'll always have a bottom border unless it's masked
-    if(direction < 0 && !(pr->popts.tabletmask & BORDERMASK_BOTTOM)){
-      --cbmaxy;
-    }
-    // If we're drawing down, we'll always have a top border unless it's masked
-    if(direction >= 0 && !(pr->popts.tabletmask & BORDERMASK_TOP)){
-      ++cby;
-      --cbmaxy;
-    }
-    cbmaxx -= !(pr->popts.tabletmask & BORDERMASK_RIGHT);
-    cbmaxx -= !(pr->popts.tabletmask & BORDERMASK_LEFT);
-    cbx += !(pr->popts.tabletmask & BORDERMASK_LEFT);
-    bool cbdir = direction < 0 ? true : false;
+  wresize(w, leny, lenx);
+  bool cliphead = false;
+  bool clipfoot = false;
+  // We pass the coordinates in which the callback may freely write. That's
+  // the full width (minus tablet borders), and the full range of open space
+  // in the direction we're moving.
+  // Coordinates within the tablet window where the callback function may
+  // freely write. This is everywhere in the tablet save tabletborders.
+  int cby = 0, cbx = 0, cbmaxy = leny, cbmaxx = lenx;
+  // If we're drawing up, we'll always have a bottom border unless it's masked
+  if(direction < 0 && !(pr->popts.tabletmask & BORDERMASK_BOTTOM)){
+    --cbmaxy;
+  }
+  // If we're drawing down, we'll always have a top border unless it's masked
+  if(direction >= 0 && !(pr->popts.tabletmask & BORDERMASK_TOP)){
+    ++cby;
+    --cbmaxy;
+  }
+  cbmaxx -= !(pr->popts.tabletmask & BORDERMASK_RIGHT);
+  cbmaxx -= !(pr->popts.tabletmask & BORDERMASK_LEFT);
+  cbx += !(pr->popts.tabletmask & BORDERMASK_LEFT);
+  bool cbdir = direction < 0 ? true : false;
 // fprintf(stderr, "calling! lenx/leny: %d/%d cbx/cby: %d/%d cbmaxx/cbmaxy: %d/%d dir: %d\n",
 //    lenx, leny, cbx, cby, cbmaxx, cbmaxy, direction);
-    // FIXME if cbmaxy < cby don't call, but that shouldn't happen?
-    int ll = t->cbfxn(fp, cbx, cby, cbmaxx, cbmaxy, cbdir, t->curry);
-    atomic_store(&t->update_pending, false);
-    if(ll != leny){
-      if(ll == cbmaxy){
+  // FIXME if cbmaxy < cby don't call, but that shouldn't happen?
+  int ll = t->cbfxn(fp, cbx, cby, cbmaxx, cbmaxy, cbdir, t->curry);
+  if(ll != leny){
+    if(ll == cbmaxy){
 // fprintf(stderr, "RESIZING (-1) from %d to %d\n", leny, ll + 1);
-        wresize(w, ll + 1, lenx);
-        if(direction < 0){
-          cliphead = true;
-        }else{
-          clipfoot = true;
-        }
+      wresize(w, ll + 1, lenx);
+      if(direction < 0){
+        cliphead = true;
       }else{
-// fprintf(stderr, "RESIZING (-2) from %d to %d\n", leny, ll + 2);
-        wresize(w, ll + 2, lenx);
+        clipfoot = true;
       }
+    }else{
+// fprintf(stderr, "RESIZING (-2) from %d to %d\n", leny, ll + 2);
+      wresize(w, ll + 2, lenx);
     }
-    draw_borders(w, pr->popts.tabletmask,
-                 direction == 0 ? pr->popts.focusedattr : pr->popts.tabletattr,
-                 direction == 0 ? pr->popts.focusedpair : pr->popts.tabletpair,
-                 cliphead, clipfoot);
   }
+  draw_borders(w, pr->popts.tabletmask,
+                direction == 0 ? pr->popts.focusedattr : pr->popts.tabletattr,
+                direction == 0 ? pr->popts.focusedpair : pr->popts.tabletpair,
+                cliphead, clipfoot);
   return 0;
 }
 
@@ -455,7 +449,6 @@ tablet* panelreel_add(panelreel* pr, tablet* after, tablet *before,
     }
     t->cbfxn = cbfxn;
     t->curry = opaque;
-    atomic_init(&t->update_pending, false);
     t->p = NULL;
     ++pr->tabletcount;
     if(panelreel_redraw(pr)){
@@ -516,12 +509,13 @@ int panelreel_tabletcount(const panelreel* preel){
 }
 
 int panelreel_touch(panelreel* pr, tablet* t){
+  (void)t; // FIXME make these more granular eventually
   int ret = 0;
-  atomic_store(&t->update_pending, true);
   if(pr->efd >= 0){
     uint64_t val = 1;
     if(write(pr->efd, &val, sizeof(val)) != sizeof(val)){
-      fprintf(stderr, "Error writing to eventfd %d (%s)\n", pr->efd, strerror(errno));
+      fprintf(stderr, "Error writing to eventfd %d (%s)\n",
+              pr->efd, strerror(errno));
       ret = -1;
     }
   }
