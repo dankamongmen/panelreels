@@ -302,9 +302,6 @@ panelreel_draw_tablet(const panelreel* pr, tablet* t, int frontiery,
       if(move_panel(fp, frontiery, begx)){
         return -1;
       }
-    }else{
-// fprintf(stderr, "RESIZING (-2) from %d to %d\n", leny, ll + 2);
-      wresize(w, ll + 2, lenx);
     }
   }
   draw_borders(w, pr->popts.tabletmask,
