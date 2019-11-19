@@ -113,9 +113,9 @@ tabletdraw(PANEL* p, int begx, int begy, int maxx, int maxy, bool cliptop,
                      tctx->id, tctx->lines, tctx->lines == 1 ? "" : "s",
                      begy, maxy);
   }
-fprintf(stderr, "  \\--> callback for %d, %d lines (%d/%d -> %d/%d) dir: %s wrote: %d ret: %d\n", tctx->id,
+/*fprintf(stderr, "  \\--> callback for %d, %d lines (%d/%d -> %d/%d) dir: %s wrote: %d ret: %d\n", tctx->id,
     tctx->lines, begy, begx, maxy, maxx,
-    cliptop ? "up" : "down", ll, err);
+    cliptop ? "up" : "down", ll, err);*/
   pthread_mutex_unlock(&tctx->lock);
   assert(OK == err);
   return ll;
@@ -233,7 +233,7 @@ panelreel_demo_core(WINDOW* w, int efd, tabletctx** tctxs){
   int pair = COLOR_CYAN;
   wattr_set(w, A_NORMAL, 0, &pair);
   int key;
-  mvwprintw(w, 1, 1, "a, b, c create tablets, q quits.");
+  mvwprintw(w, 1, 1, "a, b, c create tablets, DEL deletes, q quits.");
   clrtoeol();
   unsigned id = 0;
   do{
