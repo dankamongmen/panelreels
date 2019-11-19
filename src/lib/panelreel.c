@@ -595,18 +595,18 @@ int panelreel_move(panelreel* preel, int x, int y){
 int panelreel_next(panelreel* pr){
   if(pr->tablets){
     pr->tablets = pr->tablets->next;
-  }
 fprintf(stderr, "---------------> moved to next, %p to %p <----------\n",
         pr->tablets->prev, pr->tablets);
+  }
   return panelreel_redraw(pr);
 }
 
 int panelreel_prev(panelreel* pr){
   if(pr->tablets){
     pr->tablets = pr->tablets->prev;
-  }
 fprintf(stderr, "----------------> moved to prev, %p to %p <----------\n",
         pr->tablets->next, pr->tablets);
+  }
   return panelreel_redraw(pr);
 }
 

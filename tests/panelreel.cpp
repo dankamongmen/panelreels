@@ -202,6 +202,7 @@ TEST_F(PanelReelTest, SubwinNoPanelreelBorders) {
   EXPECT_EQ(OK, delwin(basew));
   ASSERT_EQ(0, outcurses_stop(true));
 }
+
 TEST_F(PanelReelTest, SubwinNoOffsetGeom) {
   panelreel_options p{};
   ASSERT_NE(nullptr, outcurses_init(true));
