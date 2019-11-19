@@ -195,32 +195,28 @@ int widecolor_demo(WINDOW* w){
   int count = COLORS;
   outcurses_rgb* palette;
   int key;
-  const int steps[] = { 1, 16, COLORS, COLORS + 16, 0 };
-  const int starts[] = { 0, 48 * COLORS, 48 * COLORS, 48 * COLORS, 0 };
+  const int steps[] = { 1, 16, COLORS, COLORS + 16, };
+  const int starts[] = { 0, 48 * COLORS, 48 * COLORS, 48 * COLORS, };
 
   palette = malloc(sizeof(*palette) * count);
   retrieve_palette(count, palette, NULL, true);
-  const int* step = steps;
-  const int* start = starts;
-  while(*step){
+  size_t i;
+  for(i = 0 ; i < sizeof(steps) / sizeof(*steps) ; ++i){
+    const int start = starts[i];
+    const int step = steps[i];
     do{
       int y, x, maxy, maxx;
       getmaxyx(w, maxy, maxx);
       --maxy;
       --maxx;
-      int pair = COLOR_WHITE + (COLORS * COLOR_WHITE);
-      wattr_set(w, A_BOLD, 0, &pair);
-      mvwprintw(w, 0, 0, "%dx%d ", maxx, maxy);
-      wattr_set(w, A_NORMAL, 0, &pair);
-      waddwstr(w, L"wide chars, multiple colors, resize awareness…");
-      // FIXME would be nice to have this move through colors while waiting for
-      // keypress...
-      int cpair = *start;
+      int cpair = start;
       if(cpair >= COLOR_PAIRS){
         cpair = 0;
       }
       // FIXME show 6x6x6 color structure?
-      getyx(w, y, x);
+      wmove(w, 0, 0);
+      y = 0;
+      x = 0;
       do{ // we fill up the entire screen, however large
         for(s = strs ; *s ; ++s){
           cchar_t wch;
@@ -234,20 +230,23 @@ int widecolor_demo(WINDOW* w){
             if(y >= maxy && x >= maxx){
               break;
             }
-            if((cpair += *step) >= COLOR_PAIRS){
-              cpair = 0;
+            if((cpair += step) >= COLOR_PAIRS){
+              cpair = 1;
             }
           }
         }
       }while(y != maxy || x != maxx);
+      int pair = 0; // use default for summary in case something else fucks up
+      wattr_set(w, A_BOLD, 0, &pair);
+      mvwprintw(w, 2, 2, "%dx%d (%d/%d) ", maxx, maxy, i, sizeof(steps) / sizeof(*steps));
+      // wattr_set(w, A_NORMAL, 0, &pair);
+      waddwstr(w, L"wide chars, multiple colors, resize awareness");//…");
       fadein(w, count, palette, FADE_MILLISECONDS);
       do{
         key = wgetch(w);
       }while(key == ERR);
       wclear(w);
     }while(key == KEY_RESIZE);
-    ++step;
-    ++start;
   }
   free(palette);
   return 0;
