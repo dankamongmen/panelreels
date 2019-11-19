@@ -244,6 +244,7 @@ int panelreel_demo(WINDOW* w){
   while(tctxs){
     kill_tablet(&tctxs);
   }
+  close(efd);
   if(panelreel_destroy(pr)){
     fprintf(stderr, "Error destroying panelreel\n");
     return -1;
