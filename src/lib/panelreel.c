@@ -62,9 +62,9 @@ draw_borders(WINDOW* w, unsigned nobordermask, attr_t attr, int pair,
   begy = 0;
   int maxx = begx + lenx - 1;
   int maxy = begy + leny - 1;
-fprintf(stderr, "drawing borders %d/%d->%d/%d, mask: %04x, clipping: %c%c\n",
+/*fprintf(stderr, "drawing borders %d/%d->%d/%d, mask: %04x, clipping: %c%c\n",
         begx, begy, maxx, maxy, nobordermask,
-        cliphead ? 'T' : 't', clipfoot ? 'F' : 'f');
+        cliphead ? 'T' : 't', clipfoot ? 'F' : 'f');*/
   if(!cliphead){
     // lenx - begx + 1 is the number of columns we have, but drop 2 due to
     // corners. we thus want lenx - begx - 1 horizontal lines.
@@ -269,9 +269,10 @@ panelreel_draw_tablet(const panelreel* pr, tablet* t, int frontiery,
 // fprintf(stderr, "calling! lenx/leny: %d/%d cbx/cby: %d/%d cbmaxx/cbmaxy: %d/%d dir: %d\n",
 //    lenx, leny, cbx, cby, cbmaxx, cbmaxy, direction);
   int ll = t->cbfxn(fp, cbx, cby, cbmaxx, cbmaxy, cbdir, t->curry);
-fprintf(stderr, "RETURNRETURNRETURN %p %d (%d, %d, %d) DIR %d\n", t, ll, cby, cbmaxy, leny, direction);
+//fprintf(stderr, "RETURNRETURNRETURN %p %d (%d, %d, %d) DIR %d\n",
+//        t, ll, cby, cbmaxy, leny, direction);
   if(ll != leny){
-    if(ll == cbmaxy){ // only has one border visible (partially off-screen)
+    if(ll == leny - 1){ // only has one border visible (partially off-screen)
       ++ll; // account for that border
       wresize(w, ll, lenx);
       if(direction < 0){
@@ -375,7 +376,7 @@ panelreel_arrange(const panelreel* pr){
 }
 
 int panelreel_redraw(const panelreel* pr){
-fprintf(stderr, "--------> BEGIN REDRAW <--------\n");
+// fprintf(stderr, "--------> BEGIN REDRAW <--------\n");
   int ret = 0;
   if(draw_panelreel_borders(pr)){
     return -1; // enforces specified dimensional minima
