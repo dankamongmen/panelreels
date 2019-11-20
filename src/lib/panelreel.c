@@ -62,6 +62,9 @@ draw_borders(WINDOW* w, unsigned nobordermask, attr_t attr, int pair,
   begy = 0;
   int maxx = begx + lenx - 1;
   int maxy = begy + leny - 1;
+fprintf(stderr, "drawing borders %d/%d->%d/%d, mask: %04x, clipping: %c%c\n",
+        begx, begy, maxx, maxy, nobordermask,
+        cliphead ? 'T' : 't', clipfoot ? 'F' : 'f');
   if(!cliphead){
     // lenx - begx + 1 is the number of columns we have, but drop 2 due to
     // corners. we thus want lenx - begx - 1 horizontal lines.
@@ -246,10 +249,11 @@ panelreel_draw_tablet(const panelreel* pr, tablet* t, int frontiery,
   bool clipfoot = false;
   // We pass the coordinates in which the callback may freely write. That's
   // the full width (minus tablet borders), and the full range of open space
-  // in the direction we're moving.
-  // Coordinates within the tablet window where the callback function may
-  // freely write. This is everywhere in the tablet save tabletborders.
+  // in the direction we're moving. We're not passing *lenghts* to the callback,
+  // but *coordinates* within the window--everywhere save tabletborders.
   int cby = 0, cbx = 0, cbmaxy = leny, cbmaxx = lenx;
+  --cbmaxy;
+  --cbmaxx;
   // If we're drawing up, we'll always have a bottom border unless it's masked
   if(direction < 0 && !(pr->popts.tabletmask & BORDERMASK_BOTTOM)){
     --cbmaxy;
@@ -257,16 +261,15 @@ panelreel_draw_tablet(const panelreel* pr, tablet* t, int frontiery,
   // If we're drawing down, we'll always have a top border unless it's masked
   if(direction >= 0 && !(pr->popts.tabletmask & BORDERMASK_TOP)){
     ++cby;
-    --cbmaxy;
   }
+  // Adjust the x-bounds for side borders, which we always have if unmasked
   cbmaxx -= !(pr->popts.tabletmask & BORDERMASK_RIGHT);
-  cbmaxx -= !(pr->popts.tabletmask & BORDERMASK_LEFT);
   cbx += !(pr->popts.tabletmask & BORDERMASK_LEFT);
   bool cbdir = direction < 0 ? true : false;
 // fprintf(stderr, "calling! lenx/leny: %d/%d cbx/cby: %d/%d cbmaxx/cbmaxy: %d/%d dir: %d\n",
 //    lenx, leny, cbx, cby, cbmaxx, cbmaxy, direction);
   int ll = t->cbfxn(fp, cbx, cby, cbmaxx, cbmaxy, cbdir, t->curry);
-// fprintf(stderr, "RETURNRETURNRETURN %d (%d, %d)\n", ll, leny, cbmaxy);
+fprintf(stderr, "RETURNRETURNRETURN %p %d (%d, %d, %d) DIR %d\n", t, ll, cby, cbmaxy, leny, direction);
   if(ll != leny){
     if(ll == cbmaxy){ // only has one border visible (partially off-screen)
       ++ll; // account for that border
@@ -372,6 +375,7 @@ panelreel_arrange(const panelreel* pr){
 }
 
 int panelreel_redraw(const panelreel* pr){
+fprintf(stderr, "--------> BEGIN REDRAW <--------\n");
   int ret = 0;
   if(draw_panelreel_borders(pr)){
     return -1; // enforces specified dimensional minima

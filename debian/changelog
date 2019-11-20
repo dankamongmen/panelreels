@@ -1,3 +1,9 @@
+outcurses (0.0.9-1) UNRELEASED; urgency=medium
+
+  * 
+
+ -- Nick Black <dankamongmen@gmail.com>  Wed, 20 Nov 2019 15:13:24 -0500
+
 outcurses (0.0.8-1) unstable; urgency=medium
 
   * Add explicit dep on libncurses-dev 6.1+ to liboutcurses-dev
