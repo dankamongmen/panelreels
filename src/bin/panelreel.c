@@ -52,7 +52,7 @@ tabletup(WINDOW* w, int begx, int begy, int maxx, int maxy,
   }
 /*fprintf(stderr, "-OFFSET BY %d (%d->%d)\n", maxy - begy - tctx->lines,
         maxy, maxy - (maxy - begy - tctx->lines));*/
-  for(y = maxy ; y >= begy ; --y, --idx, ++cpair){
+  for(y = maxy ; y >= begy ; --y, ++cpair){
     wmove(w, y, begx);
     swprintf(cchbuf, sizeof(cchbuf) / sizeof(*cchbuf), L"%x", idx % 16);
     setcchar(&cch, cchbuf, A_NORMAL, 0, &cpair);
@@ -60,6 +60,9 @@ tabletup(WINDOW* w, int begx, int begy, int maxx, int maxy,
     for(x = begx ; x <= maxx ; ++x){
       // lower-right corner always returns an error unless scrollok() is used
       wadd_wch(w, &cch);
+    }
+    if(--idx == 0){
+      break;
     }
   }
 // fprintf(stderr, "tabletup done%s at %d (%d->%d)\n", idx == 0 ? " early" : "", y, begy, maxy);
