@@ -50,7 +50,9 @@ tabletup(WINDOW* w, int begx, int begy, int maxx, int maxy,
   if(maxy - begy > tctx->lines){
     maxy -= (maxy - begy - tctx->lines);
   }
-  for(y = maxy ; y >= begy ; --y){
+/*fprintf(stderr, "-OFFSET BY %d (%d->%d)\n", maxy - begy - tctx->lines,
+        maxy, maxy - (maxy - begy - tctx->lines));*/
+  for(y = maxy ; y >= begy ; --y, --idx, ++cpair){
     wmove(w, y, begx);
     swprintf(cchbuf, sizeof(cchbuf) / sizeof(*cchbuf), L"%x", idx % 16);
     setcchar(&cch, cchbuf, A_NORMAL, 0, &cpair);
@@ -59,11 +61,8 @@ tabletup(WINDOW* w, int begx, int begy, int maxx, int maxy,
       // lower-right corner always returns an error unless scrollok() is used
       wadd_wch(w, &cch);
     }
-    ++cpair;
-    if(--idx == 0){
-      break;
-    }
   }
+// fprintf(stderr, "tabletup done%s at %d (%d->%d)\n", idx == 0 ? " early" : "", y, begy, maxy);
   return tctx->lines - idx;
 }
 
@@ -73,7 +72,7 @@ tabletdown(WINDOW*w, int begx, int begy, int maxx, int maxy,
   wchar_t cchbuf[2];
   cchar_t cch;
   int y;
-  for(y = begy ; y <= maxy ; ++y){
+  for(y = begy ; y <= maxy ; ++y, ++cpair){
     if(y - begy >= tctx->lines){
       break;
     }
@@ -85,7 +84,6 @@ tabletdown(WINDOW*w, int begx, int begy, int maxx, int maxy,
       // lower-right corner always returns an error unless scrollok() is used
       wadd_wch(w, &cch);
     }
-    ++cpair;
   }
   return y - begy;
 }
@@ -106,9 +104,9 @@ tabletdraw(PANEL* p, int begx, int begy, int maxx, int maxy, bool cliptop,
   }
   cpair = COLOR_BRIGHTWHITE;
   wattr_set(w, A_NORMAL, 0, &cpair);
-  if(ll && begy != maxy){
+  if(ll){
     err |= mvwprintw(w,
-                     begy + cliptop, begx,
+                     begy + (cliptop && ll < (maxy - begy + 1)), begx,
                      "[#%u %d line%s %u/%u] ",
                      tctx->id, tctx->lines, tctx->lines == 1 ? "" : "s",
                      begy, maxy);
