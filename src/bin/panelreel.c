@@ -108,9 +108,15 @@ tabletdraw(PANEL* p, int begx, int begy, int maxx, int maxy, bool cliptop,
   cpair = COLOR_BRIGHTWHITE;
   wattr_set(w, A_NORMAL, 0, &cpair);
   if(ll){
-    err |= mvwprintw(w,
-                     begy + (cliptop && ll < (maxy - begy + 1)), begx,
-                     "[#%u %d line%s %u/%u] ",
+    int summaryy = begy;
+    if(cliptop){
+      if(ll == maxy - begy + 1){
+        summaryy = ll - 1;
+      }else{
+        summaryy = ll;
+      }
+    }
+    err |= mvwprintw(w, summaryy, begx, "[#%u %d line%s %u/%u] ",
                      tctx->id, tctx->lines, tctx->lines == 1 ? "" : "s",
                      begy, maxy);
   }
