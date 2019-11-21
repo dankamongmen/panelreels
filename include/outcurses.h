@@ -159,7 +159,7 @@ int panelreel_touch(struct panelreel* pr, struct tablet* t);
 int panelreel_del(struct panelreel* pr, struct tablet* t);
 
 // Delete the active tablet. Returns -1 if there are no tablets.
-int panelreel_del_active(struct panelreel* pr);
+int panelreel_del_focused(struct panelreel* pr);
 
 // Move to the specified location within the containing WINDOW.
 int panelreel_move(struct panelreel* pr, int x, int y);
@@ -168,11 +168,15 @@ int panelreel_move(struct panelreel* pr, int x, int y);
 // clearing the screen due to external corruption, or a SIGWINCH.
 int panelreel_redraw(const struct panelreel* pr);
 
+// Return the focused tablet, if any tablets are present. This is not a copy;
+// be careful to use it only for the duration of a critical section.
+struct tablet* panelreel_focused(struct panelreel* pr);
+
 // Change focus to the next tablet, if one exists
-int panelreel_next(struct panelreel* pr);
+struct tablet* panelreel_next(struct panelreel* pr);
 
 // Change focus to the previous tablet, if one exists
-int panelreel_prev(struct panelreel* pr);
+struct tablet* panelreel_prev(struct panelreel* pr);
 
 // Destroy a panelreel allocated with panelreel_create(). Does not destroy the
 // underlying WINDOW. Returns non-zero on failure.

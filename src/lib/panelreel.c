@@ -32,6 +32,11 @@ typedef struct panelreel {
   // These values could all be derived at any time, but keeping them computed
   // makes other things easier, or saves us time (at the cost of complexity).
   int tabletcount;         // could be derived, but we keep it o(1)
+  // last direction in which we moved. positive if we moved down ("next"),
+  // negative if we moved up ("prev"), 0 for non-linear operation. we start
+  // drawing unfocused tablets opposite the direction of our last movement, so
+  // that movement in an unfilled reel doesn't reorient our tablets.
+  int last_traveled_direction;
 } panelreel;
 
 // Returns the starting coordinates (relative to the screen) of the specified
@@ -316,8 +321,14 @@ panelreel_draw_tablet(const panelreel* pr, tablet* t, int frontiery,
 }
 
 // Arrange the panels, starting with the focused window, wherever it may be.
-// Work in both directions until the screen is filled. If the screen is not
-// filled, move everything towards the top.
+// If necessary, resize it to the full size of the reel--focus has its
+// privileges. We then work in the opposite direction of travel, filling out
+// the reel above and below. If we moved down to get here, do the tablets above
+// first. If we moved up, do the tablets below. This ensures tablets stay in
+// place relative to the new focus; they could otherwise pivot around the new
+// focus, if we're not filling out the reel.
+//
+// This can still leave a gap plus a partially-onscreen tablet FIXME
 static int
 panelreel_arrange(const panelreel* pr){
   int ret = 0;
@@ -422,6 +433,7 @@ panelreel* panelreel_create(WINDOW* w, const panelreel_options* popts, int efd){
   pr->efd = efd;
   pr->tablets = NULL;
   pr->tabletcount = 0;
+  pr->last_traveled_direction = 1; // draw down after the initial tablet
   memcpy(&pr->popts, popts, sizeof(*popts));
   int maxx, maxy, wx, wy;
   getbegyx(w, wy, wx);
@@ -476,34 +488,34 @@ tablet* panelreel_add(panelreel* pr, tablet* after, tablet *before,
     // out of space. New tablets are then created off-screen.
     before = pr->tablets;
   }
-  if( (t = malloc(sizeof(*t))) ){
-// fprintf(stderr, "--------->NEW TABLET %p\n", t);
-    if(after){
-      t->next = after->next;
-      after->next = t;
-      t->prev = after;
-      t->next->prev = t;
-    }else if(before){
-      t->prev = before->prev;
-      before->prev = t;
-      t->next = before;
-      t->prev->next = t;
-    }else{ // we're the first tablet
-      t->prev = t->next = t;
-      pr->tablets = t;
-    }
-    t->cbfxn = cbfxn;
-    t->curry = opaque;
-    t->p = NULL;
-    ++pr->tabletcount;
-    if(panelreel_redraw(pr)){
-      return NULL; // FIXME
-    }
+  if((t = malloc(sizeof(*t))) == NULL){
+    return NULL;
   }
+// fprintf(stderr, "--------->NEW TABLET %p\n", t);
+  if(after){
+    t->next = after->next;
+    after->next = t;
+    t->prev = after;
+    t->next->prev = t;
+  }else if(before){
+    t->prev = before->prev;
+    before->prev = t;
+    t->next = before;
+    t->prev->next = t;
+  }else{ // we're the first tablet
+    t->prev = t->next = t;
+    pr->tablets = t;
+  }
+  t->cbfxn = cbfxn;
+  t->curry = opaque;
+  t->p = NULL;
+  ++pr->tabletcount;
+  // FIXME need to set last_traveled_direction...sometimes...?
+  panelreel_redraw(pr); // don't return failure; tablet was still created...
   return t;
 }
 
-int panelreel_del_active(struct panelreel* pr){
+int panelreel_del_focused(struct panelreel* pr){
   return panelreel_del(pr, pr->tablets);
 }
 
@@ -511,25 +523,22 @@ int panelreel_del(struct panelreel* pr, struct tablet* t){
   if(pr == NULL || t == NULL){
     return -1;
   }
-  if(t->prev){
-    t->prev->next = t->next;
-  }
-  if(t->next){
-    t->next->prev = t->prev;
-  }
-  if(t->p){
-    WINDOW* w = panel_window(t->p);
-    del_panel(t->p);
-    delwin(w);
-  }
+  t->prev->next = t->next;
   if(pr->tablets == t){
     if((pr->tablets = t->next) == t){
       pr->tablets = NULL;
     }
   }
+  t->next->prev = t->prev;
+  if(t->p){
+    WINDOW* w = panel_window(t->p);
+    del_panel(t->p);
+    delwin(w);
+  }
   free(t);
   --pr->tabletcount;
   update_panels();
+  // FIXME need to set last_traveled_direction...sometimes...?
   panelreel_redraw(pr);
   return 0;
 }
@@ -581,6 +590,10 @@ move_tablet(PANEL* p, int deltax, int deltay){
   return 0;
 }
 
+tablet* panelreel_focused(panelreel* pr){
+  return pr->tablets;
+}
+
 int panelreel_move(panelreel* preel, int x, int y){
   WINDOW* w = panel_window(preel->p);
   int oldx, oldy;
@@ -614,22 +627,26 @@ int panelreel_move(panelreel* preel, int x, int y){
   return 0;
 }
 
-int panelreel_next(panelreel* pr){
+tablet* panelreel_next(panelreel* pr){
   if(pr->tablets){
     pr->tablets = pr->tablets->next;
 // fprintf(stderr, "---------------> moved to next, %p to %p <----------\n",
 //        pr->tablets->prev, pr->tablets);
+    pr->last_traveled_direction = 1;
   }
-  return panelreel_redraw(pr);
+  panelreel_redraw(pr);
+  return pr->tablets;
 }
 
-int panelreel_prev(panelreel* pr){
+tablet* panelreel_prev(panelreel* pr){
   if(pr->tablets){
     pr->tablets = pr->tablets->prev;
 // fprintf(stderr, "----------------> moved to prev, %p to %p <----------\n",
 //        pr->tablets->next, pr->tablets);
+    pr->last_traveled_direction = -1;
   }
-  return panelreel_redraw(pr);
+  panelreel_redraw(pr);
+  return pr->tablets;
 }
 
 // Used for unit tests. Step through the panelreel and verify that everything

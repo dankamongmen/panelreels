@@ -53,16 +53,16 @@ TEST_F(PanelReelTest, FiniteCircleRejected) {
 }
 
 // We ought be able to invoke panelreel_next() and panelreel_prev() safely,
-// even if there are no tablets.
+// even if there are no tablets. They both ought return nullptr.
 TEST_F(PanelReelTest, MovementWithoutTablets) {
   panelreel_options p{};
   p.infinitescroll = false;
   ASSERT_NE(nullptr, outcurses_init(true));
   struct panelreel* pr = panelreel_create(stdscr, &p, -1);
   ASSERT_NE(nullptr, pr);
-  EXPECT_EQ(0, panelreel_next(pr));
+  EXPECT_EQ(nullptr, panelreel_next(pr));
   EXPECT_EQ(0, panelreel_validate(stdscr, pr));
-  EXPECT_EQ(0, panelreel_prev(pr));
+  EXPECT_EQ(nullptr, panelreel_prev(pr));
   EXPECT_EQ(0, panelreel_validate(stdscr, pr));
   ASSERT_EQ(0, outcurses_stop(true));
 }
@@ -101,9 +101,9 @@ TEST_F(PanelReelTest, MovementWithOneTablet) {
   struct tablet* t = panelreel_add(pr, nullptr, nullptr, panelcb, nullptr);
   ASSERT_NE(nullptr, t);
   EXPECT_EQ(0, panelreel_validate(stdscr, pr));
-  EXPECT_EQ(0, panelreel_next(pr));
+  EXPECT_NE(nullptr, panelreel_next(pr));
   EXPECT_EQ(0, panelreel_validate(stdscr, pr));
-  EXPECT_EQ(0, panelreel_prev(pr));
+  EXPECT_NE(nullptr, panelreel_prev(pr));
   EXPECT_EQ(0, panelreel_validate(stdscr, pr));
   EXPECT_EQ(0, panelreel_del(pr, t));
   EXPECT_EQ(0, panelreel_validate(stdscr, pr));
@@ -118,7 +118,7 @@ TEST_F(PanelReelTest, DeleteActiveTablet) {
   ASSERT_NE(nullptr, pr);
   struct tablet* t = panelreel_add(pr, nullptr, nullptr, panelcb, nullptr);
   ASSERT_NE(nullptr, t);
-  EXPECT_EQ(0, panelreel_del_active(pr));
+  EXPECT_EQ(0, panelreel_del_focused(pr));
   ASSERT_EQ(0, outcurses_stop(true));
 }
 
