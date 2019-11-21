@@ -37,6 +37,25 @@ kill_tablet(tabletctx** tctx){
   }
 }
 
+static int
+kill_active_tablet(struct panelreel* pr, tabletctx** tctx){
+  struct tablet* focused = panelreel_focused(pr);
+  tabletctx* t;
+  while( (t = *tctx) ){
+    if(t->t == focused){
+      *tctx = t->next; // pull it out of the list
+      t->next = NULL; // finish splicing it out
+      break;
+    }
+    tctx = &t->next;
+  }
+  if(t == NULL){
+    return -1; // wasn't present in our list, wacky
+  }
+  kill_tablet(&t);
+  return 0;
+}
+
 // We need write in reverse order (since only the bottom will be seen, if we're
 // partially off-screen), but also leave unused space at the end (since
 // wresize() only keeps the top and left on a shrink).
@@ -267,7 +286,7 @@ panelreel_demo_core(WINDOW* w, int efd, tabletctx** tctxs){
       case 'k': panelreel_prev(pr); break;
       case KEY_DOWN:
       case 'j': panelreel_next(pr); break;
-      case KEY_DC: kill_tablet(tctxs); break;
+      case KEY_DC: kill_active_tablet(pr, tctxs); break;
       case 'q': break;
       default: mvwprintw(w, 3, 2, "Unknown keycode (%d)\n", key);
     }
