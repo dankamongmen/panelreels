@@ -9,6 +9,7 @@
 #include <sys/eventfd.h>
 #include "demo.h"
 
+// FIXME ought just be an unordered_map
 typedef struct tabletctx {
   pthread_t tid;
   struct panelreel* pr;

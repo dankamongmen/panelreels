@@ -328,10 +328,19 @@ draw_focused_tablet(const panelreel* pr){
   window_coordinates(panel_window(pr->p), &pbegy, &pbegx, &pleny, &plenx);
   int fulcrum;
   if(pr->tablets->p == NULL){
-    // FIXME fulcrum needs be bottom line if we're moving down to new window
-    fulcrum = pbegy + !(pr->popts.bordermask & BORDERMASK_TOP);
+    if(pr->last_traveled_direction >= 0){
+      fulcrum = pleny + pbegy - !(pr->popts.bordermask & BORDERMASK_BOTTOM);
+    }else{
+      fulcrum = pbegy + !(pr->popts.bordermask & BORDERMASK_TOP);
+    }
   }else{ // focused was already present. want to stay where we are, if possible
     fulcrum = getbegy(panel_window(pr->tablets->p));
+    // FIXME ugh can't we just remember the previous fulcrum?
+    if(pr->last_traveled_direction > 0 && fulcrum < getbegy(panel_window(pr->tablets->prev->p))){
+      fulcrum = pleny + pbegy - !(pr->popts.bordermask & BORDERMASK_BOTTOM);
+    }else if(pr->last_traveled_direction < 0 && fulcrum > getbegy(panel_window(pr->tablets->next->p))){
+      fulcrum = pbegy + !(pr->popts.bordermask & BORDERMASK_TOP);
+    }
   }
 //fprintf(stderr, "PR dims: %d/%d + %d/%d fulcrum: %d\n", pbegy, pbegx, pleny, plenx, fulcrum);
   return panelreel_draw_tablet(pr, pr->tablets, fulcrum, 0);
@@ -459,7 +468,7 @@ panelreel* panelreel_create(WINDOW* w, const panelreel_options* popts, int efd){
   pr->efd = efd;
   pr->tablets = NULL;
   pr->tabletcount = 0;
-  pr->last_traveled_direction = 1; // draw down after the initial tablet
+  pr->last_traveled_direction = -1; // draw down after the initial tablet
   memcpy(&pr->popts, popts, sizeof(*popts));
   int maxx, maxy, wx, wy;
   getbegyx(w, wy, wx);
