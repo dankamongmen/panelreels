@@ -320,6 +320,72 @@ panelreel_draw_tablet(const panelreel* pr, tablet* t, int frontiery,
   return 0;
 }
 
+// draw and size the focused tablet, which must exist (pr->tablets may not be
+// NULL). it can occupy the entire panelreel.
+static int
+draw_focused_tablet(const panelreel* pr){
+  int pbegy, pbegx, plenx, pleny; // panelreel window coordinates
+  window_coordinates(panel_window(pr->p), &pbegy, &pbegx, &pleny, &plenx);
+  int fulcrum;
+  if(pr->tablets->p == NULL){
+    // FIXME fulcrum needs be bottom line if we're moving down to new window
+    fulcrum = pbegy + !(pr->popts.bordermask & BORDERMASK_TOP);
+  }else{ // focused was already present. want to stay where we are, if possible
+    fulcrum = getbegy(panel_window(pr->tablets->p));
+  }
+//fprintf(stderr, "PR dims: %d/%d + %d/%d fulcrum: %d\n", pbegy, pbegx, pleny, plenx, fulcrum);
+  return panelreel_draw_tablet(pr, pr->tablets, fulcrum, 0);
+}
+
+// move down below the focused tablet, filling up the reel to the bottom.
+// returns the last tablet drawn.
+static tablet*
+draw_following_tablets(const panelreel* pr){
+  int wmaxy, wbegy, wbegx, wlenx, wleny; // working tablet window coordinates
+  tablet* working = pr->tablets;
+  int frontiery;
+  // move down past the focused tablet, filling up the reel to the bottom
+  while(working->next != pr->tablets){
+    window_coordinates(panel_window(working->p), &wbegy, &wbegx, &wleny, &wlenx);
+    wmaxy = wbegy + wleny - 1;
+    frontiery = wmaxy + 2;
+//fprintf(stderr, "EASTBOUND AND DOWN: %d %d\n", frontiery, wmaxy + 2);
+    working = working->next;
+    panelreel_draw_tablet(pr, working, frontiery, 1);
+    if(working->p == NULL){ // FIXME might be more to hide
+      break;
+    }
+  }
+  // FIXME keep going forward, hiding those no longer visible
+  return working;
+}
+
+// move up above the focused tablet, filling up the reel to the top.
+// returns the last tablet drawn.
+static tablet*
+draw_previous_tablets(const panelreel* pr, const tablet* otherend){
+  int wbegy, wbegx, wlenx, wleny; // working tablet window coordinates
+  tablet* upworking = pr->tablets;
+  int frontiery;
+  while(upworking->prev != otherend || otherend->p == NULL){
+    window_coordinates(panel_window(upworking->p), &wbegy, &wbegx, &wleny, &wlenx);
+//fprintf(stderr, "MOVIN' ON UP: %d %d\n", frontiery, wbegy - 2);
+    frontiery = wbegy - 2;
+    upworking = upworking->prev;
+    panelreel_draw_tablet(pr, upworking, frontiery, -1);
+    if(upworking->p){
+      window_coordinates(panel_window(upworking->p), &wbegy, &wbegx, &wleny, &wlenx);
+//fprintf(stderr, "new up coords: %d/%d + %d/%d, %d\n", wbegy, wbegx, wleny, wlenx, frontiery);
+      frontiery = wbegy - 2;
+    }
+    if(upworking == otherend){
+      otherend = otherend->prev;
+    }
+  }
+  // FIXME keep going backwards, hiding those no longer visible
+  return upworking;
+}
+
 // Arrange the panels, starting with the focused window, wherever it may be.
 // If necessary, resize it to the full size of the reel--focus has its
 // privileges. We then work in the opposite direction of travel, filling out
@@ -336,54 +402,14 @@ panelreel_arrange(const panelreel* pr){
   if(focused == NULL){
     return 0; // if none are focused, none exist
   }
-  int pbegy, pbegx, plenx, pleny; // panelreel window coordinates
-  window_coordinates(panel_window(pr->p), &pbegy, &pbegx, &pleny, &plenx);
-  int fulcrum;
-  if(focused->p == NULL){
-    // FIXME fulcrum needs be bottom line if we're moving down to new window
-    fulcrum = pbegy + !(pr->popts.bordermask & BORDERMASK_TOP);
-  }else{ // focused was already present. want to stay where we are, if possible
-    fulcrum = getbegy(panel_window(focused->p));
-  }
-//fprintf(stderr, "PR dims: %d/%d + %d/%d fulcrum: %d\n", pbegy, pbegx, pleny, plenx, fulcrum);
-  ret |= panelreel_draw_tablet(pr, focused, fulcrum, 0);
-  int wmaxy, wbegy, wbegx, wlenx, wleny; // working tablet window coordinates
-  tablet* working = focused;
-  int frontiery;
-  // move down past the focused tablet, filling up the reel to the bottom
-  while(working->next != focused){
-    window_coordinates(panel_window(working->p), &wbegy, &wbegx, &wleny, &wlenx);
-    wmaxy = wbegy + wleny - 1;
-    frontiery = wmaxy + 2;
-//fprintf(stderr, "EASTBOUND AND DOWN: %d %d\n", frontiery, wmaxy + 2);
-    working = working->next;
-    ret |= panelreel_draw_tablet(pr, working, frontiery, 1);
-    if(working->p == NULL){ // FIXME might be more to hide
-      break;
-    }
-  }
-  // FIXME keep going forward, hiding those no longer visible
-  // move up above the focused tablet, filling up the reel to the top
-  tablet* upworking = focused;
-  while(upworking->prev != working || working->p == NULL){
-    window_coordinates(panel_window(upworking->p), &wbegy, &wbegx, &wleny, &wlenx);
-//fprintf(stderr, "MOVIN' ON UP: %d %d\n", frontiery, wbegy - 2);
-    frontiery = wbegy - 2;
-    upworking = upworking->prev;
-    ret |= panelreel_draw_tablet(pr, upworking, frontiery, -1);
-    if(upworking->p){
-      window_coordinates(panel_window(upworking->p), &wbegy, &wbegx, &wleny, &wlenx);
-//fprintf(stderr, "new up coords: %d/%d + %d/%d, %d\n", wbegy, wbegx, wleny, wlenx, frontiery);
-      frontiery = wbegy - 2;
-    }
-    if(upworking == working){
-      working = working->prev;
-    }
-  }
-  // FIXME keep going backwards, hiding those no longer visible
-  // FIXME move them up to plug any holes up top?
+  ret |= draw_focused_tablet(pr);
+  /*if(pr->last_traveled_direction >= 0){
+  }*/
+  tablet* foot = draw_following_tablets(pr);
+  draw_previous_tablets(pr, foot);
+  // FIXME move them up to plug any holes in original direction?
 // fprintf(stderr, "DONE ARRANGING\n");
-  return 0;
+  return ret;
 }
 
 int panelreel_redraw(const panelreel* pr){
