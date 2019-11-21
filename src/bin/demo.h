@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-#define FADE_MILLISECONDS 750
+#define FADE_MILLISECONDS 500
 
 int widecolor_demo(WINDOW* w);
 int panelreel_demo(WINDOW* w);
