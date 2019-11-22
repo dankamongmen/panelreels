@@ -1,5 +1,6 @@
 * Update version in CMakeLists.txt
 * Update Debian changelog with `dch -v $VERSION-1`
+* git commit -a -m v$VERSION
 * Tag with `git tag -a v$VERSION -m "v$VERSION"`
 * `git push && git push origin --tags`
 * Draft new release at https://github.com/dankamongmen/outcurses/releases
