@@ -29,7 +29,7 @@ typedef struct panelreel {
   // focused), which might be anywhere on the screen (but is always visible).
   int efd;                 // eventfd, signaled in panelreel_touch() if >= 0
   tablet* tablets;
-  // These values could all be derived at any time, but keeping them computed
+  // these values could all be derived at any time, but keeping them computed
   // makes other things easier, or saves us time (at the cost of complexity).
   int tabletcount;         // could be derived, but we keep it o(1)
   // last direction in which we moved. positive if we moved down ("next"),
@@ -37,6 +37,10 @@ typedef struct panelreel {
   // drawing unfocused tablets opposite the direction of our last movement, so
   // that movement in an unfilled reel doesn't reorient our tablets.
   int last_traveled_direction;
+  // are all of our tablets currently visible? our arrangement algorithm works
+  // differently when the reel is not completely filled. ideally we'd unite the
+  // two modes, but for now, check this bool and take one of two paths.
+  bool all_visible;
 } panelreel;
 
 // Returns the starting coordinates (relative to the screen) of the specified
@@ -349,12 +353,12 @@ draw_focused_tablet(const panelreel* pr){
 // move down below the focused tablet, filling up the reel to the bottom.
 // returns the last tablet drawn.
 static tablet*
-draw_following_tablets(const panelreel* pr){
+draw_following_tablets(const panelreel* pr, const tablet* otherend){
   int wmaxy, wbegy, wbegx, wlenx, wleny; // working tablet window coordinates
   tablet* working = pr->tablets;
   int frontiery;
   // move down past the focused tablet, filling up the reel to the bottom
-  while(working->next != pr->tablets){
+  while(working->next != otherend || otherend->p == NULL){
     window_coordinates(panel_window(working->p), &wbegy, &wbegx, &wleny, &wlenx);
     wmaxy = wbegy + wleny - 1;
     frontiery = wmaxy + 2;
@@ -395,6 +399,84 @@ draw_previous_tablets(const panelreel* pr, const tablet* otherend){
   return upworking;
 }
 
+// all tablets must be visible (valid ->p), and at least one tablet must exist
+static tablet*
+find_topmost(panelreel* pr){
+  tablet* t = pr->tablets;
+  int curline = getbegy(panel_window(t->p));
+  int trialline = getbegy(panel_window(t->prev->p));
+  while(trialline < curline){
+    t = t->prev;
+    curline = trialline;
+    trialline = getbegy(panel_window(t->prev->p));
+  }
+fprintf(stderr, "topmost: %p @ %d\n", t, curline);
+  return t;
+}
+
+// all the tablets are believed to be wholly visible. in this case, we only want
+// to fill up the necessary top rows, even if it means moving everything up at
+// the end. large gaps should always be at the bottom to avoid ui discontinuity.
+// this must only be called if we actually have at least one tablet. note that
+// as a result of this function, we might not longer all be wholly visible.
+// good god almighty, this is some fucking garbage.
+static int
+panelreel_arrange_denormalized(panelreel* pr){
+  // we'll need the starting line of the tablet which just lost focus, and the
+  // starting line of the tablet which just gained focus.
+  int fromline, nowline;
+  nowline = getbegy(panel_window(pr->tablets->p));
+  // we've moved to the next or previous tablet. either we were not at the end,
+  // in which case we can just move the focus, or we were at the end, in which
+  // case we need bring the target tablet to our end, and draw in the direction
+  // opposite travel (a single tablet is a trivial case of the latter case).
+  // how do we know whether we were at the end? if the new line is not in the
+  // direction of movement relative to the old one, of course!
+  tablet* topmost = find_topmost(pr);
+  tablet* t = topmost;
+  int wbegy, wbegx, wleny, wlenx;
+  window_coordinates(panel_window(pr->p), &wbegy, &wbegx, &wleny, &wlenx);
+  int frontiery = wbegy + !(pr->popts.bordermask & BORDERMASK_TOP);
+  if(pr->last_traveled_direction >= 0){
+    fromline = getbegy(panel_window(pr->tablets->prev->p));
+    if(fromline <= nowline){ // keep the order we had
+      do{
+        if(t == pr->tablets){
+          panelreel_draw_tablet(pr, t, frontiery, 0);
+        }else{
+          panelreel_draw_tablet(pr, t, frontiery, 1);
+        }
+        if(t->p == NULL){
+          pr->all_visible = false;
+          break;
+        }
+        frontiery = getmaxy(panel_window(t->p)) + getbegy(panel_window(t->p)) + 1;
+      }while((t = t->next) != topmost);
+      return 0;
+    }
+  }else{
+    fromline = getbegy(panel_window(pr->tablets->next->p));
+    if(fromline >= nowline){ // keep the order we had
+      do{
+        if(t == pr->tablets){
+          panelreel_draw_tablet(pr, t, frontiery, 0);
+        }else{
+          panelreel_draw_tablet(pr, t, frontiery, 1);
+        }
+        if(t->p == NULL){
+          pr->all_visible = false;
+          break;
+        }
+        frontiery = getmaxy(panel_window(t->p)) + getbegy(panel_window(t->p)) + 1;
+      }while((t = t->next) != topmost);
+      return 0;
+    }
+  }
+  // FIXME gotta rotate 'em
+fprintf(stderr, "gotta draw 'em all FROM: %d NOW: %d!\n", fromline, nowline);
+  return 0;
+}
+
 // Arrange the panels, starting with the focused window, wherever it may be.
 // If necessary, resize it to the full size of the reel--focus has its
 // privileges. We then work in the opposite direction of travel, filling out
@@ -405,24 +487,35 @@ draw_previous_tablets(const panelreel* pr, const tablet* otherend){
 //
 // This can still leave a gap plus a partially-onscreen tablet FIXME
 static int
-panelreel_arrange(const panelreel* pr){
+panelreel_arrange(panelreel* pr){
   int ret = 0;
   tablet* focused = pr->tablets;
   if(focused == NULL){
     return 0; // if none are focused, none exist
   }
+  // FIXME we special-cased this because i'm dumb and couldn't think of a more
+  // elegant way to do this. we keep 'all_visible' as boolean state to avoid
+  // having to do an o(n) iteration each round, but this is still grotesque, and
+  // feels fragile...
+  if(pr->all_visible){
+    return panelreel_arrange_denormalized(pr);
+  }
   ret |= draw_focused_tablet(pr);
-  /*if(pr->last_traveled_direction >= 0){
-  }*/
-  tablet* foot = draw_following_tablets(pr);
-  draw_previous_tablets(pr, foot);
+  tablet* otherend = focused;
+  if(pr->last_traveled_direction >= 0){
+    otherend = draw_previous_tablets(pr, otherend);
+    otherend = draw_following_tablets(pr, otherend);
+  }else{
+    otherend = draw_following_tablets(pr, otherend);
+    otherend = draw_previous_tablets(pr, otherend);
+  }
   // FIXME move them up to plug any holes in original direction?
-// fprintf(stderr, "DONE ARRANGING\n");
+fprintf(stderr, "DONE ARRANGING\n");
   return ret;
 }
 
-int panelreel_redraw(const panelreel* pr){
-// fprintf(stderr, "--------> BEGIN REDRAW <--------\n");
+int panelreel_redraw(panelreel* pr){
+fprintf(stderr, "--------> BEGIN REDRAW <--------\n");
   int ret = 0;
   if(draw_panelreel_borders(pr)){
     return -1; // enforces specified dimensional minima
@@ -468,6 +561,7 @@ panelreel* panelreel_create(WINDOW* w, const panelreel_options* popts, int efd){
   pr->efd = efd;
   pr->tablets = NULL;
   pr->tabletcount = 0;
+  pr->all_visible = true;
   pr->last_traveled_direction = -1; // draw down after the initial tablet
   memcpy(&pr->popts, popts, sizeof(*popts));
   int maxx, maxy, wx, wy;
@@ -509,6 +603,62 @@ panelreel* panelreel_create(WINDOW* w, const panelreel_options* popts, int efd){
   return pr;
 }
 
+// we've just added a new tablet. it need be inserted at the correct place in
+// the reel. this will naturally fall out of things if the panelreel is full; we
+// can just call panelreel_redraw(). otherwise, we need make ourselves at least
+// minimally visible, to satisfy the preconditions of
+// panelreel_arrange_denormalized(). this function, and approach, is shit.
+static tablet*
+insert_new_panel(panelreel* pr, tablet* t){
+  if(!pr->all_visible){
+    return t;
+  }
+  int wbegy, wbegx, wleny, wlenx; // params of PR
+  window_coordinates(panel_window(pr->p), &wbegy, &wbegx, &wleny, &wlenx);
+  WINDOW* w;
+  // are we the only tablet?
+  int begx, begy, lenx, leny, frontiery;
+  if(t->prev == t){
+    frontiery = wbegy + !(pr->popts.bordermask & BORDERMASK_TOP);
+    if(tablet_columns(pr, &begx, &begy, &lenx, &leny, frontiery, 1)){
+      pr->all_visible = false;
+      return t;
+    }
+fprintf(stderr, "newwin: %d/%d + %d/%d\n", begy, begx, leny, lenx);
+    if((w = newwin(leny, lenx, begy, begx)) == NULL){
+      pr->all_visible = false;
+      return t;
+    }
+    if((t->p = new_panel(w)) == NULL){
+      delwin(w);
+      pr->all_visible = false;
+      return t;
+    }
+fprintf(stderr, "created first tablet!\n");
+    return t;
+  }
+  // we're not the only tablet, alas.
+  // our new window needs to be after our prev
+  frontiery = getbegy(panel_window(t->prev->p));
+  frontiery += getmaxy(panel_window(t->prev->p));
+  frontiery += 2;
+  if(tablet_columns(pr, &begx, &begy, &lenx, &leny, frontiery, 1)){
+    pr->all_visible = false;
+    return t;
+  }
+  if((w = newwin(2, lenx, begy, begx)) == NULL){
+    pr->all_visible = false;
+    return t;
+  }
+  if((t->p = new_panel(w)) == NULL){
+    delwin(w);
+    pr->all_visible = false;
+    return t;
+  }
+  // FIXME push the other ones down by 4
+  return t;
+}
+
 tablet* panelreel_add(panelreel* pr, tablet* after, tablet *before,
                       tabletcb cbfxn, void* opaque){
   tablet* t;
@@ -526,7 +676,7 @@ tablet* panelreel_add(panelreel* pr, tablet* after, tablet *before,
   if((t = malloc(sizeof(*t))) == NULL){
     return NULL;
   }
-// fprintf(stderr, "--------->NEW TABLET %p\n", t);
+fprintf(stderr, "--------->NEW TABLET %p\n", t);
   if(after){
     t->next = after->next;
     after->next = t;
@@ -543,9 +693,11 @@ tablet* panelreel_add(panelreel* pr, tablet* after, tablet *before,
   }
   t->cbfxn = cbfxn;
   t->curry = opaque;
-  t->p = NULL;
   ++pr->tabletcount;
-  // FIXME need to set last_traveled_direction...sometimes...?
+  t->p = NULL;
+  // if we have room, it needs become visible immediately, in the proper place,
+  // lest we invalidate the preconditions of panelreel_arrange_denormalized().
+  insert_new_panel(pr, t);
   panelreel_redraw(pr); // don't return failure; tablet was still created...
   return t;
 }
@@ -573,7 +725,6 @@ int panelreel_del(struct panelreel* pr, struct tablet* t){
   free(t);
   --pr->tabletcount;
   update_panels();
-  // FIXME need to set last_traveled_direction...sometimes...?
   panelreel_redraw(pr);
   return 0;
 }
@@ -665,8 +816,8 @@ int panelreel_move(panelreel* preel, int x, int y){
 tablet* panelreel_next(panelreel* pr){
   if(pr->tablets){
     pr->tablets = pr->tablets->next;
-// fprintf(stderr, "---------------> moved to next, %p to %p <----------\n",
-//        pr->tablets->prev, pr->tablets);
+fprintf(stderr, "---------------> moved to next, %p to %p <----------\n",
+        pr->tablets->prev, pr->tablets);
     pr->last_traveled_direction = 1;
   }
   panelreel_redraw(pr);
@@ -676,8 +827,8 @@ tablet* panelreel_next(panelreel* pr){
 tablet* panelreel_prev(panelreel* pr){
   if(pr->tablets){
     pr->tablets = pr->tablets->prev;
-// fprintf(stderr, "----------------> moved to prev, %p to %p <----------\n",
-//        pr->tablets->next, pr->tablets);
+fprintf(stderr, "----------------> moved to prev, %p to %p <----------\n",
+        pr->tablets->next, pr->tablets);
     pr->last_traveled_direction = -1;
   }
   panelreel_redraw(pr);
@@ -707,15 +858,6 @@ int panelreel_validate(WINDOW* parent, panelreel* pr){
   }
   assert(pary == -1);
   assert(parx == -1);
-  /* we're not a subwin
-  assert(pary == pr->popts.toff);
-  if(pary != pr->popts.toff){
-    return -1;
-  }
-  assert(parx == pr->popts.loff);
-  if(parx != pr->popts.loff){
-    return -1;
-  }*/
   if(x != parentx + pr->popts.loff){
     return -1;
   }

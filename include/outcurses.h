@@ -166,7 +166,7 @@ int panelreel_move(struct panelreel* pr, int x, int y);
 
 // Redraw the panelreel in its entirety, for instance after
 // clearing the screen due to external corruption, or a SIGWINCH.
-int panelreel_redraw(const struct panelreel* pr);
+int panelreel_redraw(struct panelreel* pr);
 
 // Return the focused tablet, if any tablets are present. This is not a copy;
 // be careful to use it only for the duration of a critical section.
