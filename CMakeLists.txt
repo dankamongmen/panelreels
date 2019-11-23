@@ -36,7 +36,7 @@ target_include_directories(outcurses
     ${CURSES_INCLUDE_DIR}
 )
 target_link_libraries(outcurses
-  INTERFACE
+  PUBLIC
     ${PANEL_LIBRARIES}
     ${CURSES_LIBRARIES}
 )
