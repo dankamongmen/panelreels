@@ -25,3 +25,14 @@ Depends:${shlibs:Depends}, ${misc:Depends}
 Description: Shared libraries for outcurses console UI
  Outcurses provides higher-level UI elements atop the venerable
  NCURSES library, including palette feeds and panelreels.
+
+Package: outcurses-bin
+Architecture: any
+Multi-Arch: foreign
+Depends:${shlibs:Depends}, ${misc:Depends}
+Description: Binaries for outcurses console UI
+ Outcurses provides higher-level UI elements atop the venerable
+ NCURSES library, including palette feeds and panelreels.
+ .
+ These binaries built from the outcurses project include
+ outcurses-demo.
