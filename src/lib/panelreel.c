@@ -384,8 +384,8 @@ draw_previous_tablets(const panelreel* pr, const tablet* otherend){
   int frontiery;
   while(upworking->prev != otherend || otherend->p == NULL){
     window_coordinates(panel_window(upworking->p), &wbegy, &wbegx, &wleny, &wlenx);
-//fprintf(stderr, "MOVIN' ON UP: %d %d\n", frontiery, wbegy - 2);
     frontiery = wbegy - 2;
+//fprintf(stderr, "MOVIN' ON UP: %d %d\n", frontiery, wbegy - 2);
     upworking = upworking->prev;
     panelreel_draw_tablet(pr, upworking, frontiery, -1);
     if(upworking->p){
