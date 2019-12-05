@@ -341,10 +341,18 @@ draw_focused_tablet(const panelreel* pr){
   }else{ // focused was already present. want to stay where we are, if possible
     fulcrum = getbegy(panel_window(pr->tablets->p));
     // FIXME ugh can't we just remember the previous fulcrum?
-    if(pr->last_traveled_direction > 0 && fulcrum < getbegy(panel_window(pr->tablets->prev->p))){
-      fulcrum = pleny + pbegy - !(pr->popts.bordermask & BORDERMASK_BOTTOM);
-    }else if(pr->last_traveled_direction < 0 && fulcrum > getbegy(panel_window(pr->tablets->next->p))){
-      fulcrum = pbegy + !(pr->popts.bordermask & BORDERMASK_TOP);
+    if(pr->last_traveled_direction > 0){
+      if(pr->tablets->prev->p){
+        if(fulcrum < getbegy(panel_window(pr->tablets->prev->p))){
+          fulcrum = pleny + pbegy - !(pr->popts.bordermask & BORDERMASK_BOTTOM);
+        }
+      }
+    }else if(pr->last_traveled_direction < 0){
+      if(pr->tablets->next->p){
+        if(fulcrum > getbegy(panel_window(pr->tablets->next->p))){
+          fulcrum = pbegy + !(pr->popts.bordermask & BORDERMASK_TOP);
+        }
+      }
     }
   }
 //fprintf(stderr, "PR dims: %d/%d + %d/%d fulcrum: %d\n", pbegy, pbegx, pleny, plenx, fulcrum);
@@ -384,14 +392,16 @@ draw_previous_tablets(const panelreel* pr, const tablet* otherend){
   int frontiery;
   while(upworking->prev != otherend || otherend->p == NULL){
     window_coordinates(panel_window(upworking->p), &wbegy, &wbegx, &wleny, &wlenx);
-//fprintf(stderr, "MOVIN' ON UP: %d %d\n", frontiery, wbegy - 2);
     frontiery = wbegy - 2;
+//fprintf(stderr, "MOVIN' ON UP: %d %d\n", frontiery, wbegy - 2);
     upworking = upworking->prev;
     panelreel_draw_tablet(pr, upworking, frontiery, -1);
     if(upworking->p){
       window_coordinates(panel_window(upworking->p), &wbegy, &wbegx, &wleny, &wlenx);
 //fprintf(stderr, "new up coords: %d/%d + %d/%d, %d\n", wbegy, wbegx, wleny, wlenx, frontiery);
       frontiery = wbegy - 2;
+    }else{
+      break;
     }
     if(upworking == otherend){
       otherend = otherend->prev;
