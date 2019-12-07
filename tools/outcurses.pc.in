@@ -7,6 +7,6 @@ Name: @PROJECT_NAME@
 Description: UI library atop ncursesw
 Version: @PROJECT_VERSION@
 ￼	
-Requires:
+Requires.private: panelw >= 6.1, ncursesw >= 6.1
 Libs: -L${libdir} -loutcurses
 Cflags: -I${includedir}
