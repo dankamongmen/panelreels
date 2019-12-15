@@ -977,3 +977,11 @@ int panelreel_validate(WINDOW* parent, panelreel* pr){
   }
   return 0;
 }
+
+void* tablet_userptr(tablet* t){
+  return t->curry;
+}
+
+const void* tablet_userptr_const(const tablet* t){
+  return t->curry;
+}

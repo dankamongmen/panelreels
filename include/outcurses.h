@@ -178,6 +178,9 @@ struct tablet* panelreel_next(struct panelreel* pr);
 // Change focus to the previous tablet, if one exists
 struct tablet* panelreel_prev(struct panelreel* pr);
 
+void* tablet_userptr(struct tablet* t);
+const void* tablet_userptr_const(const struct tablet* t);
+
 // Destroy a panelreel allocated with panelreel_create(). Does not destroy the
 // underlying WINDOW. Returns non-zero on failure.
 int panelreel_destroy(struct panelreel* pr);
