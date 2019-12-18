@@ -283,7 +283,11 @@ panelreel_draw_tablet(const panelreel* pr, tablet* t, int frontiery,
 //        t, ll, cby, cbmaxy, leny, direction);
   if(ll != leny){
     if(ll == leny - 1){ // only has one border visible (partially off-screen)
-      ++ll; // account for that border
+      if(cbdir){
+        ll += !(pr->popts.tabletmask & BORDERMASK_BOTTOM);
+      }else{
+        ll += !(pr->popts.tabletmask & BORDERMASK_TOP);
+      }
       wresize(w, ll, lenx);
       if(direction < 0){
         cliphead = true;
@@ -294,7 +298,8 @@ panelreel_draw_tablet(const panelreel* pr, tablet* t, int frontiery,
 // fprintf(stderr, "RESIZED (-1) from %d to %d\n", leny, ll);
       }
     }else{ // both borders are visible
-      ll += 2; // account for both borders
+      ll += !(pr->popts.tabletmask & BORDERMASK_BOTTOM) +
+            !(pr->popts.tabletmask & BORDERMASK_TOP);
 // fprintf(stderr, "RESIZING (-2) from %d to %d\n", leny, ll);
       wresize(w, ll, lenx);
       if(direction < 0){
