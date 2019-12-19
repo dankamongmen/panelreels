@@ -1,7 +1,7 @@
 ---
 pipeline:
   prep:
-    image: library/debian:unstable
+    image: dankamongmen:unstable_builder
     commands:
       - apt-get update
       - apt-get -y remove man-db
@@ -14,8 +14,3 @@ pipeline:
       - cmake ..
       - make
       - LANG="en_US.UTF-8" ./outcurses-tester
----
-kind: signature
-hmac: 7c153f11139fbdd384e25faf796e2b51c7ee232247e537e9125a2df95e777a37
-
-...
