@@ -1,7 +1,7 @@
 ---
 pipeline:
   prep:
-    image: dankamongmen:unstable_builder
+    image: dankamongmen/unstable_builder
     commands:
       - apt-get update
       - apt-get -y remove man-db
