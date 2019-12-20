@@ -278,7 +278,7 @@ panelreel_draw_tablet(const panelreel* pr, tablet* t, int frontiery,
   bool cbdir = direction < 0 ? true : false;
 // fprintf(stderr, "calling! lenx/leny: %d/%d cbx/cby: %d/%d cbmaxx/cbmaxy: %d/%d dir: %d\n",
 //    lenx, leny, cbx, cby, cbmaxx, cbmaxy, direction);
-  int ll = t->cbfxn(fp, cbx, cby, cbmaxx, cbmaxy, cbdir, t->curry);
+  int ll = t->cbfxn(t, cbx, cby, cbmaxx, cbmaxy, cbdir);
 //fprintf(stderr, "RETURNRETURNRETURN %p %d (%d, %d, %d) DIR %d\n",
 //        t, ll, cby, cbmaxy, leny, direction);
   if(ll != leny){
@@ -989,4 +989,8 @@ void* tablet_userptr(tablet* t){
 
 const void* tablet_userptr_const(const tablet* t){
   return t->curry;
+}
+
+PANEL* tablet_panel(struct tablet* t){
+  return t->p;
 }

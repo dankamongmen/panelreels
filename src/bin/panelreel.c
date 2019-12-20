@@ -112,10 +112,10 @@ tabletdown(WINDOW*w, int begx, int begy, int maxx, int maxy,
 }
 
 static int
-tabletdraw(PANEL* p, int begx, int begy, int maxx, int maxy, bool cliptop,
-           void* vtabletctx){
+tabletdraw(struct tablet* t, int begx, int begy, int maxx, int maxy, bool cliptop){
   int err = OK;
-  tabletctx* tctx = vtabletctx;
+  tabletctx* tctx = tablet_userptr(t);
+  PANEL* p = tablet_panel(t);
   pthread_mutex_lock(&tctx->lock);
   WINDOW* w = panel_window(p);
   int cpair = tctx->cpair;
