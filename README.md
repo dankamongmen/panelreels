@@ -58,12 +58,8 @@ Active panelreels ought be redrawn with `panelreel_redraw()`.
 ## Outcurses and colors
 
 If told to initialize ncurses (by providing `true` to `outcurses_init`),
-outcurses will initialize up to 256 colors and colorpairs. The first 16 colors
-will maintain their ANSI definitions. The colors between 16 and 231, inclusive,
-will be assigned an RGB 6x6x6 color cube, while the final 24 colors get a
-linear greyscale ramp (not including black or white). Each color, along with
-a neutral background, will be assigned to the corresponding colorpair. You may
-freely redefine the palette following `outcurses_init`.
+outcurses will initialize up to 256 colorpairs to contain their equivalent
+palette foreground color and the default background color.
 
 ## Panelreels
 The panelreel is a UI abstraction supported by outcurses in which
