@@ -1,7 +1,7 @@
 ---
 pipeline:
   prep:
-    image: library/debian:unstable
+    image: dankamongmen/unstable_builder:2019-12-18
     commands:
       - apt-get update
       - apt-get -y remove man-db
