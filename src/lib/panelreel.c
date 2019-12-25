@@ -512,11 +512,12 @@ panelreel_arrange(panelreel* pr){
   if(pr->last_traveled_direction >= 0){
     otherend = draw_previous_tablets(pr, otherend);
     otherend = draw_following_tablets(pr, otherend);
+    otherend = draw_previous_tablets(pr, otherend);
   }else{
     otherend = draw_following_tablets(pr, otherend);
     otherend = draw_previous_tablets(pr, otherend);
+    otherend = draw_following_tablets(pr, otherend);
   }
-  // FIXME move them up to plug any holes in original direction?
 //fprintf(stderr, "DONE ARRANGING\n");
   return 0;
 }
