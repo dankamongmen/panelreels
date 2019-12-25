@@ -316,7 +316,7 @@ panelreel_draw_tablet(const panelreel* pr, tablet* t, int frontiery,
       if(leny - frontiery + 1 < ll){
 //fprintf(stderr, "frontieryIZING ADJ %d %d %d %d NEW %d\n", cbmaxy, leny,
 //         frontiery, ll, frontiery - ll + 1);
-        frontiery = leny - ll + 1 + getbegy(panel_window(pr->p));
+        frontiery = leny - ll + getbegy(panel_window(pr->p));
       }
       if(move_panel(fp, frontiery, begx)){
         return -1;
