@@ -118,12 +118,12 @@ struct panelreel;
 struct panelreel* panelreel_create(WINDOW* w, const panelreel_options* popts,
                                    int efd);
 
-// Tablet draw callback, provided a PANEL (from which a WINDOW may be derived),
-// the first column that may be used, the first row that may be used, the first
-// column that may not be used, the first row that may not be used, and a bool
-// indicating whether output ought be clipped at the top (true) or bottom
-// (false). The curry provided to panelreel_add() will also be provided. Rows
-// and columns are zero-indexed, and both are relative to the PANEL's WINDOW.
+// Tablet draw callback, provided a tablet (from which a PANEL and the userptr
+// may be extracted), the first column that may be used, the first row that may
+// be used, the first column that may not be used, the first row that may not
+// be used, and a bool indicating whether output ought be clipped at the top
+// (true) or bottom (false). Rows and columns are zero-indexed, and both are
+// relative to the PANEL's WINDOW.
 //
 // Regarding clipping: it is possible that the tablet is only partially
 // displayed on the screen. If so, it is either partially present on the top of
@@ -133,8 +133,8 @@ struct panelreel* panelreel_create(WINDOW* w, const panelreel_options* popts,
 //
 // Returns the number of lines of output, which ought be less than or equal to
 // maxy - begy, and non-negative (negative values might be used in the future).
-typedef int (*tabletcb)(PANEL* p, int begx, int begy, int maxx, int maxy,
-                        bool cliptop, void* curry);
+typedef int (*tabletcb)(struct tablet* t, int begx, int begy,
+                        int maxx, int maxy, bool cliptop);
 
 // Add a new tablet to the provided panelreel, having the callback object
 // opaque. Neither, either, or both of after and before may be specified. If
@@ -177,6 +177,10 @@ struct tablet* panelreel_next(struct panelreel* pr);
 
 // Change focus to the previous tablet, if one exists
 struct tablet* panelreel_prev(struct panelreel* pr);
+
+void* tablet_userptr(struct tablet* t);
+const void* tablet_userptr_const(const struct tablet* t);
+PANEL* tablet_panel(struct tablet* t);
 
 // Destroy a panelreel allocated with panelreel_create(). Does not destroy the
 // underlying WINDOW. Returns non-zero on failure.
