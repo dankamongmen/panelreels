@@ -298,3 +298,12 @@ TEST(OutcursesPrefix, PowersOfTenMinusOneAsTwos) {
 	// If we ran through all our suffixes, that's a problem
 	EXPECT_GT(sizeof(suffixes) * 10, i);
 }
+
+TEST(OutcursesPrefix, ScaledGig) {
+  char gold[PREFIXSTRLEN + 1] = "9.02";
+  char buf[PREFIXSTRLEN + 1];
+  uintmax_t val = 9027854993;
+  uintmax_t decimal = 1000000000;
+  ASSERT_NE(nullptr, qprefix(val, decimal, buf, 0));
+  EXPECT_STREQ(buf, gold);
+}
